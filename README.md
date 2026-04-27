@@ -22,16 +22,12 @@ UAE's smartest car wash finder — locate the nearest free or quickest car wash 
 - Language toggle **(EN ↔ AR)** in top bar — switches entire UI and swaps map tile provider
 
 ### Queue detection (works without business sign-up)
-Every wash has a `DetectionMethod` — AI Camera and Community reporting work without the business being registered:
+Every wash has a `DetectionMethod` — AI Camera works without the business being registered:
 
 | Method | How it works |
 |---|---|
 | 📷 AI Camera | Queue counted automatically via computer vision |
-| 👥 Community | Reported by nearby app users |
 | ✅ Business Verified | Business owner reports via the app |
-
-### Report Queue
-Any user can correct the queue count from the detail sheet using a `+/−` counter — animated confirmation on submit.
 
 ---
 
