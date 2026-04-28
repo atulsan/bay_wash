@@ -104,10 +104,17 @@ class WashListCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 5),
                   Row(
                     children: [
                       DetectionBadge(method: wash.detectionMethod),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${l10n.t('from_price')} ${wash.priceBasic.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.googleBlue,
+                        ),
+                      ),
                     ],
                   ),
                 ],

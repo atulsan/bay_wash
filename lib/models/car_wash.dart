@@ -2,8 +2,6 @@ import 'package:latlong2/latlong.dart';
 
 enum WashStatus { free, busy, full }
 
-// How queue length is determined — cameraAI and crowdSourced
-// work without the business signing up.
 enum DetectionMethod { cameraAI, crowdSourced, selfReported }
 
 class CarWash {
@@ -20,6 +18,11 @@ class CarWash {
   final double rating;
   final List<String> services;
   final DetectionMethod detectionMethod;
+  final String openingHours;
+  final String phone;
+  final double priceBasic;
+  final double priceStandard;
+  final double pricePremium;
 
   const CarWash({
     required this.id,
@@ -35,6 +38,11 @@ class CarWash {
     required this.rating,
     required this.services,
     required this.detectionMethod,
+    required this.openingHours,
+    required this.phone,
+    required this.priceBasic,
+    required this.priceStandard,
+    required this.pricePremium,
   });
 
   LatLng get latLng => LatLng(lat, lng);

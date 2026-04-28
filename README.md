@@ -13,16 +13,29 @@ UAE's smartest car wash finder — locate the nearest free or quickest car wash 
 
 ### Map screen (main experience)
 - Full-screen interactive map centred on Dubai (zoom 11)
-- 12 dummy car washes across Dubai, Sharjah, and Abu Dhabi
+- 10 dummy car washes across Dubai
 - Colour-coded bubble markers — **green** (free), **orange** (busy), **red** (full) — each showing live wait time
-- Tap a marker → draggable detail sheet with name, status, wait time, cars in queue, rating, address, and services
-- Draggable bottom sheet listing all washes sorted by distance (nearest first)
+- Tap a marker → draggable detail sheet with name, status, wait time, cars in queue, rating, address, opening hours, phone, price range, and services
+- **Fully draggable bottom sheet** — grab the handle and drag to four snap points: hidden sliver → partial (30%) → half-map (74%) → full-list (92%); drag all the way up to hide the map entirely
+- **Filters are fully dynamic** — status chips, service filter, and sort all update both the bottom sheet list and the map markers simultaneously; filtered-out washes disappear from the map
 - Status filter chips: **All / Free / Busy / Full** with animated count badge
+- **Sort & Filter** — sort by distance / shortest wait / highest rating; multi-select service filter (Exterior Wash, Interior Clean, Full Detail, Polish, Tyre Shine, Engine Clean, Ceramic Coating)
+- Empty state when no washes match active filters
 - "My Location" FAB with real GPS (graceful fallback if denied)
 - Language toggle **(EN ↔ AR)** in top bar — switches entire UI and swaps map tile provider
 
+### Reserve & Pay (demo payment flow)
+Users can reserve a slot directly from the detail sheet:
+
+1. **Package selection** — Basic / Standard / Premium with AED pricing and what's included
+2. **Time slot picker** — 30-minute slots from 7 AM to 10 PM
+3. **Card entry** — card number (auto-spaced), expiry, CVV, cardholder name with live validation
+4. **Booking confirmation** — animated checkmark + unique booking reference
+
+Payment is a fully mocked demo flow (no real transaction).
+
 ### Queue detection (works without business sign-up)
-Every wash has a `DetectionMethod` — AI Camera works without the business being registered:
+Every wash has a `DetectionMethod`:
 
 | Method | How it works |
 |---|---|
@@ -54,7 +67,7 @@ Every wash has a `DetectionMethod` — AI Camera works without the business bein
 lib/
   main.dart                      ← App root, locale state
   models/car_wash.dart           ← CarWash, WashStatus, DetectionMethod
-  data/dummy_data.dart           ← 12 UAE car washes (dummy data)
+  data/dummy_data.dart           ← 10 Dubai car washes (dummy data)
   l10n/app_localizations.dart    ← EN + AR strings
   theme/app_theme.dart           ← Colours, ThemeData
   utils/distance.dart            ← Haversine formula
@@ -63,10 +76,11 @@ lib/
     splash_screen.dart
     login_screen.dart
     otp_screen.dart
-    home_screen.dart
+    home_screen.dart             ← Map, sort/filter, bottom sheet
+    payment_screen.dart          ← Reserve & Pay flow (3 steps)
   widgets/
     wash_marker.dart             ← Map bubble markers
-    wash_list_card.dart          ← Bottom sheet list item
+    wash_list_card.dart          ← Bottom sheet list item (shows price)
     wash_detail_sheet.dart       ← Draggable detail modal
     status_badge.dart            ← Free/Busy/Full pill
     detection_badge.dart         ← Detection method indicator
@@ -96,4 +110,4 @@ flutter run
 
 ## Current status
 
-This is a **Stage 1 demo** using dummy data. All car wash locations, queue lengths, and wait times are simulated. Real-time data integration, user accounts, and business onboarding are planned for subsequent stages.
+This is a **Stage 1 demo** using dummy data. All car wash locations, queue lengths, wait times, and payments are simulated. Real-time data integration, live payments, user accounts, and business onboarding are planned for subsequent stages.
