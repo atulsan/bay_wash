@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter --version)",
+      "Bash(flutter doctor *)",
+      "Read(//Users/atulsanthosh/development/flutter/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Read(//Users/atulsanthosh/**)",
+      "Bash(chmod +x /Volumes/Sandisk_mini/Claude/emirates_wash/setup.sh)"
+    ]
+  }
+}
