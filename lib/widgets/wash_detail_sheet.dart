@@ -110,7 +110,7 @@ class WashDetailSheet extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppTheme.googleBlue.withOpacity(0.08),
+                          color: AppTheme.googleBlue.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -327,9 +327,9 @@ class _StatBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.googleBlue.withOpacity(0.05),
+        color: AppTheme.googleBlue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.googleBlue.withOpacity(0.12)),
+        border: Border.all(color: AppTheme.googleBlue.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

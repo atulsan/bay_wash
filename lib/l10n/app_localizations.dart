@@ -44,8 +44,10 @@ class AppLocalizations {
     'detection_camera_ai': 'AI Camera',
     'detection_crowd': 'Community',
     'detection_verified': 'Business Verified',
-    'detection_camera_desc': 'Queue detected automatically via AI camera — no sign-up needed',
-    'detection_crowd_desc': 'Queue reported by nearby app users — no sign-up needed',
+    'detection_camera_desc':
+        'Queue detected automatically via AI camera — no sign-up needed',
+    'detection_crowd_desc':
+        'Queue reported by nearby app users — no sign-up needed',
     'detection_verified_desc': 'Queue reported directly by the business',
     'how_detected': 'How queue is detected',
     // Login
@@ -134,8 +136,10 @@ class AppLocalizations {
     'detection_camera_ai': 'كاميرا ذكاء اصطناعي',
     'detection_crowd': 'مجتمعي',
     'detection_verified': 'موثق من المحل',
-    'detection_camera_desc': 'يُكتشف الطابور تلقائياً عبر كاميرا الذكاء الاصطناعي — بدون تسجيل',
-    'detection_crowd_desc': 'أبلغ عن الطابور مستخدمو التطبيق القريبون — بدون تسجيل',
+    'detection_camera_desc':
+        'يُكتشف الطابور تلقائياً عبر كاميرا الذكاء الاصطناعي — بدون تسجيل',
+    'detection_crowd_desc':
+        'أبلغ عن الطابور مستخدمو التطبيق القريبون — بدون تسجيل',
     'detection_verified_desc': 'يُبلَّغ عن الطابور مباشرة من المنشأة',
     'how_detected': 'كيف يُكتشف الطابور',
     // Login
@@ -213,8 +217,7 @@ class _AppLocalizationsDelegate
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      ['en', 'ar'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => ['en', 'ar'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async =>

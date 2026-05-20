@@ -79,11 +79,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
       if (!_formKey.currentState!.validate()) return;
       setState(() => _processing = true);
       Future.delayed(const Duration(milliseconds: 1600), () {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _processing = false;
             _step = 2;
           });
+        }
       });
     }
   }
@@ -364,7 +365,7 @@ class _PackageCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: selected ? color.withOpacity(0.06) : Colors.white,
+          color: selected ? color.withValues(alpha: 0.06) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected ? color : AppTheme.divider,
@@ -377,7 +378,7 @@ class _PackageCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(_icons[index], color: color, size: 20),
@@ -456,10 +457,10 @@ class _CardStep extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppTheme.googleBlue.withOpacity(0.05),
+                    color: AppTheme.googleBlue.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                        color: AppTheme.googleBlue.withOpacity(0.15)),
+                        color: AppTheme.googleBlue.withValues(alpha: 0.15)),
                   ),
                   child: Column(
                     children: [
@@ -768,7 +769,7 @@ class _ConfirmStepState extends State<_ConfirmStep>
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.statusFree.withOpacity(0.12),
+                color: AppTheme.statusFree.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.check_circle_rounded,

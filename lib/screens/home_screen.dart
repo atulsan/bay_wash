@@ -65,9 +65,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<CarWash> get _filteredWashes => _sortedWashes.where((w) {
-        if (_statusFilter != null && w.status != _statusFilter) return false;
+        if (_statusFilter != null && w.status != _statusFilter) {
+          return false;
+        }
         if (_serviceFilter.isNotEmpty &&
-            !_serviceFilter.every((s) => w.services.contains(s))) return false;
+            !_serviceFilter.every((s) => w.services.contains(s))) {
+          return false;
+        }
         return true;
       }).toList();
 
@@ -97,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
       );
       final loc = LatLng(pos.latitude, pos.longitude);
       setState(() => _origin = loc);
@@ -237,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.googleBlue.withOpacity(0.45),
+                        color: AppTheme.googleBlue.withValues(alpha: 0.45),
                         blurRadius: 10,
                       ),
                     ],
@@ -266,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withValues(alpha: 0.12),
                   blurRadius: 14,
                   offset: const Offset(0, 2),
                 ),
@@ -579,7 +584,7 @@ class _SheetHeader extends StatelessWidget {
                             vertical: 1,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -677,7 +682,7 @@ class _FilterChip extends StatelessWidget {
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.25),
+                    color: color.withValues(alpha: 0.25),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -835,10 +840,11 @@ class _SortFilterSheetState extends State<_SortFilterSheet> {
               final selected = _services.contains(service);
               return GestureDetector(
                 onTap: () => setState(() {
-                  if (selected)
+                  if (selected) {
                     _services.remove(service);
-                  else
+                  } else {
                     _services.add(service);
+                  }
                 }),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
@@ -957,9 +963,10 @@ class _LanguageToggle extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
         decoration: BoxDecoration(
-          color: AppTheme.googleBlue.withOpacity(0.10),
+          color: AppTheme.googleBlue.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.googleBlue.withOpacity(0.25)),
+          border:
+              Border.all(color: AppTheme.googleBlue.withValues(alpha: 0.25)),
         ),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),

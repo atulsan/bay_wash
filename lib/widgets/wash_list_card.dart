@@ -36,18 +36,18 @@ class WashListCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.googleBlue.withOpacity(0.05)
+              ? AppTheme.googleBlue.withValues(alpha: 0.05)
               : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? AppTheme.googleBlue.withOpacity(0.35)
+                ? AppTheme.googleBlue.withValues(alpha: 0.35)
                 : AppTheme.divider,
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.06 : 0.03),
+              color: Colors.black.withValues(alpha: isSelected ? 0.06 : 0.03),
               blurRadius: isSelected ? 12 : 6,
               offset: const Offset(0, 2),
             ),
@@ -112,7 +112,9 @@ class WashListCard extends StatelessWidget {
                       Text(
                         '${l10n.t('from_price')} ${wash.priceBasic.toStringAsFixed(0)}',
                         style: const TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.googleBlue,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.googleBlue,
                         ),
                       ),
                     ],
