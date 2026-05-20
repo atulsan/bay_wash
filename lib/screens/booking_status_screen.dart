@@ -37,8 +37,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
   int get _currentQueuePosition =>
       _stage.index <= AppBookingStage.readyForWash.index
-          ? widget.booking.queuePosition
-          : 0;
+      ? widget.booking.queuePosition
+      : 0;
 
   int get _currentEta => _stage.index <= AppBookingStage.readyForWash.index
       ? widget.booking.etaMinutes
@@ -64,9 +64,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         AppBookingStage.readyForWash => AppBookingStage.bayAssigned,
         AppBookingStage.bayAssigned => AppBookingStage.washing,
         AppBookingStage.washing => AppBookingStage.washEnded,
-        AppBookingStage.washEnded => widget.booking.interiorCleaningNeeded
-            ? AppBookingStage.interiorQueued
-            : AppBookingStage.jobCompleted,
+        AppBookingStage.washEnded =>
+          widget.booking.interiorCleaningNeeded
+              ? AppBookingStage.interiorQueued
+              : AppBookingStage.jobCompleted,
         AppBookingStage.interiorQueued => AppBookingStage.interiorCleaning,
         AppBookingStage.interiorCleaning => AppBookingStage.jobCompleted,
         AppBookingStage.jobCompleted => AppBookingStage.paymentClosed,
@@ -132,8 +133,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               } else {
                 _commissionStatus =
                     _stage.index >= AppBookingStage.paymentClosed.index
-                        ? CommissionStatus.earned
-                        : CommissionStatus.pending;
+                    ? CommissionStatus.earned
+                    : CommissionStatus.pending;
               }
             }),
             onEdgeCaseChanged: (value) => setState(() => _edgeCase = value),
@@ -143,8 +144,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           const SizedBox(height: 20),
           FilledButton.icon(
             style: FilledButton.styleFrom(
-              backgroundColor:
-                  _isComplete ? AppTheme.statusFree : AppTheme.googleBlue,
+              backgroundColor: _isComplete
+                  ? AppTheme.statusFree
+                  : AppTheme.googleBlue,
               padding: const EdgeInsets.symmetric(vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -172,9 +174,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       AppBookingStage.readyForWash => 'Assign bay and start time',
       AppBookingStage.bayAssigned => 'Send WASH_START event',
       AppBookingStage.washing => 'Send WASH_END event',
-      AppBookingStage.washEnded => widget.booking.interiorCleaningNeeded
-          ? 'Queue interior cleaning'
-          : 'Complete job',
+      AppBookingStage.washEnded =>
+        widget.booking.interiorCleaningNeeded
+            ? 'Queue interior cleaning'
+            : 'Complete job',
       AppBookingStage.interiorQueued => 'Start interior cleaning',
       AppBookingStage.interiorCleaning => 'End interior cleaning',
       AppBookingStage.jobCompleted => 'Close payment',
@@ -317,8 +320,11 @@ class _MetricCard extends StatelessWidget {
   final String value;
   final String label;
 
-  const _MetricCard(
-      {required this.icon, required this.value, required this.label});
+  const _MetricCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -379,8 +385,9 @@ class _WorkflowCard extends StatelessWidget {
           _FactRow(label: 'Queue lane', value: laneType.label),
           _FactRow(label: 'Service', value: booking.packageName),
           _FactRow(
-              label: 'Interior stage',
-              value: booking.interiorCleaningNeeded ? 'Required' : 'Skipped'),
+            label: 'Interior stage',
+            value: booking.interiorCleaningNeeded ? 'Required' : 'Skipped',
+          ),
           _FactRow(label: 'Payment', value: paymentMethod.label),
           _FactRow(label: 'Commission', value: commissionStatus.label),
           const SizedBox(height: 8),
@@ -451,10 +458,13 @@ class _OperatorControls extends StatelessWidget {
             initialValue: edgeCase,
             decoration: InputDecoration(
               labelText: 'Edge-case enforcement',
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
             ),
             items: [
               const DropdownMenuItem<BookingEdgeCase?>(
@@ -592,8 +602,10 @@ class _FactRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style:
-                  const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.textSecondary,
+              ),
             ),
           ),
           Text(
@@ -676,8 +688,11 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style:
-            TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w800),
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     );
   }

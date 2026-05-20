@@ -31,7 +31,11 @@ class WashDetailSheet extends StatelessWidget {
 
     final dist = userLocation != null
         ? haversineKm(
-            userLocation!.latitude, userLocation!.longitude, wash.lat, wash.lng)
+            userLocation!.latitude,
+            userLocation!.longitude,
+            wash.lat,
+            wash.lng,
+          )
         : null;
 
     return Container(
@@ -41,8 +45,9 @@ class WashDetailSheet extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         controller: scrollController,
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 16),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom + 16,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -53,8 +58,9 @@ class WashDetailSheet extends StatelessWidget {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                    color: AppTheme.divider,
-                    borderRadius: BorderRadius.circular(2)),
+                  color: AppTheme.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -68,14 +74,16 @@ class WashDetailSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(name,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.textPrimary,
-                              height: 1.2,
-                              letterSpacing: -0.3,
-                            )),
+                        child: Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.textPrimary,
+                            height: 1.2,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 12),
                       StatusBadge(status: wash.status),
@@ -85,30 +93,47 @@ class WashDetailSheet extends StatelessWidget {
                   // Rating + distance
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded,
-                          size: 16, color: Color(0xFFFBBC04)),
+                      const Icon(
+                        Icons.star_rounded,
+                        size: 16,
+                        color: Color(0xFFFBBC04),
+                      ),
                       const SizedBox(width: 4),
-                      Text(wash.rating.toStringAsFixed(1),
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary)),
+                      Text(
+                        wash.rating.toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
                       if (dist != null) ...[
                         const SizedBox(width: 3),
-                        const Text('·',
-                            style: TextStyle(color: AppTheme.textSecondary)),
+                        const Text(
+                          '·',
+                          style: TextStyle(color: AppTheme.textSecondary),
+                        ),
                         const SizedBox(width: 3),
-                        const Icon(Icons.place_outlined,
-                            size: 14, color: AppTheme.textSecondary),
+                        const Icon(
+                          Icons.place_outlined,
+                          size: 14,
+                          color: AppTheme.textSecondary,
+                        ),
                         const SizedBox(width: 2),
-                        Text('${dist.toStringAsFixed(1)} ${l10n.t('km_away')}',
-                            style: const TextStyle(
-                                fontSize: 13, color: AppTheme.textSecondary)),
+                        Text(
+                          '${dist.toStringAsFixed(1)} ${l10n.t('km_away')}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
                       ],
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.googleBlue.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
@@ -116,9 +141,10 @@ class WashDetailSheet extends StatelessWidget {
                         child: Text(
                           '${l10n.t('from_price')} ${wash.priceBasic.toStringAsFixed(0)}',
                           style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.googleBlue),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.googleBlue,
+                          ),
                         ),
                       ),
                     ],
@@ -128,41 +154,61 @@ class WashDetailSheet extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.place_outlined,
-                          size: 15, color: AppTheme.textSecondary),
+                      const Icon(
+                        Icons.place_outlined,
+                        size: 15,
+                        color: AppTheme.textSecondary,
+                      ),
                       const SizedBox(width: 5),
                       Expanded(
-                          child: Text(address,
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  color: AppTheme.textSecondary,
-                                  height: 1.4))),
+                        child: Text(
+                          address,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.textSecondary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   // Opening hours
                   Row(
                     children: [
-                      const Icon(Icons.schedule_rounded,
-                          size: 15, color: AppTheme.textSecondary),
+                      const Icon(
+                        Icons.schedule_rounded,
+                        size: 15,
+                        color: AppTheme.textSecondary,
+                      ),
                       const SizedBox(width: 5),
-                      Text(wash.openingHours,
-                          style: const TextStyle(
-                              fontSize: 13, color: AppTheme.textSecondary)),
+                      Text(
+                        wash.openingHours,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   // Phone
                   Row(
                     children: [
-                      const Icon(Icons.phone_outlined,
-                          size: 15, color: AppTheme.googleBlue),
+                      const Icon(
+                        Icons.phone_outlined,
+                        size: 15,
+                        color: AppTheme.googleBlue,
+                      ),
                       const SizedBox(width: 5),
-                      Text(wash.phone,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.googleBlue,
-                              fontWeight: FontWeight.w500)),
+                      Text(
+                        wash.phone,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.googleBlue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -170,12 +216,15 @@ class WashDetailSheet extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Wait stats
-                  Text(l10n.t('estimated_wait'),
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textSecondary,
-                          letterSpacing: 0.2)),
+                  Text(
+                    l10n.t('estimated_wait'),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textSecondary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -207,26 +256,34 @@ class WashDetailSheet extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Detection method
-                  Text(l10n.t('how_detected'),
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textSecondary,
-                          letterSpacing: 0.2)),
+                  Text(
+                    l10n.t('how_detected'),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textSecondary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   DetectionBadge(
-                      method: wash.detectionMethod, showDescription: true),
+                    method: wash.detectionMethod,
+                    showDescription: true,
+                  ),
                   const SizedBox(height: 20),
                   const Divider(height: 1, color: AppTheme.divider),
                   const SizedBox(height: 20),
 
                   // Services
-                  Text(l10n.t('services'),
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textSecondary,
-                          letterSpacing: 0.2)),
+                  Text(
+                    l10n.t('services'),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textSecondary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -245,16 +302,22 @@ class WashDetailSheet extends StatelessWidget {
                         backgroundColor: AppTheme.googleBlue,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       icon: const Icon(Icons.calendar_month_rounded, size: 18),
-                      label: Text(l10n.t('reserve_pay'),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w700)),
+                      label: Text(
+                        l10n.t('reserve_pay'),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       onPressed: () {
                         Navigator.of(context).pop();
-                        Navigator.of(context)
-                            .push(slideUpRoute(PaymentScreen(wash: wash)));
+                        Navigator.of(
+                          context,
+                        ).push(slideUpRoute(PaymentScreen(wash: wash)));
                       },
                     ),
                   ),
@@ -265,16 +328,21 @@ class WashDetailSheet extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.textPrimary,
                         side: const BorderSide(
-                            color: AppTheme.divider, width: 1.5),
+                          color: AppTheme.divider,
+                          width: 1.5,
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       icon: const Icon(Icons.directions_rounded, size: 18),
                       label: const Text(
                         'Join app walk-in queue',
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w600),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       onPressed: () {
                         final booking = AppBooking.walkIn(
@@ -299,9 +367,13 @@ class WashDetailSheet extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       icon: const Icon(Icons.directions_rounded, size: 18),
-                      label: Text(l10n.t('get_directions'),
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w600)),
+                      label: Text(
+                        l10n.t('get_directions'),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
@@ -319,8 +391,11 @@ class _StatBox extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
-  const _StatBox(
-      {required this.icon, required this.value, required this.label});
+  const _StatBox({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -336,16 +411,23 @@ class _StatBox extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: AppTheme.googleBlue),
           const SizedBox(height: 8),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary,
-                  height: 1)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+              height: 1,
+            ),
+          ),
           if (label.isNotEmpty)
-            Text(label,
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.textSecondary)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppTheme.textSecondary,
+              ),
+            ),
         ],
       ),
     );
@@ -364,11 +446,14 @@ class _ServiceChip extends StatelessWidget {
         color: const Color(0xFFF1F3F4),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(label,
-          style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.textPrimary,
-              fontWeight: FontWeight.w500)),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          color: AppTheme.textPrimary,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 }

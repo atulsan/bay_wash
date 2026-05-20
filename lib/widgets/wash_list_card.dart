@@ -58,9 +58,7 @@ class WashListCard extends StatelessWidget {
             // Status dot + wait time column
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                StatusBadge(status: wash.status, compact: true),
-              ],
+              children: [StatusBadge(status: wash.status, compact: true)],
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -81,8 +79,11 @@ class WashListCard extends StatelessWidget {
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Icon(Icons.schedule_rounded,
-                          size: 13, color: AppTheme.textSecondary),
+                      const Icon(
+                        Icons.schedule_rounded,
+                        size: 13,
+                        color: AppTheme.textSecondary,
+                      ),
                       const SizedBox(width: 3),
                       Text(
                         waitLabel,
@@ -92,8 +93,11 @@ class WashListCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Icon(Icons.directions_car_outlined,
-                          size: 13, color: AppTheme.textSecondary),
+                      const Icon(
+                        Icons.directions_car_outlined,
+                        size: 13,
+                        color: AppTheme.textSecondary,
+                      ),
                       const SizedBox(width: 3),
                       Text(
                         '${wash.carsInQueue}',
@@ -129,8 +133,11 @@ class WashListCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded,
-                        size: 13, color: Color(0xFFFBBC04)),
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 13,
+                      color: Color(0xFFFBBC04),
+                    ),
                     const SizedBox(width: 2),
                     Text(
                       wash.rating.toStringAsFixed(1),

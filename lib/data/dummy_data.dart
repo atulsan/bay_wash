@@ -38,7 +38,7 @@ const List<CarWash> dummyCarWashes = [
       'Interior Clean',
       'Full Detail',
       'Polish',
-      'Ceramic Coating'
+      'Ceramic Coating',
     ],
     detectionMethod: DetectionMethod.cameraAI,
     openingHours: '8:00 AM – 10:00 PM',
@@ -105,7 +105,7 @@ const List<CarWash> dummyCarWashes = [
       'Full Detail',
       'Polish',
       'Engine Clean',
-      'Ceramic Coating'
+      'Ceramic Coating',
     ],
     detectionMethod: DetectionMethod.selfReported,
     openingHours: '8:00 AM – 10:00 PM',
@@ -151,7 +151,7 @@ const List<CarWash> dummyCarWashes = [
       'Interior Clean',
       'Full Detail',
       'Engine Clean',
-      'Tyre Shine'
+      'Tyre Shine',
     ],
     detectionMethod: DetectionMethod.crowdSourced,
     openingHours: '6:00 AM – 10:00 PM',
@@ -218,7 +218,7 @@ const List<CarWash> dummyCarWashes = [
       'Full Detail',
       'Polish',
       'Ceramic Coating',
-      'Tyre Shine'
+      'Tyre Shine',
     ],
     detectionMethod: DetectionMethod.selfReported,
     openingHours: '8:00 AM – 11:00 PM',

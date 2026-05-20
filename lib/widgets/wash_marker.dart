@@ -15,10 +15,10 @@ class WashMarker extends StatelessWidget {
   });
 
   Color get _color => switch (wash.status) {
-        WashStatus.free => AppTheme.statusFree,
-        WashStatus.busy => AppTheme.statusBusy,
-        WashStatus.full => AppTheme.statusFull,
-      };
+    WashStatus.free => AppTheme.statusFree,
+    WashStatus.busy => AppTheme.statusBusy,
+    WashStatus.full => AppTheme.statusFull,
+  };
 
   String get _label =>
       wash.waitTimeMinutes == 0 ? 'Free' : '${wash.waitTimeMinutes}m';
