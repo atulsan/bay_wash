@@ -54,8 +54,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _continueAsGuest() {
-    Navigator.of(context)
-        .pushReplacement(fadeRoute(const HomeScreen()));
+    Navigator.of(context).pushReplacement(fadeRoute(const HomeScreen()));
   }
 
   @override
@@ -91,8 +90,9 @@ class _LoginScreenState extends State<LoginScreen>
                         const SizedBox(height: 40),
                         // Top language toggle
                         Align(
-                          alignment:
-                              isAr ? Alignment.centerLeft : Alignment.centerRight,
+                          alignment: isAr
+                              ? Alignment.centerLeft
+                              : Alignment.centerRight,
                           child: _LangButton(isArabic: isAr),
                         ),
                         const Spacer(flex: 2),
@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen>
                           width: 68,
                           height: 68,
                           decoration: BoxDecoration(
-                            color: AppTheme.googleBlue.withOpacity(0.10),
+                            color: AppTheme.googleBlue.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: const Icon(
@@ -170,8 +170,7 @@ class _LoginScreenState extends State<LoginScreen>
                         Row(children: [
                           const Expanded(child: Divider()),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                             child: Text(
                               l10n.t('or'),
                               style: const TextStyle(
@@ -188,8 +187,7 @@ class _LoginScreenState extends State<LoginScreen>
                           width: double.infinity,
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               side: const BorderSide(
                                   color: AppTheme.divider, width: 1.5),
                               shape: RoundedRectangleBorder(
@@ -257,8 +255,7 @@ class _PhoneField extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
             decoration: const BoxDecoration(
               border: Border(
                 right: BorderSide(color: AppTheme.divider, width: 1.5),
@@ -290,7 +287,9 @@ class _PhoneField extends StatelessWidget {
               controller: controller,
               focusNode: focusNode,
               keyboardType: TextInputType.phone,
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d\s]'))],
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[\d\s]'))
+              ],
               textInputAction: TextInputAction.done,
               style: const TextStyle(
                 fontSize: 16,
@@ -327,12 +326,12 @@ class _LangButton extends StatelessWidget {
       onTap: () =>
           EmiratesWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.googleBlue.withOpacity(0.08),
+          color: AppTheme.googleBlue.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.googleBlue.withOpacity(0.25)),
+          border:
+              Border.all(color: AppTheme.googleBlue.withValues(alpha: 0.25)),
         ),
         child: Text(
           isArabic ? 'EN' : 'عربي',

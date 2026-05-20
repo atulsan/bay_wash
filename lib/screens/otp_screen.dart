@@ -25,7 +25,6 @@ class _OtpScreenState extends State<OtpScreen>
   Timer? _timer;
   int _secondsLeft = 60;
   bool _verifying = false;
-  bool _submitted = false;
 
   @override
   void initState() {
@@ -37,15 +36,19 @@ class _OtpScreenState extends State<OtpScreen>
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
     _ctrl.forward();
     _startTimer();
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _focusNodes[0].requestFocus());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _focusNodes[0].requestFocus());
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    for (final c in _controllers) c.dispose();
-    for (final n in _focusNodes) n.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final n in _focusNodes) {
+      n.dispose();
+    }
     _ctrl.dispose();
     super.dispose();
   }
@@ -54,7 +57,10 @@ class _OtpScreenState extends State<OtpScreen>
     _timer?.cancel();
     _secondsLeft = 60;
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) { t.cancel(); return; }
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
       setState(() {
         if (_secondsLeft > 0) {
           _secondsLeft--;
@@ -65,8 +71,7 @@ class _OtpScreenState extends State<OtpScreen>
     });
   }
 
-  String get _otp =>
-      _controllers.map((c) => c.text).join();
+  String get _otp => _controllers.map((c) => c.text).join();
 
   void _onBoxChanged(String val, int index) {
     if (val.length > 1) {
@@ -139,7 +144,7 @@ class _OtpScreenState extends State<OtpScreen>
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: AppTheme.googleBlue.withOpacity(0.10),
+                    color: AppTheme.googleBlue.withValues(alpha: 0.10),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -214,9 +219,7 @@ class _OtpScreenState extends State<OtpScreen>
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    onPressed: _otp.length == 6 && !_verifying
-                        ? _verify
-                        : null,
+                    onPressed: _otp.length == 6 && !_verifying ? _verify : null,
                     child: _verifying
                         ? const SizedBox(
                             width: 20,
@@ -325,14 +328,14 @@ class _OtpBoxState extends State<_OtpBox> {
       height: 56,
       decoration: BoxDecoration(
         color: focused
-            ? AppTheme.googleBlue.withOpacity(0.07)
+            ? AppTheme.googleBlue.withValues(alpha: 0.07)
             : const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: focused
               ? AppTheme.googleBlue
               : filled
-                  ? AppTheme.googleBlue.withOpacity(0.4)
+                  ? AppTheme.googleBlue.withValues(alpha: 0.4)
                   : AppTheme.divider,
           width: focused ? 2 : 1.5,
         ),
