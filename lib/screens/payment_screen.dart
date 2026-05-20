@@ -52,8 +52,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         final displayH = h > 12
             ? h - 12
             : h == 0
-                ? 12
-                : h;
+            ? 12
+            : h;
         slots.add('$displayH:${m.toString().padLeft(2, '0')} $ap');
       }
     }
@@ -61,10 +61,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   double get _price => switch (_selectedPackage) {
-        0 => widget.wash.priceBasic,
-        1 => widget.wash.priceStandard,
-        _ => widget.wash.pricePremium,
-      };
+    0 => widget.wash.priceBasic,
+    1 => widget.wash.priceStandard,
+    _ => widget.wash.pricePremium,
+  };
 
   void _proceed() {
     if (_step == 0) {
@@ -104,14 +104,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
         title: Text(
           _step == 2 ? '' : l10n.t('reserve_pay'),
           style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary),
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
         ),
         leading: _step < 2
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: AppTheme.textPrimary),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: AppTheme.textPrimary,
+                ),
                 onPressed: _step == 0
                     ? () => Navigator.of(context).pop()
                     : () => setState(() => _step--),
@@ -129,52 +133,55 @@ class _PaymentScreenState extends State<PaymentScreen> {
         transitionBuilder: (child, anim) => FadeTransition(
           opacity: anim,
           child: SlideTransition(
-            position: Tween<Offset>(
-                    begin: const Offset(0.04, 0), end: Offset.zero)
-                .animate(
-                    CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(0.04, 0),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+                ),
             child: child,
           ),
         ),
         child: switch (_step) {
           0 => _BookingStep(
-              key: const ValueKey(0),
-              wash: widget.wash,
-              selectedPackage: _selectedPackage,
-              selectedSlot: _selectedSlot,
-              slots: _slots,
-              price: _price,
-              onPackage: (p) => setState(() => _selectedPackage = p),
-              onSlot: (s) => setState(() => _selectedSlot = s),
-              onNext: _proceed,
-              l10n: l10n,
-            ),
+            key: const ValueKey(0),
+            wash: widget.wash,
+            selectedPackage: _selectedPackage,
+            selectedSlot: _selectedSlot,
+            slots: _slots,
+            price: _price,
+            onPackage: (p) => setState(() => _selectedPackage = p),
+            onSlot: (s) => setState(() => _selectedSlot = s),
+            onNext: _proceed,
+            l10n: l10n,
+          ),
           1 => _CardStep(
-              key: const ValueKey(1),
-              formKey: _formKey,
-              cardCtrl: _cardCtrl,
-              expiryCtrl: _expiryCtrl,
-              cvvCtrl: _cvvCtrl,
-              nameCtrl: _nameCtrl,
-              price: _price,
-              selectedPackage: _selectedPackage,
-              slot: _selectedSlot!,
-              washName: washName,
-              processing: _processing,
-              onPay: _proceed,
-              l10n: l10n,
-            ),
+            key: const ValueKey(1),
+            formKey: _formKey,
+            cardCtrl: _cardCtrl,
+            expiryCtrl: _expiryCtrl,
+            cvvCtrl: _cvvCtrl,
+            nameCtrl: _nameCtrl,
+            price: _price,
+            selectedPackage: _selectedPackage,
+            slot: _selectedSlot!,
+            washName: washName,
+            processing: _processing,
+            onPay: _proceed,
+            l10n: l10n,
+          ),
           _ => _ConfirmStep(
-              key: const ValueKey(2),
-              wash: widget.wash,
-              washName: washName,
-              slot: _selectedSlot ?? '',
-              selectedPackage: _selectedPackage,
-              price: _price,
-              bookingRef: _bookingRef,
-              l10n: l10n,
-              onDone: () => Navigator.of(context).pop(),
-            ),
+            key: const ValueKey(2),
+            wash: widget.wash,
+            washName: washName,
+            slot: _selectedSlot ?? '',
+            selectedPackage: _selectedPackage,
+            price: _price,
+            bookingRef: _bookingRef,
+            l10n: l10n,
+            onDone: () => Navigator.of(context).pop(),
+          ),
         },
       ),
     );
@@ -249,18 +256,19 @@ class _BookingStep extends StatelessWidget {
                 _sectionLabel(l10n.t('select_package')),
                 const SizedBox(height: 12),
                 ...List.generate(
-                    3,
-                    (i) => _PackageCard(
-                          index: i,
-                          selected: selectedPackage == i,
-                          price: switch (i) {
-                            0 => wash.priceBasic,
-                            1 => wash.priceStandard,
-                            _ => wash.pricePremium,
-                          },
-                          onTap: () => onPackage(i),
-                          l10n: l10n,
-                        )),
+                  3,
+                  (i) => _PackageCard(
+                    index: i,
+                    selected: selectedPackage == i,
+                    price: switch (i) {
+                      0 => wash.priceBasic,
+                      1 => wash.priceStandard,
+                      _ => wash.pricePremium,
+                    },
+                    onTap: () => onPackage(i),
+                    l10n: l10n,
+                  ),
+                ),
                 const SizedBox(height: 24),
                 _sectionLabel(l10n.t('select_slot')),
                 const SizedBox(height: 12),
@@ -317,12 +325,13 @@ class _BookingStep extends StatelessWidget {
   }
 
   Widget _sectionLabel(String text) => Text(
-        text,
-        style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary),
-      );
+    text,
+    style: const TextStyle(
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+      color: AppTheme.textPrimary,
+    ),
+  );
 }
 
 class _PackageCard extends StatelessWidget {
@@ -343,20 +352,23 @@ class _PackageCard extends StatelessWidget {
   static const _icons = [
     Icons.water_drop_outlined,
     Icons.local_car_wash_rounded,
-    Icons.auto_awesome_rounded
+    Icons.auto_awesome_rounded,
   ];
   static const _colors = [
     Color(0xFF00897B),
     AppTheme.googleBlue,
-    Color(0xFF7B1FA2)
+    Color(0xFF7B1FA2),
   ];
 
   @override
   Widget build(BuildContext context) {
     final color = _colors[index];
     final nameKey = ['basic_wash', 'standard_wash', 'premium_wash'][index];
-    final includesKey =
-        ['basic_includes', 'standard_includes', 'premium_includes'][index];
+    final includesKey = [
+      'basic_includes',
+      'standard_includes',
+      'premium_includes',
+    ][index];
 
     return GestureDetector(
       onTap: onTap,
@@ -388,22 +400,32 @@ class _PackageCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.t(nameKey),
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary)),
+                  Text(
+                    l10n.t(nameKey),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(l10n.t(includesKey),
-                      style: const TextStyle(
-                          fontSize: 11, color: AppTheme.textSecondary)),
+                  Text(
+                    l10n.t(includesKey),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
                 ],
               ),
             ),
             Text(
               'AED ${price.toStringAsFixed(0)}',
               style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w800, color: color),
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -443,8 +465,9 @@ class _CardStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final packageName = l10n
-        .t(['basic_wash', 'standard_wash', 'premium_wash'][selectedPackage]);
+    final packageName = l10n.t(
+      ['basic_wash', 'standard_wash', 'premium_wash'][selectedPackage],
+    );
     return Column(
       children: [
         Expanded(
@@ -460,7 +483,8 @@ class _CardStep extends StatelessWidget {
                     color: AppTheme.googleBlue.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                        color: AppTheme.googleBlue.withValues(alpha: 0.15)),
+                      color: AppTheme.googleBlue.withValues(alpha: 0.15),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -468,8 +492,11 @@ class _CardStep extends StatelessWidget {
                       const Divider(height: 16, color: AppTheme.divider),
                       _summaryRow(l10n.t('your_slot'), slot),
                       _summaryRow(
-                          l10n.t('total'), 'AED ${price.toStringAsFixed(0)}',
-                          bold: true, color: AppTheme.googleBlue),
+                        l10n.t('total'),
+                        'AED ${price.toStringAsFixed(0)}',
+                        bold: true,
+                        color: AppTheme.googleBlue,
+                      ),
                     ],
                   ),
                 ),
@@ -477,9 +504,10 @@ class _CardStep extends StatelessWidget {
                 Text(
                   l10n.t('card_number'),
                   style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textSecondary),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Form(
@@ -490,14 +518,12 @@ class _CardStep extends StatelessWidget {
                       _CardField(
                         controller: cardCtrl,
                         hint: '1234  5678  9012  3456',
-                        inputFormatters: [
-                          _CardNumberFormatter(),
-                        ],
+                        inputFormatters: [_CardNumberFormatter()],
                         keyboardType: TextInputType.number,
                         validator: (v) =>
                             (v == null || v.replaceAll(' ', '').length < 16)
-                                ? 'Enter a valid card number'
-                                : null,
+                            ? 'Enter a valid card number'
+                            : null,
                         prefixIcon: Icons.credit_card_rounded,
                       ),
                       const SizedBox(height: 12),
@@ -507,11 +533,14 @@ class _CardStep extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(l10n.t('expiry'),
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppTheme.textSecondary)),
+                                Text(
+                                  l10n.t('expiry'),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
                                 const SizedBox(height: 8),
                                 _CardField(
                                   controller: expiryCtrl,
@@ -534,11 +563,14 @@ class _CardStep extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(l10n.t('cvv'),
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppTheme.textSecondary)),
+                                Text(
+                                  l10n.t('cvv'),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
                                 const SizedBox(height: 8),
                                 _CardField(
                                   controller: cvvCtrl,
@@ -559,11 +591,14 @@ class _CardStep extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Text(l10n.t('cardholder_name'),
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textSecondary)),
+                      Text(
+                        l10n.t('cardholder_name'),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       _CardField(
                         controller: nameCtrl,
@@ -582,12 +617,19 @@ class _CardStep extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.lock_outline_rounded,
-                        size: 13, color: AppTheme.textSecondary),
+                    const Icon(
+                      Icons.lock_outline_rounded,
+                      size: 13,
+                      color: AppTheme.textSecondary,
+                    ),
                     const SizedBox(width: 4),
-                    Text(l10n.t('payment_secure'),
-                        style: const TextStyle(
-                            fontSize: 11, color: AppTheme.textSecondary)),
+                    Text(
+                      l10n.t('payment_secure'),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -606,22 +648,29 @@ class _CardStep extends StatelessWidget {
     );
   }
 
-  Widget _summaryRow(String label, String value,
-      {bool bold = false, Color? color}) {
+  Widget _summaryRow(
+    String label,
+    String value, {
+    bool bold = false,
+    Color? color,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-          Text(value,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-                color: color ?? AppTheme.textPrimary,
-              )),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+              color: color ?? AppTheme.textPrimary,
+            ),
+          ),
         ],
       ),
     );
@@ -659,13 +708,16 @@ class _CardField extends StatelessWidget {
       textCapitalization: textCapitalization,
       validator: validator,
       style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          color: AppTheme.textPrimary),
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: AppTheme.textPrimary,
+      ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(
-            color: AppTheme.textSecondary, fontWeight: FontWeight.normal),
+          color: AppTheme.textSecondary,
+          fontWeight: FontWeight.normal,
+        ),
         prefixIcon: prefixIcon != null
             ? Icon(prefixIcon, size: 18, color: AppTheme.textSecondary)
             : null,
@@ -687,8 +739,10 @@ class _CardField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.statusFull),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -731,7 +785,9 @@ class _ConfirmStepState extends State<_ConfirmStep>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
     _scale = CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut);
     _ctrl.forward();
   }
@@ -745,11 +801,9 @@ class _ConfirmStepState extends State<_ConfirmStep>
   @override
   Widget build(BuildContext context) {
     final l10n = widget.l10n;
-    final packageName = l10n.t([
-      'basic_wash',
-      'standard_wash',
-      'premium_wash'
-    ][widget.selectedPackage]);
+    final packageName = l10n.t(
+      ['basic_wash', 'standard_wash', 'premium_wash'][widget.selectedPackage],
+    );
     final booking = AppBooking.fromPayment(
       wash: widget.wash,
       reference: widget.bookingRef,
@@ -760,7 +814,11 @@ class _ConfirmStepState extends State<_ConfirmStep>
     );
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          24, 40, 24, MediaQuery.of(context).padding.bottom + 24),
+        24,
+        40,
+        24,
+        MediaQuery.of(context).padding.bottom + 24,
+      ),
       child: Column(
         children: [
           ScaleTransition(
@@ -772,20 +830,27 @@ class _ConfirmStepState extends State<_ConfirmStep>
                 color: AppTheme.statusFree.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.check_circle_rounded,
-                  color: AppTheme.statusFree, size: 44),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: AppTheme.statusFree,
+                size: 44,
+              ),
             ),
           ),
           const SizedBox(height: 20),
-          Text(l10n.t('booking_confirmed'),
-              style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary)),
+          Text(
+            l10n.t('booking_confirmed'),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(widget.washName,
-              style:
-                  const TextStyle(fontSize: 15, color: AppTheme.textSecondary)),
+          Text(
+            widget.washName,
+            style: const TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+          ),
           const SizedBox(height: 32),
           _ConfirmCard(
             bookingRef: widget.bookingRef,
@@ -802,11 +867,13 @@ class _ConfirmStepState extends State<_ConfirmStep>
                 backgroundColor: AppTheme.googleBlue,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
               onPressed: () {
                 Navigator.of(context).pushReplacement(
-                    slideUpRoute(BookingStatusScreen(booking: booking)));
+                  slideUpRoute(BookingStatusScreen(booking: booking)),
+                );
               },
               child: const Text(
                 'Track booking',
@@ -814,10 +881,7 @@ class _ConfirmStepState extends State<_ConfirmStep>
               ),
             ),
           ),
-          TextButton(
-            onPressed: widget.onDone,
-            child: Text(l10n.t('done')),
-          ),
+          TextButton(onPressed: widget.onDone, child: Text(l10n.t('done'))),
         ],
       ),
     );
@@ -854,8 +918,12 @@ class _ConfirmCard extends StatelessWidget {
           const SizedBox(height: 8),
           _row(l10n.t('select_package'), packageName),
           const SizedBox(height: 8),
-          _row(l10n.t('total'), 'AED ${price.toStringAsFixed(0)}',
-              bold: true, color: AppTheme.googleBlue),
+          _row(
+            l10n.t('total'),
+            'AED ${price.toStringAsFixed(0)}',
+            bold: true,
+            color: AppTheme.googleBlue,
+          ),
         ],
       ),
     );
@@ -865,15 +933,18 @@ class _ConfirmCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style:
-                const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-        Text(value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-              color: color ?? AppTheme.textPrimary,
-            )),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+            color: color ?? AppTheme.textPrimary,
+          ),
+        ),
       ],
     );
   }
@@ -902,7 +973,11 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-          20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
+        20,
+        12,
+        20,
+        MediaQuery.of(context).padding.bottom + 12,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: AppTheme.divider)),
@@ -914,14 +989,18 @@ class _BottomBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Total',
-                    style:
-                        TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-                Text('AED ${price.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary)),
+                const Text(
+                  'Total',
+                  style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                ),
+                Text(
+                  'AED ${price.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
               ],
             ),
             const SizedBox(width: 16),
@@ -932,7 +1011,8 @@ class _BottomBar extends StatelessWidget {
                 backgroundColor: AppTheme.googleBlue,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
               onPressed: processing ? null : onTap,
               child: processing
@@ -940,10 +1020,17 @@ class _BottomBar extends StatelessWidget {
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : Text(label,
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      label,
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w700)),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -957,7 +1044,9 @@ class _BottomBar extends StatelessWidget {
 class _CardNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue old, TextEditingValue next) {
+    TextEditingValue old,
+    TextEditingValue next,
+  ) {
     final digits = next.text.replaceAll(RegExp(r'\D'), '');
     final limited = digits.length > 16 ? digits.substring(0, 16) : digits;
     final buffer = StringBuffer();
@@ -967,19 +1056,25 @@ class _CardNumberFormatter extends TextInputFormatter {
     }
     final s = buffer.toString();
     return next.copyWith(
-        text: s, selection: TextSelection.collapsed(offset: s.length));
+      text: s,
+      selection: TextSelection.collapsed(offset: s.length),
+    );
   }
 }
 
 class _ExpiryFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue old, TextEditingValue next) {
+    TextEditingValue old,
+    TextEditingValue next,
+  ) {
     final digits = next.text.replaceAll('/', '');
     if (digits.length >= 3) {
       final s = '${digits.substring(0, 2)}/${digits.substring(2)}';
       return next.copyWith(
-          text: s, selection: TextSelection.collapsed(offset: s.length));
+        text: s,
+        selection: TextSelection.collapsed(offset: s.length),
+      );
     }
     return next;
   }

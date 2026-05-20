@@ -101,6 +101,10 @@ class AppLocalizations {
     'no_results': 'No washes match your filters',
     'no_results_sub': 'Try adjusting or clearing filters',
     'active_filters': 'Active filters',
+    'list_view': 'List',
+    'filter_view': 'Filter',
+    'search_washes': 'Search washes, areas, services',
+    'filter_status': 'Filter by Status',
   };
 
   static const _ar = <String, String>{
@@ -193,6 +197,10 @@ class AppLocalizations {
     'no_results': 'لا توجد مراكز تطابق فلاترك',
     'no_results_sub': 'جرب تعديل الفلاتر أو مسحها',
     'active_filters': 'فلاتر نشطة',
+    'list_view': 'القائمة',
+    'filter_view': 'التصفية',
+    'search_washes': 'ابحث عن مركز أو منطقة أو خدمة',
+    'filter_status': 'تصفية حسب الحالة',
   };
 
   String t(String key) => (isArabic ? _ar[key] : _en[key]) ?? _en[key] ?? key;

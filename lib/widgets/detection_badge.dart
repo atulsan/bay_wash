@@ -13,26 +13,27 @@ class DetectionBadge extends StatelessWidget {
   });
 
   static (Color color, IconData icon, String labelKey, String descKey) _meta(
-      DetectionMethod m) {
+    DetectionMethod m,
+  ) {
     return switch (m) {
       DetectionMethod.cameraAI => (
-          const Color(0xFF7B1FA2),
-          Icons.videocam_rounded,
-          'detection_camera_ai',
-          'detection_camera_desc',
-        ),
+        const Color(0xFF7B1FA2),
+        Icons.videocam_rounded,
+        'detection_camera_ai',
+        'detection_camera_desc',
+      ),
       DetectionMethod.crowdSourced => (
-          const Color(0xFF00897B),
-          Icons.people_rounded,
-          'detection_crowd',
-          'detection_crowd_desc',
-        ),
+        const Color(0xFF00897B),
+        Icons.people_rounded,
+        'detection_crowd',
+        'detection_crowd_desc',
+      ),
       DetectionMethod.selfReported => (
-          const Color(0xFF1A73E8),
-          Icons.verified_rounded,
-          'detection_verified',
-          'detection_verified_desc',
-        ),
+        const Color(0xFF1A73E8),
+        Icons.verified_rounded,
+        'detection_verified',
+        'detection_verified_desc',
+      ),
     };
   }
 
@@ -101,8 +102,10 @@ class DetectionBadge extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   l10n.t(descKey),
-                  style:
-                      const TextStyle(fontSize: 12, color: Color(0xFF5F6368)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF5F6368),
+                  ),
                 ),
               ],
             ),

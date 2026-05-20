@@ -36,8 +36,9 @@ class _OtpScreenState extends State<OtpScreen>
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
     _ctrl.forward();
     _startTimer();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _focusNodes[0].requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNodes[0].requestFocus(),
+    );
   }
 
   @override
@@ -335,8 +336,8 @@ class _OtpBoxState extends State<_OtpBox> {
           color: focused
               ? AppTheme.googleBlue
               : filled
-                  ? AppTheme.googleBlue.withValues(alpha: 0.4)
-                  : AppTheme.divider,
+              ? AppTheme.googleBlue.withValues(alpha: 0.4)
+              : AppTheme.divider,
           width: focused ? 2 : 1.5,
         ),
       ),
