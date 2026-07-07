@@ -120,11 +120,11 @@ class VendorState extends ChangeNotifier {
   final List<BayData> bays = [
     BayData(id: 'B1', state: 'washing', plate: 'F 93471',
         model: 'Nissan Patrol', svc: 'Premium',
-        washerName: 'Rajesh', totalSecs: 35 * 60, elapsedSecs: 12 * 60),
+        washerName: 'Operator 1', totalSecs: 35 * 60, elapsedSecs: 12 * 60),
     BayData(id: 'B2', state: 'washing', plate: 'A 12489',
         model: 'Toyota Camry', svc: 'Standard',
-        washerName: 'Manoj', totalSecs: 18 * 60, elapsedSecs: 6 * 60),
-    BayData(id: 'B3', state: 'idle', washerName: 'Vinod'),
+        washerName: 'Operator 2', totalSecs: 18 * 60, elapsedSecs: 6 * 60),
+    BayData(id: 'B3', state: 'idle', washerName: 'Operator 3'),
   ];
 
   // Bay type configuration (from signup step 4)
@@ -193,9 +193,9 @@ class VendorState extends ChangeNotifier {
     VendorNotif(title: 'New booking',    icon: 'booking',
         body: 'Aisha M. booked Premium at 10:30 AM',        time: '2 min ago'),
     VendorNotif(title: 'Bay 2 overdue',  icon: 'warning',
-        body: "Manoj hasn't marked done — 8 min over",       time: '5 min ago'),
+        body: "Operator 2 hasn't marked done — 8 min over",  time: '5 min ago'),
     VendorNotif(title: 'Staff request',  icon: 'person',
-        body: 'Vinod S. wants to join your team',            time: '12 min ago'),
+        body: 'Operator 5 wants to join your team',          time: '12 min ago'),
   ];
 
   int get unreadCount => notifications.where((n) => !n.read).length;
@@ -207,18 +207,18 @@ class VendorState extends ChangeNotifier {
 
   // ── Staff ─────────────────────────────────────────────────────────────────
   final List<PendingStaff> pendingStaff = [
-    PendingStaff(name: 'Vinod Sharma', role: 'Washer',
+    PendingStaff(name: 'Operator 5', role: 'Washer',
         phone: '055 901 4422', time: '2 min ago'),
   ];
 
   final List<StaffMember> roster = [
-    StaffMember(name: 'Rajesh T.',  role: 'Washer',     phone: '050 111 2233',
+    StaffMember(name: 'Operator 1', role: 'Washer',     phone: '050 111 2233',
         washes: 14, rating: 4.9, online: true,  shift: 'Morning'),
-    StaffMember(name: 'Manoj K.',   role: 'Washer',     phone: '050 444 5566',
+    StaffMember(name: 'Operator 2', role: 'Washer',     phone: '050 444 5566',
         washes: 11, rating: 4.7, online: true,  shift: 'Morning'),
-    StaffMember(name: 'Priya S.',   role: 'Cashier',    phone: '050 777 8899',
+    StaffMember(name: 'Operator 3', role: 'Cashier',    phone: '050 777 8899',
         washes: 0,  rating: 4.8, online: false, shift: 'Afternoon'),
-    StaffMember(name: 'Ahmed R.',   role: 'Supervisor', phone: '050 000 1122',
+    StaffMember(name: 'Operator 4', role: 'Supervisor', phone: '050 000 1122',
         washes: 0,  rating: 5.0, online: false, shift: 'Off'),
   ];
 

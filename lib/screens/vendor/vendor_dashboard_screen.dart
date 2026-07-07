@@ -20,16 +20,16 @@ class _ManagerDashboard extends StatelessWidget {
   static const _alerts = [
     (icon: Icons.warning_amber_rounded, color: AppTheme.vStatusBusy,
      bg: AppTheme.vStatusBusyBg,
-     text: 'Bay 2 overdue by 8 min — Manoj hasn\'t marked done.'),
+     text: 'Bay 2 overdue by 8 min — Operator 2 hasn\'t marked done.'),
     (icon: Icons.person_add_rounded, color: AppTheme.vStatusFree,
      bg: AppTheme.vStatusFreeBg,
-     text: 'Vinod requests to join your team (pending approval).'),
+     text: 'Operator 5 requests to join your team (pending approval).'),
   ];
 
   static const _topStaff = [
-    (name: 'Rajesh', washes: 14, rating: 4.9, online: true),
-    (name: 'Manoj',  washes: 11, rating: 4.7, online: true),
-    (name: 'Vinod',  washes: 9,  rating: 4.8, online: false),
+    (name: 'Operator 1', washes: 14, rating: 4.9, online: true),
+    (name: 'Operator 2', washes: 11, rating: 4.7, online: true),
+    (name: 'Operator 3', washes: 9,  rating: 4.8, online: false),
   ];
 
   @override
@@ -442,12 +442,12 @@ class _OperatorAccount extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 alignment: Alignment.center,
-                child: const Text('MK', style: TextStyle(
+                child: const Text('O2', style: TextStyle(
                     fontWeight: FontWeight.w800, fontSize: 18, color: Colors.white)),
               ),
               const SizedBox(width: 14),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('Manoj Kumar', style: TextStyle(
+                const Text('Operator 2', style: TextStyle(
                     fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.vInk)),
                 const SizedBox(height: 2),
                 const Text('Washer · Bay 2', style: TextStyle(

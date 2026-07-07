@@ -79,7 +79,7 @@ class _Step1 extends StatelessWidget {
 
         VField(label: 'Full name',
           child: TextFormField(
-            initialValue: 'Manoj Kumar',
+            initialValue: 'Operator 2',
             decoration: vInputDecoration(),
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
           )),
