@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/vendor_state.dart';
 import 'vendor_atoms.dart';
 import 'vendor_staff_screen.dart';
 
@@ -17,158 +18,197 @@ class VendorDashboardScreen extends StatelessWidget {
 class _ManagerDashboard extends StatelessWidget {
   const _ManagerDashboard();
 
-  static const _alerts = [
-    (icon: Icons.warning_amber_rounded, color: AppTheme.vStatusBusy,
-     bg: AppTheme.vStatusBusyBg,
-     text: 'Bay 2 overdue by 8 min — Operator 2 hasn\'t marked done.'),
-    (icon: Icons.person_add_rounded, color: AppTheme.vStatusFree,
-     bg: AppTheme.vStatusFreeBg,
-     text: 'Operator 5 requests to join your team (pending approval).'),
-  ];
-
-  static const _topStaff = [
-    (name: 'Operator 1', washes: 14, rating: 4.9, online: true),
-    (name: 'Operator 2', washes: 11, rating: 4.7, online: true),
-    (name: 'Operator 3', washes: 9,  rating: 4.8, online: false),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      SafeArea(
-        bottom: false,
-        child: VTopBar(
-          title: 'Dashboard',
-          subtitle: 'Marina Quick Wash',
-          rightSlot: OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.vInk,
-              side: const BorderSide(color: AppTheme.vLine),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              minimumSize: Size.zero,
-            ),
-            onPressed: () {},
-            icon: const Icon(Icons.share_rounded, size: 14),
-            label: const Text('Export', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
-          ),
-        ),
-      ),
+    return ListenableBuilder(
+      listenable: VendorState.instance,
+      builder: (context, _) {
+        final vs = VendorState.instance;
+        final todaySlots = vs.getBookings(VendorState.demoTodayIndex)
+            .where((s) => s.name.isNotEmpty)
+            .toList();
+        final onlineStaff = vs.roster.where((s) => s.online).toList();
+        final pendingCount = vs.pendingStaff.length;
+        final inQueue = vs.queuedCars.length + vs.washingCars.length + vs.arrivingCars.length;
 
-      Expanded(child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-          // Revenue hero card
-          _RevenueHero(),
-          const SizedBox(height: 14),
-
-          // KPI grid
-          Row(children: [
-            Expanded(child: VKpiTile(label: 'Cars today', value: '38')),
-            const SizedBox(width: 8),
-            Expanded(child: VKpiTile(label: 'Avg ticket', value: '82', suffix: 'AED')),
-            const SizedBox(width: 8),
-            Expanded(child: VKpiTile(label: 'Utilisation', value: '71', suffix: '%')),
-          ]),
-          const SizedBox(height: 8),
-          Row(children: [
-            Expanded(child: VKpiTile(label: 'Premium', value: '14', sub: 'bookings')),
-            const SizedBox(width: 8),
-            Expanded(child: VKpiTile(label: 'Standard', value: '18', sub: 'bookings')),
-            const SizedBox(width: 8),
-            Expanded(child: VKpiTile(label: 'Basic', value: '6', sub: 'bookings')),
-          ]),
-          const SizedBox(height: 18),
-
-          // Attention alerts
-          if (_alerts.isNotEmpty) ...[
-            VSectionHeader(title: 'Needs attention', count: _alerts.length),
-            ..._alerts.map((a) => _AlertTile(alert: a)),
-            const SizedBox(height: 6),
-          ],
-
-          // Staff online
-          VSectionHeader(title: 'Staff online', count: _topStaff.where((s) => s.online).length,
-              topPadding: 4),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.vSurface,
-              border: Border.all(color: AppTheme.vLine),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                ..._topStaff.map((s) => _StaffRow(staff: s)),
-                const SizedBox(height: 4),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const VendorStaffScreen())),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text('Manage all staff',
-                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700,
-                            color: AppTheme.vPrimary)),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.arrow_forward_rounded, size: 13, color: AppTheme.vPrimary),
-                  ]),
+        return Column(children: [
+          SafeArea(
+            bottom: false,
+            child: VTopBar(
+              title: 'Dashboard',
+              subtitle: 'Marina Quick Wash',
+              rightSlot: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.vInk,
+                  side: const BorderSide(color: AppTheme.vLine),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  minimumSize: Size.zero,
                 ),
-              ],
+                onPressed: () {},
+                icon: const Icon(Icons.share_rounded, size: 14),
+                label: const Text('Export',
+                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+              ),
             ),
           ),
-          const SizedBox(height: 18),
 
-          // Today's bookings summary
-          VSectionHeader(title: "Today's bookings", topPadding: 4),
-          ..._todayBookings.map((b) => _BookingSummaryRow(booking: b)),
-          const SizedBox(height: 18),
+          Expanded(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-          // Settings tiles
-          VSectionHeader(title: 'Business', topPadding: 4),
-          _SettingsTile(
-              icon: Icons.storefront_rounded,
-              label: 'Wash profile & hours',
-              onTap: () {}),
-          _SettingsTile(
-              icon: Icons.payments_rounded,
-              label: 'Payouts & banking',
-              onTap: () {}),
-          _SettingsTile(
-              icon: Icons.tune_rounded,
-              label: 'Services & pricing',
-              onTap: () {}),
-          _SettingsTile(
-              icon: Icons.notifications_rounded,
-              label: 'Notification preferences',
-              onTap: () {}),
-          const SizedBox(height: 8),
-          _SettingsTile(
-              icon: Icons.logout_rounded,
-              label: 'Sign out',
-              destructive: true,
-              onTap: () {}),
-        ]),
-      )),
-    ]);
+              // Revenue hero card
+              _RevenueHero(revenue: vs.revenueToday),
+              const SizedBox(height: 14),
+
+              // KPI grid — live values
+              Row(children: [
+                Expanded(child: VKpiTile(
+                    label: 'Completed', value: '${vs.completedToday}')),
+                const SizedBox(width: 8),
+                Expanded(child: VKpiTile(
+                    label: 'In progress',
+                    value: '${vs.washingCars.length}',
+                    sub: 'bays active')),
+                const SizedBox(width: 8),
+                Expanded(child: VKpiTile(
+                    label: 'Queue',
+                    value: '$inQueue',
+                    sub: 'cars')),
+              ]),
+              const SizedBox(height: 8),
+              Row(children: [
+                Expanded(child: VKpiTile(
+                    label: 'Bookings',
+                    value: '${todaySlots.length}',
+                    sub: 'today')),
+                const SizedBox(width: 8),
+                Expanded(child: VKpiTile(
+                    label: 'Done',
+                    value: '${todaySlots.where((s) => s.status == 'done').length}',
+                    sub: 'bookings')),
+                const SizedBox(width: 8),
+                Expanded(child: VKpiTile(
+                    label: 'Staff online',
+                    value: '${onlineStaff.length}')),
+              ]),
+              const SizedBox(height: 18),
+
+              // Attention — unread notifications + pending staff
+              if (vs.unreadCount > 0 || pendingCount > 0) ...[
+                VSectionHeader(
+                    title: 'Needs attention',
+                    count: vs.unreadCount + pendingCount),
+                ...vs.notifications
+                    .where((n) => !n.read)
+                    .map((n) => _NotifAlertTile(notif: n)),
+                if (pendingCount > 0)
+                  _NotifAlertTile(notif: VendorNotif(
+                    title: 'Staff request',
+                    icon: 'person',
+                    body: '${vs.pendingStaff.map((p) => p.name).join(', ')} '
+                        '${pendingCount == 1 ? 'wants' : 'want'} to join your team.',
+                    time: vs.pendingStaff.first.time,
+                  )),
+                const SizedBox(height: 6),
+              ],
+
+              // Staff online
+              VSectionHeader(
+                  title: 'Staff online',
+                  count: onlineStaff.length,
+                  topPadding: 4),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.vSurface,
+                  border: Border.all(color: AppTheme.vLine),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(children: [
+                  if (onlineStaff.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text('No staff currently online.',
+                          style: TextStyle(fontSize: 13, color: AppTheme.vInk3)),
+                    )
+                  else
+                    ...onlineStaff.map((s) => _LiveStaffRow(member: s)),
+                  const SizedBox(height: 4),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const VendorStaffScreen())),
+                    child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                      Text('Manage all staff',
+                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700,
+                              color: AppTheme.vPrimary)),
+                      SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_rounded,
+                          size: 13, color: AppTheme.vPrimary),
+                    ]),
+                  ),
+                ]),
+              ),
+              const SizedBox(height: 18),
+
+              // Today's bookings — live
+              VSectionHeader(title: "Today's bookings", topPadding: 4),
+              if (todaySlots.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('No bookings for today yet.',
+                      style: TextStyle(fontSize: 13, color: AppTheme.vInk3)),
+                )
+              else
+                ...todaySlots.map((s) => _LiveBookingRow(slot: s)),
+              const SizedBox(height: 18),
+
+              // Settings
+              VSectionHeader(title: 'Business', topPadding: 4),
+              _SettingsTile(
+                  icon: Icons.storefront_rounded,
+                  label: 'Wash profile & hours',
+                  onTap: () {}),
+              _SettingsTile(
+                  icon: Icons.payments_rounded,
+                  label: 'Payouts & banking',
+                  onTap: () {}),
+              _SettingsTile(
+                  icon: Icons.tune_rounded,
+                  label: 'Services & pricing',
+                  onTap: () {}),
+              _SettingsTile(
+                  icon: Icons.notifications_rounded,
+                  label: 'Notification preferences',
+                  onTap: () {}),
+              const SizedBox(height: 8),
+              _SettingsTile(
+                  icon: Icons.logout_rounded,
+                  label: 'Sign out',
+                  destructive: true,
+                  onTap: () {}),
+            ]),
+          )),
+        ]);
+      },
+    );
   }
-
-  static const _todayBookings = [
-    (time: '10:30 AM', name: 'Aisha M.',   svc: 'Premium',  amt: 130, done: true),
-    (time: '11:00 AM', name: 'Lina K.',    svc: 'Standard', amt: 60,  done: true),
-    (time: '11:30 AM', name: 'Sameer P.',  svc: 'Basic',    amt: 25,  done: true),
-    (time: '12:30 PM', name: 'Khalid B.',  svc: 'Standard', amt: 60,  done: false),
-    (time: '1:30 PM',  name: 'Maryam Z.',  svc: 'Premium',  amt: 130, done: false),
-  ];
 }
 
 // ── Revenue hero ──────────────────────────────────────────────────────────────
 class _RevenueHero extends StatelessWidget {
-  const _RevenueHero();
+  final int revenue;
+  const _RevenueHero({required this.revenue});
 
+  static const _dailyTarget = 4000;
   static const _hours = [18, 28, 42, 55, 38, 62, 80, 95, 78, 60, 42, 30];
 
   @override
   Widget build(BuildContext context) {
+    final progress = (revenue / _dailyTarget).clamp(0.0, 1.0);
+    final pct      = (progress * 100).round();
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -185,7 +225,7 @@ class _RevenueHero extends StatelessWidget {
             Row(crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-              const Text('3,145', style: TextStyle(
+              Text('$revenue', style: const TextStyle(
                   fontWeight: FontWeight.w800, fontSize: 32,
                   letterSpacing: -1, color: Colors.white)),
               const SizedBox(width: 6),
@@ -193,35 +233,33 @@ class _RevenueHero extends StatelessWidget {
                   fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white70)),
             ]),
             const SizedBox(height: 3),
-            Row(children: [
-              const Icon(Icons.trending_up_rounded, size: 13, color: Colors.white54),
-              const SizedBox(width: 4),
-              const Text('+12% vs yesterday',
+            const Row(children: [
+              Icon(Icons.trending_up_rounded, size: 13, color: Colors.white54),
+              SizedBox(width: 4),
+              Text('Updates as jobs complete',
                   style: TextStyle(fontSize: 12, color: Colors.white60,
                       fontWeight: FontWeight.w500)),
             ]),
           ]),
           const Spacer(),
-          // Mini sparkline
           SizedBox(
-            width: 80,
-            height: 40,
+            width: 80, height: 40,
             child: _MiniSparkline(vals: _hours),
           ),
         ]),
         const SizedBox(height: 14),
-        // Progress toward daily target
-        const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Daily target: 4,000 AED',
-              style: TextStyle(fontSize: 11.5, color: Colors.white60, fontWeight: FontWeight.w500)),
-          Text('79%', style: TextStyle(fontSize: 11.5, color: Colors.white70,
-              fontWeight: FontWeight.w700)),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          const Text('Daily target: $_dailyTarget AED',
+              style: TextStyle(fontSize: 11.5, color: Colors.white60,
+                  fontWeight: FontWeight.w500)),
+          Text('$pct%', style: const TextStyle(fontSize: 11.5,
+              color: Colors.white70, fontWeight: FontWeight.w700)),
         ]),
         const SizedBox(height: 6),
         ClipRRect(
           borderRadius: BorderRadius.circular(3),
           child: LinearProgressIndicator(
-            value: 0.79,
+            value: progress,
             minHeight: 5,
             backgroundColor: Colors.white24,
             valueColor: const AlwaysStoppedAnimation(AppTheme.vGold),
@@ -263,37 +301,41 @@ class _MiniSparkline extends StatelessWidget {
   }
 }
 
-// ── Alert tile ────────────────────────────────────────────────────────────────
-class _AlertTile extends StatelessWidget {
-  final ({IconData icon, Color color, Color bg, String text}) alert;
-  const _AlertTile({required this.alert});
+// ── Notification alert tile (live) ────────────────────────────────────────────
+class _NotifAlertTile extends StatelessWidget {
+  final VendorNotif notif;
+  const _NotifAlertTile({required this.notif});
 
   @override
   Widget build(BuildContext context) {
+    final isWarning = notif.icon == 'warning';
+    final color = isWarning ? AppTheme.vStatusBusy : AppTheme.vStatusFree;
+    final bg    = isWarning ? AppTheme.vStatusBusyBg : AppTheme.vStatusFreeBg;
+    final icon  = isWarning
+        ? Icons.warning_amber_rounded
+        : Icons.person_add_rounded;
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: alert.bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
+          color: bg, borderRadius: BorderRadius.circular(12)),
       child: Row(children: [
-        Icon(alert.icon, size: 17, color: alert.color),
+        Icon(icon, size: 17, color: color),
         const SizedBox(width: 10),
-        Expanded(child: Text(alert.text,
+        Expanded(child: Text(notif.body,
             style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500,
-                color: alert.color, height: 1.4))),
+                color: color, height: 1.4))),
         const SizedBox(width: 8),
-        Icon(Icons.arrow_forward_ios_rounded, size: 12, color: alert.color),
+        Icon(Icons.arrow_forward_ios_rounded, size: 12, color: color),
       ]),
     );
   }
 }
 
-// ── Staff row ─────────────────────────────────────────────────────────────────
-class _StaffRow extends StatelessWidget {
-  final ({String name, int washes, double rating, bool online}) staff;
-  const _StaffRow({required this.staff});
+// ── Live staff row ────────────────────────────────────────────────────────────
+class _LiveStaffRow extends StatelessWidget {
+  final StaffMember member;
+  const _LiveStaffRow({required this.member});
 
   @override
   Widget build(BuildContext context) {
@@ -308,10 +350,10 @@ class _StaffRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
-            child: Text(staff.name[0], style: const TextStyle(
+            child: Text(member.name[0], style: const TextStyle(
                 fontWeight: FontWeight.w700, fontSize: 14, color: AppTheme.vInk2)),
           ),
-          if (staff.online)
+          if (member.online)
             Positioned(
               right: 0, bottom: 0,
               child: Container(
@@ -326,29 +368,31 @@ class _StaffRow extends StatelessWidget {
         ]),
         const SizedBox(width: 10),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(staff.name, style: const TextStyle(fontWeight: FontWeight.w700,
-              fontSize: 13.5, color: AppTheme.vInk)),
-          Text('${staff.washes} washes today',
+          Text(member.name, style: const TextStyle(
+              fontWeight: FontWeight.w700, fontSize: 13.5, color: AppTheme.vInk)),
+          Text('${member.washes} washes today · ${member.shift}',
               style: const TextStyle(fontSize: 11.5, color: AppTheme.vInk3)),
         ])),
-        Row(children: [
-          const Icon(Icons.star_rounded, size: 13, color: AppTheme.vGold),
-          const SizedBox(width: 3),
-          Text('${staff.rating}', style: const TextStyle(
-              fontSize: 12.5, fontWeight: FontWeight.w700, color: AppTheme.vInk)),
-        ]),
+        if (member.rating > 0)
+          Row(children: [
+            const Icon(Icons.star_rounded, size: 13, color: AppTheme.vGold),
+            const SizedBox(width: 3),
+            Text('${member.rating}', style: const TextStyle(
+                fontSize: 12.5, fontWeight: FontWeight.w700, color: AppTheme.vInk)),
+          ]),
       ]),
     );
   }
 }
 
-// ── Booking summary row ───────────────────────────────────────────────────────
-class _BookingSummaryRow extends StatelessWidget {
-  final ({String time, String name, String svc, int amt, bool done}) booking;
-  const _BookingSummaryRow({required this.booking});
+// ── Live booking row ──────────────────────────────────────────────────────────
+class _LiveBookingRow extends StatelessWidget {
+  final BookingSlot slot;
+  const _LiveBookingRow({required this.slot});
 
   @override
   Widget build(BuildContext context) {
+    final done = slot.status == 'done';
     return Container(
       margin: const EdgeInsets.only(bottom: 5),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
@@ -358,20 +402,22 @@ class _BookingSummaryRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(children: [
-        Text(booking.time, style: const TextStyle(
+        Text(slot.time, style: const TextStyle(
             fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.vInk3)),
         const SizedBox(width: 12),
-        Expanded(child: Text(booking.name, style: const TextStyle(
+        Expanded(child: Text(slot.name, style: const TextStyle(
             fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.vInk))),
-        VServiceBadge(service: booking.svc),
-        const SizedBox(width: 10),
-        Text('${booking.amt} AED', style: const TextStyle(
-            fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.vInk)),
+        if (slot.svc.isNotEmpty) VServiceBadge(service: slot.svc),
+        if (slot.amt > 0) ...[
+          const SizedBox(width: 10),
+          Text('${slot.amt} AED', style: const TextStyle(
+              fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.vInk)),
+        ],
         const SizedBox(width: 10),
         Icon(
-          booking.done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+          done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
           size: 16,
-          color: booking.done ? AppTheme.vStatusFree : AppTheme.vLine,
+          color: done ? AppTheme.vStatusFree : AppTheme.vLine,
         ),
       ]),
     );

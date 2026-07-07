@@ -155,6 +155,15 @@ class VendorState extends ChangeNotifier {
         customer: 'Lina · App · ETA 4 min'),
   ];
 
+  // ── Completed-today counters (incremented by action methods) ─────────────
+  int completedToday = 0;
+  int revenueToday   = 0;
+
+  static const _svcPrices = {'Basic': 25, 'Standard': 60, 'Premium': 130};
+
+  // Wednesday (index 1) is the demo "today" — has pre-populated bookings.
+  static const int demoTodayIndex = 1;
+
   // ── Bookings per day (0=Tue … 6=Mon) ─────────────────────────────────────
   final Map<int, List<BookingSlot>> _bookingsByDay = {};
 
@@ -280,7 +289,15 @@ class VendorState extends ChangeNotifier {
   void markBayDone(String bayId) {
     final bay = _bay(bayId);
     if (bay == null) return;
+    final plate = bay.plate;
+    final svc   = bay.svc;
     queue.removeWhere((c) => c.bay == bayId && c.state == 'washing');
+    if (plate != null) {
+      final booking = _bookingByPlate(plate);
+      if (booking != null) booking.status = 'done';
+      revenueToday += _svcPrices[svc] ?? 0;
+      completedToday++;
+    }
     bay
       ..state = 'idle'
       ..plate = null ..model = null ..svc = null
@@ -334,6 +351,10 @@ class VendorState extends ChangeNotifier {
           ..totalSecs = 0 ..elapsedSecs = 0 ..paused = false;
       }
     }
+    final booking = _bookingByPlate(car.plate);
+    if (booking != null) booking.status = 'done';
+    revenueToday += _svcPrices[car.svc] ?? 0;
+    completedToday++;
     queue.removeWhere((c) => c.id == carId);
     notifyListeners();
   }
@@ -357,18 +378,48 @@ class VendorState extends ChangeNotifier {
 
   void markBookingArrived(int dayIndex, int slotIndex) {
     final slots = getBookings(dayIndex);
-    if (slotIndex < slots.length) {
-      slots[slotIndex].status = 'arriving';
-      notifyListeners();
+    if (slotIndex >= slots.length) return;
+    final slot = slots[slotIndex];
+    slot.status = 'arriving';
+    // Add to queue as arriving if not already present
+    if (slot.plate.isNotEmpty &&
+        !queue.any((c) => c.plate == slot.plate)) {
+      final newId = queue.isEmpty
+          ? 10
+          : queue.map((c) => c.id).reduce((a, b) => a > b ? a : b) + 1;
+      queue.add(QueueCar(
+        id: newId, plate: slot.plate,
+        emirate: 'DXB', model: slot.name, svc: slot.svc,
+        customer: '${slot.name} · App', bay: '—', state: 'arriving',
+        totalSecs: (_svcTimes[slot.svc] ?? 18 * 60),
+      ));
     }
+    notifyListeners();
   }
 
   void markBookingDone(int dayIndex, int slotIndex) {
     final slots = getBookings(dayIndex);
-    if (slotIndex < slots.length) {
-      slots[slotIndex].status = 'done';
-      notifyListeners();
+    if (slotIndex >= slots.length) return;
+    final slot = slots[slotIndex];
+    slot.status = 'done';
+    // Remove from queue and clear bay
+    final idx = queue.indexWhere((c) => c.plate == slot.plate);
+    if (idx >= 0) {
+      final car = queue[idx];
+      if (car.bay != '—') {
+        final bay = _bay(car.bay);
+        if (bay != null) {
+          bay
+            ..state = 'idle'
+            ..plate = null ..model = null ..svc = null
+            ..totalSecs = 0 ..elapsedSecs = 0 ..paused = false;
+        }
+      }
+      queue.removeAt(idx);
     }
+    revenueToday += _svcPrices[slot.svc] ?? 0;
+    completedToday++;
+    notifyListeners();
   }
 
   // ── Convenience getters ───────────────────────────────────────────────────
@@ -418,6 +469,19 @@ class VendorState extends ChangeNotifier {
     }
     return null;
   }
+
+  BookingSlot? _bookingByPlate(String plate) {
+    for (final slots in _bookingsByDay.values) {
+      for (final slot in slots) {
+        if (slot.plate == plate) return slot;
+      }
+    }
+    return null;
+  }
+
+  static const _svcTimes = {
+    'Basic': 12 * 60, 'Standard': 18 * 60, 'Premium': 35 * 60
+  };
 
   @override
   void dispose() {
