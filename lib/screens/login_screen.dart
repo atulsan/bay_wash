@@ -36,9 +36,10 @@ class _LoginScreenState extends State<LoginScreen>
       duration: const Duration(milliseconds: 500),
     );
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-    _slide = Tween(begin: const Offset(0, 0.06), end: Offset.zero).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic),
-    );
+    _slide = Tween(
+      begin: const Offset(0, 0.06),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _ctrl.forward();
   }
 
@@ -57,8 +58,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _continueAsGuest() {
-    Navigator.of(context)
-        .pushReplacement(fadeRoute(const HomeScreen()));
+    Navigator.of(context).pushReplacement(fadeRoute(const HomeScreen()));
   }
 
   @override
@@ -72,8 +72,7 @@ class _LoginScreenState extends State<LoginScreen>
         isVendor ? const Color(0xFF34A853) : AppTheme.googleBlue;
     final portalIcon =
         isVendor ? Icons.storefront_rounded : Icons.local_car_wash_rounded;
-    final portalHeading =
-        isVendor ? 'Vendor Sign In' : l10n.t('login_heading');
+    final portalHeading = isVendor ? 'Vendor Sign In' : l10n.t('login_heading');
     final portalSub = isVendor
         ? 'Enter your registered business number'
         : l10n.t('login_sub');
@@ -107,8 +106,10 @@ class _LoginScreenState extends State<LoginScreen>
                         Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                                  size: 18),
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                              ),
                               color: AppTheme.textSecondary,
                               onPressed: () => Navigator.of(context).pop(),
                               padding: EdgeInsets.zero,
@@ -126,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen>
                               width: 68,
                               height: 68,
                               decoration: BoxDecoration(
-                                color: portalColor.withOpacity(0.10),
+                                color: portalColor.withValues(alpha: 0.10),
                                 borderRadius: BorderRadius.circular(18),
                               ),
                               child: Icon(
@@ -138,12 +139,15 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(width: 14),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 5),
+                                horizontal: 12,
+                                vertical: 5,
+                              ),
                               decoration: BoxDecoration(
-                                color: portalColor.withOpacity(0.10),
+                                color: portalColor.withValues(alpha: 0.10),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                    color: portalColor.withOpacity(0.25)),
+                                  color: portalColor.withValues(alpha: 0.25),
+                                ),
                               ),
                               child: Text(
                                 isVendor ? 'Vendor Portal' : 'User Portal',
@@ -194,8 +198,9 @@ class _LoginScreenState extends State<LoginScreen>
                             child: FilledButton(
                               style: FilledButton.styleFrom(
                                 backgroundColor: portalColor,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -213,31 +218,35 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         const SizedBox(height: 22),
                         // Divider
-                        Row(children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 14),
-                            child: Text(
-                              l10n.t('or'),
-                              style: const TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: 13,
+                        Row(
+                          children: [
+                            const Expanded(child: Divider()),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
+                              child: Text(
+                                l10n.t('or'),
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondary,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
-                          ),
-                          const Expanded(child: Divider()),
-                        ]),
+                            const Expanded(child: Divider()),
+                          ],
+                        ),
                         const SizedBox(height: 22),
                         // Continue as guest
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               side: const BorderSide(
-                                  color: AppTheme.divider, width: 1.5),
+                                color: AppTheme.divider,
+                                width: 1.5,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -303,8 +312,7 @@ class _PhoneField extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
             decoration: const BoxDecoration(
               border: Border(
                 right: BorderSide(color: AppTheme.divider, width: 1.5),
@@ -312,10 +320,7 @@ class _PhoneField extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Text(
-                  '🇦🇪',
-                  style: TextStyle(fontSize: 18),
-                ),
+                const Text('🇦🇪', style: TextStyle(fontSize: 18)),
                 const SizedBox(width: 6),
                 const Text(
                   '+971',
@@ -326,8 +331,11 @@ class _PhoneField extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.expand_more_rounded,
-                    size: 18, color: AppTheme.textSecondary),
+                const Icon(
+                  Icons.expand_more_rounded,
+                  size: 18,
+                  color: AppTheme.textSecondary,
+                ),
               ],
             ),
           ),
@@ -336,7 +344,9 @@ class _PhoneField extends StatelessWidget {
               controller: controller,
               focusNode: focusNode,
               keyboardType: TextInputType.phone,
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d\s]'))],
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[\d\s]')),
+              ],
               textInputAction: TextInputAction.done,
               style: const TextStyle(
                 fontSize: 16,
@@ -350,8 +360,10 @@ class _PhoneField extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
                 border: InputBorder.none,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 16,
+                ),
               ),
               onChanged: onChanged,
               onSubmitted: onSubmitted,
@@ -373,12 +385,13 @@ class _LangButton extends StatelessWidget {
       onTap: () =>
           EmiratesWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.googleBlue.withOpacity(0.08),
+          color: AppTheme.googleBlue.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.googleBlue.withOpacity(0.25)),
+          border: Border.all(
+            color: AppTheme.googleBlue.withValues(alpha: 0.25),
+          ),
         ),
         child: Text(
           isArabic ? 'EN' : 'عربي',

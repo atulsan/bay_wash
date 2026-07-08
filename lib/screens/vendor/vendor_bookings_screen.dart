@@ -51,19 +51,15 @@ class _VendorBookingsScreenState extends State<VendorBookingsScreen> {
                 builder: (context, _) {
                   final bookings =
                       VendorState.instance.getBookings(_selectedDay);
-                  final confirmed = bookings
-                      .where((b) => b.status == 'confirmed')
-                      .length;
-                  final open =
-                      bookings.where((b) => b.status == 'open').length;
+                  final confirmed =
+                      bookings.where((b) => b.status == 'confirmed').length;
+                  final open = bookings.where((b) => b.status == 'open').length;
                   final revenue = bookings
-                      .where((b) =>
-                          b.status != 'open' && b.status != 'blocked')
+                      .where((b) => b.status != 'open' && b.status != 'blocked')
                       .fold<int>(0, (sum, b) => sum + b.amt);
 
                   return ListView(
-                    padding:
-                        const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                     children: [
                       _KpiRow(
                         confirmed: confirmed,
@@ -121,8 +117,7 @@ class _DayStrip extends StatelessWidget {
 
           final bookings = VendorState.instance.getBookings(i);
           final count = bookings
-              .where((b) =>
-                  b.status != 'open' && b.status != 'blocked')
+              .where((b) => b.status != 'open' && b.status != 'blocked')
               .length;
 
           return Expanded(
@@ -133,9 +128,7 @@ class _DayStrip extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 padding: const EdgeInsets.symmetric(vertical: 7),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? AppTheme.vPrimary
-                      : Colors.transparent,
+                  color: selected ? AppTheme.vPrimary : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
@@ -146,9 +139,7 @@ class _DayStrip extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
-                        color: selected
-                            ? Colors.white70
-                            : AppTheme.vInk3,
+                        color: selected ? Colors.white70 : AppTheme.vInk3,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -157,9 +148,7 @@ class _DayStrip extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: selected
-                            ? Colors.white
-                            : AppTheme.vInk,
+                        color: selected ? Colors.white : AppTheme.vInk,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -168,20 +157,16 @@ class _DayStrip extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: selected
-                              ? Colors.white24
-                              : AppTheme.vPrimaryTint,
-                          borderRadius:
-                              BorderRadius.circular(999),
+                          color:
+                              selected ? Colors.white24 : AppTheme.vPrimaryTint,
+                          borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
                           '$count',
                           style: TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.w800,
-                            color: selected
-                                ? Colors.white
-                                : AppTheme.vPrimary,
+                            color: selected ? Colors.white : AppTheme.vPrimary,
                           ),
                         ),
                       )
@@ -250,8 +235,7 @@ class _AppBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: AppTheme.vPrimaryTint,
         borderRadius: BorderRadius.circular(999),
@@ -303,9 +287,7 @@ class _BookingRow extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isDone || isOpen
-            ? AppTheme.vSurface2
-            : AppTheme.vSurface,
+        color: isDone || isOpen ? AppTheme.vSurface2 : AppTheme.vSurface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: slot.status == 'arriving'
@@ -320,24 +302,18 @@ class _BookingRow extends StatelessWidget {
             // Time column
             Container(
               width: 60,
-              padding: const EdgeInsets.symmetric(
-                  vertical: 14, horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
               decoration: const BoxDecoration(
-                border: Border(
-                    right:
-                        BorderSide(color: AppTheme.vLine2)),
+                border: Border(right: BorderSide(color: AppTheme.vLine2)),
               ),
               child: _TimeColumn(time: slot.time, dim: isDone),
             ),
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    12, 12, 12, 12),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                 child: _buildContent(context,
-                    isDone: isDone,
-                    isOpen: isOpen,
-                    isBlocked: isBlocked),
+                    isDone: isDone, isOpen: isOpen, isBlocked: isBlocked),
               ),
             ),
           ],
@@ -368,32 +344,25 @@ class _BookingRow extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
               foregroundColor: AppTheme.vStatusFull,
-              side: const BorderSide(
-                  color: AppTheme.vStatusFull),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 6),
+              side: const BorderSide(color: AppTheme.vStatusFull),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               minimumSize: Size.zero,
-              tapTargetSize:
-                  MaterialTapTargetSize.shrinkWrap,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () {
-              VendorState.instance
-                  .blockSlot(dayIndex, index);
+              VendorState.instance.blockSlot(dayIndex, index);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                      '${slot.time} blocked'),
+                  content: Text('${slot.time} blocked'),
                   backgroundColor: AppTheme.vInk,
                 ),
               );
             },
             child: const Text(
               'Block off',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -429,32 +398,25 @@ class _BookingRow extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
               foregroundColor: AppTheme.vPrimary,
-              side: const BorderSide(
-                  color: AppTheme.vPrimary),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 6),
+              side: const BorderSide(color: AppTheme.vPrimary),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               minimumSize: Size.zero,
-              tapTargetSize:
-                  MaterialTapTargetSize.shrinkWrap,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () {
-              VendorState.instance
-                  .unblockSlot(dayIndex, index);
+              VendorState.instance.unblockSlot(dayIndex, index);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                      '${slot.time} unblocked'),
+                  content: Text('${slot.time} unblocked'),
                   backgroundColor: AppTheme.vInk,
                 ),
               );
             },
             child: const Text(
               'Unblock',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -566,8 +528,7 @@ class _BookingRow extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 5, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppTheme.vStatusFreeBg,
                   borderRadius: BorderRadius.circular(4),
@@ -583,10 +544,8 @@ class _BookingRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              const Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: AppTheme.vInk3,
-                  size: 20),
+              const Icon(Icons.keyboard_arrow_down_rounded,
+                  color: AppTheme.vInk3, size: 20),
             ],
           ),
         ],
@@ -652,11 +611,9 @@ class _BookingDetailSheet extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: AppTheme.vSurface,
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: EdgeInsets.fromLTRB(
-          20, 0, 20, bottomPad + 20),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, bottomPad + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,8 +621,7 @@ class _BookingDetailSheet extends StatelessWidget {
           // Handle bar
           Center(
             child: Container(
-              margin:
-                  const EdgeInsets.only(top: 12, bottom: 20),
+              margin: const EdgeInsets.only(top: 12, bottom: 20),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
@@ -710,12 +666,9 @@ class _BookingDetailSheet extends StatelessWidget {
                 const SizedBox(height: 10),
                 _InfoRow(label: 'Plate', value: slot.plate),
                 const SizedBox(height: 10),
-                _InfoRow(
-                    label: 'Service', value: slot.svc),
+                _InfoRow(label: 'Service', value: slot.svc),
                 const SizedBox(height: 10),
-                _InfoRow(
-                    label: 'Amount',
-                    value: 'AED ${slot.amt}'),
+                _InfoRow(label: 'Amount', value: 'AED ${slot.amt}'),
               ],
             ),
           ),
@@ -729,23 +682,18 @@ class _BookingDetailSheet extends StatelessWidget {
                 FilledButton(
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.vStatusBusy,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
                     VendorState.instance
-                        .markBookingArrived(
-                            dayIndex, slotIndex);
+                        .markBookingArrived(dayIndex, slotIndex);
                     Navigator.of(context).pop();
                   },
                   child: const Text(
                     'Mark arrived',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -754,31 +702,24 @@ class _BookingDetailSheet extends StatelessWidget {
                 FilledButton(
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.vPrimary,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            '${slot.name} added to queue'),
+                        content: Text('${slot.name} added to queue'),
                         backgroundColor: AppTheme.vPrimary,
                       ),
                     );
                     VendorState.instance
-                        .markBookingArrived(
-                            dayIndex, slotIndex);
+                        .markBookingArrived(dayIndex, slotIndex);
                     Navigator.of(context).pop();
                   },
                   child: const Text(
                     'Start wash',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -787,25 +728,18 @@ class _BookingDetailSheet extends StatelessWidget {
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.vStatusFree,
-                    side: const BorderSide(
-                        color: AppTheme.vStatusFree),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 14),
+                    side: const BorderSide(color: AppTheme.vStatusFree),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
-                    VendorState.instance
-                        .markBookingDone(
-                            dayIndex, slotIndex);
+                    VendorState.instance.markBookingDone(dayIndex, slotIndex);
                     Navigator.of(context).pop();
                   },
                   child: const Text(
                     'Mark done',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -813,15 +747,12 @@ class _BookingDetailSheet extends StatelessWidget {
               TextButton(
                 style: TextButton.styleFrom(
                   foregroundColor: AppTheme.vStatusFull,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () {
-                  VendorState.instance
-                      .blockSlot(dayIndex, slotIndex);
+                  VendorState.instance.blockSlot(dayIndex, slotIndex);
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(
+                  ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Booking cancelled'),
                       backgroundColor: AppTheme.vStatusFull,
@@ -830,9 +761,7 @@ class _BookingDetailSheet extends StatelessWidget {
                 },
                 child: const Text(
                   'Cancel booking',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
               ),
             ],

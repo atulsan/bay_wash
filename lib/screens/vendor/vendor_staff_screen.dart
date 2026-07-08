@@ -32,28 +32,25 @@ class _VendorStaffScreenState extends State<VendorStaffScreen> {
           builder: (context, _) {
             final roster = VendorState.instance.roster;
             final pending = VendorState.instance.pendingStaff;
-            final onlineCount =
-                roster.where((s) => s.online).length;
+            final onlineCount = roster.where((s) => s.online).length;
 
             return Column(
               children: [
                 VTopBar(
                   title: 'Staff',
-                  subtitle:
-                      '$onlineCount online · ${roster.length} total',
+                  subtitle: '$onlineCount online · ${roster.length} total',
                   showBack: true,
                   onBack: () => Navigator.of(context).pop(),
                 ),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                        16, 14, 16, 32),
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
                     children: [
                       // Join code card
                       _JoinCodeCard(
                         visible: _codeVisible,
-                        onToggle: () => setState(
-                            () => _codeVisible = !_codeVisible),
+                        onToggle: () =>
+                            setState(() => _codeVisible = !_codeVisible),
                       ),
                       const SizedBox(height: 12),
 
@@ -63,20 +60,16 @@ class _VendorStaffScreenState extends State<VendorStaffScreen> {
                         child: FilledButton.icon(
                           style: FilledButton.styleFrom(
                             backgroundColor: AppTheme.vPrimary,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           onPressed: _openInviteSheet,
-                          icon: const Icon(Icons.person_add_rounded,
-                              size: 16),
+                          icon: const Icon(Icons.person_add_rounded, size: 16),
                           label: const Text(
                             'Invite operator',
                             style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700),
+                                fontSize: 14, fontWeight: FontWeight.w700),
                           ),
                         ),
                       ),
@@ -88,8 +81,7 @@ class _VendorStaffScreenState extends State<VendorStaffScreen> {
                           title: 'Pending approval',
                           count: pending.length,
                         ),
-                        ...pending.map(
-                            (p) => _PendingCard(person: p)),
+                        ...pending.map((p) => _PendingCard(person: p)),
                         const SizedBox(height: 6),
                       ],
 
@@ -99,8 +91,7 @@ class _VendorStaffScreenState extends State<VendorStaffScreen> {
                         count: roster.length,
                         topPadding: pending.isNotEmpty ? 4 : 0,
                       ),
-                      ...roster.map(
-                          (s) => _StaffRow(staff: s)),
+                      ...roster.map((s) => _StaffRow(staff: s)),
                     ],
                   ),
                 ),
@@ -121,8 +112,7 @@ class _JoinCodeCard extends StatelessWidget {
 
   static const _code = 'MRN73K';
 
-  const _JoinCodeCard(
-      {required this.visible, required this.onToggle});
+  const _JoinCodeCard({required this.visible, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +127,7 @@ class _JoinCodeCard extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.group_add_rounded,
-                  size: 16, color: Colors.white70),
+              Icon(Icons.group_add_rounded, size: 16, color: Colors.white70),
               SizedBox(width: 8),
               Text(
                 'TEAM JOIN CODE',
@@ -157,8 +146,7 @@ class _JoinCodeCard extends StatelessWidget {
               // 6 code cells
               ...List.generate(_code.length, (i) {
                 return Container(
-                  margin: EdgeInsets.only(
-                      right: i < _code.length - 1 ? 6 : 0),
+                  margin: EdgeInsets.only(right: i < _code.length - 1 ? 6 : 0),
                   width: 36,
                   height: 40,
                   decoration: BoxDecoration(
@@ -173,8 +161,7 @@ class _JoinCodeCard extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                       fontSize: visible ? 18 : 22,
                       color: Colors.white,
-                      fontFamily:
-                          visible ? 'monospace' : null,
+                      fontFamily: visible ? 'monospace' : null,
                     ),
                   ),
                 );
@@ -183,11 +170,10 @@ class _JoinCodeCard extends StatelessWidget {
               GestureDetector(
                 onTap: onToggle,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white
-                        .withValues(alpha: 0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -217,8 +203,7 @@ class _JoinCodeCard extends StatelessWidget {
           const SizedBox(height: 12),
           const Text(
             'Share this code with new team members to let them join.',
-            style: TextStyle(
-                fontSize: 12, color: Colors.white60, height: 1.4),
+            style: TextStyle(fontSize: 12, color: Colors.white60, height: 1.4),
           ),
           const SizedBox(height: 10),
           Row(
@@ -252,9 +237,7 @@ class _CodeAction extends StatelessWidget {
   final VoidCallback onTap;
 
   const _CodeAction(
-      {required this.icon,
-      required this.label,
-      required this.onTap});
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -300,9 +283,7 @@ class _PendingCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppTheme.vStatusBusyBg,
-        border: Border.all(
-            color:
-                AppTheme.vStatusBusy.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTheme.vStatusBusy.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -329,8 +310,7 @@ class _PendingCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       person.name,
@@ -343,17 +323,15 @@ class _PendingCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       '${person.role} · ${person.phone}',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.vInk3),
+                      style:
+                          const TextStyle(fontSize: 12, color: AppTheme.vInk3),
                     ),
                   ],
                 ),
               ),
               Text(
                 person.time,
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.vInk3),
+                style: const TextStyle(fontSize: 11, color: AppTheme.vInk3),
               ),
             ],
           ),
@@ -365,32 +343,25 @@ class _PendingCard extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.vStatusFull,
                     side: BorderSide(
-                        color: AppTheme.vStatusFull
-                            .withValues(alpha: 0.4)),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 9),
+                        color: AppTheme.vStatusFull.withValues(alpha: 0.4)),
+                    padding: const EdgeInsets.symmetric(vertical: 9),
                     shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10)),
                     minimumSize: Size.zero,
                   ),
                   onPressed: () {
-                    VendorState.instance
-                        .declineStaff(person);
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
+                    VendorState.instance.declineStaff(person);
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            '${person.name} declined'),
+                        content: Text('${person.name} declined'),
                         backgroundColor: AppTheme.vInk,
                       ),
                     );
                   },
                   child: const Text(
                     'Decline',
-                    style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700),
+                    style:
+                        TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -399,32 +370,25 @@ class _PendingCard extends StatelessWidget {
                 child: FilledButton(
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.vStatusFree,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 9),
+                    padding: const EdgeInsets.symmetric(vertical: 9),
                     shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10)),
                     minimumSize: Size.zero,
                   ),
                   onPressed: () {
                     final name = person.name;
-                    VendorState.instance
-                        .approveStaff(person);
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
+                    VendorState.instance.approveStaff(person);
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            '$name added to team'),
-                        backgroundColor:
-                            AppTheme.vStatusFree,
+                        content: Text('$name added to team'),
+                        backgroundColor: AppTheme.vStatusFree,
                       ),
                     );
                   },
                   child: const Text(
                     'Approve',
-                    style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700),
+                    style:
+                        TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -446,8 +410,7 @@ class _StaffRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Build initials from name
-    final nameParts =
-        staff.name.replaceAll('.', '').trim().split(' ');
+    final nameParts = staff.name.replaceAll('.', '').trim().split(' ');
     final initials = nameParts.length >= 2
         ? '${nameParts[0][0]}${nameParts[1][0]}'
         : staff.name.isNotEmpty
@@ -495,9 +458,7 @@ class _StaffRow extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppTheme.vStatusFree,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                          color: AppTheme.vSurface,
-                          width: 1.5),
+                      border: Border.all(color: AppTheme.vSurface, width: 1.5),
                     ),
                   ),
                 ),
@@ -520,8 +481,7 @@ class _StaffRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '${staff.role} · ${staff.shift}',
-                  style: const TextStyle(
-                      fontSize: 12, color: AppTheme.vInk3),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.vInk3),
                 ),
               ],
             ),
@@ -560,16 +520,14 @@ class _StaffRow extends StatelessWidget {
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert_rounded,
                 size: 18, color: AppTheme.vInk4),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             color: AppTheme.vSurface,
             itemBuilder: (_) => [
               const PopupMenuItem(
                 value: 'edit',
                 child: Text('Edit role',
-                    style: TextStyle(
-                        fontSize: 13.5,
-                        color: AppTheme.vInk)),
+                    style: TextStyle(fontSize: 13.5, color: AppTheme.vInk)),
               ),
               PopupMenuItem(
                 value: 'remove',
@@ -621,8 +579,7 @@ class _InviteSheetState extends State<_InviteSheet> {
   }
 
   void _send() {
-    if (_nameCtrl.text.trim().isEmpty ||
-        _phoneCtrl.text.trim().isEmpty) {
+    if (_nameCtrl.text.trim().isEmpty || _phoneCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please fill in name and phone'),
@@ -654,11 +611,9 @@ class _InviteSheetState extends State<_InviteSheet> {
     return Container(
       decoration: const BoxDecoration(
         color: AppTheme.vSurface,
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: EdgeInsets.fromLTRB(
-          20, 0, 20, bottomPad + viewInset + 20),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, bottomPad + viewInset + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,8 +621,7 @@ class _InviteSheetState extends State<_InviteSheet> {
           // Handle bar
           Center(
             child: Container(
-              margin:
-                  const EdgeInsets.only(top: 12, bottom: 20),
+              margin: const EdgeInsets.only(top: 12, bottom: 20),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
@@ -700,8 +654,7 @@ class _InviteSheetState extends State<_InviteSheet> {
           const SizedBox(height: 6),
           TextFormField(
             controller: _nameCtrl,
-            style: const TextStyle(
-                fontSize: 15, color: AppTheme.vInk),
+            style: const TextStyle(fontSize: 15, color: AppTheme.vInk),
             decoration: vInputDecoration(hint: 'Full name'),
           ),
           const SizedBox(height: 14),
@@ -720,25 +673,21 @@ class _InviteSheetState extends State<_InviteSheet> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                  color: AppTheme.vLine, width: 1.5),
+              border: Border.all(color: AppTheme.vLine, width: 1.5),
               color: AppTheme.vSurface,
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                   decoration: const BoxDecoration(
                     border: Border(
-                        right: BorderSide(
-                            color: AppTheme.vLine,
-                            width: 1.5)),
+                        right: BorderSide(color: AppTheme.vLine, width: 1.5)),
                   ),
                   child: const Row(
                     children: [
-                      Text('🇦🇪',
-                          style: TextStyle(fontSize: 16)),
+                      Text('🇦🇪', style: TextStyle(fontSize: 16)),
                       SizedBox(width: 5),
                       Text(
                         '+971',
@@ -755,15 +704,13 @@ class _InviteSheetState extends State<_InviteSheet> {
                   child: TextFormField(
                     controller: _phoneCtrl,
                     keyboardType: TextInputType.phone,
-                    style: const TextStyle(
-                        fontSize: 15, color: AppTheme.vInk),
+                    style: const TextStyle(fontSize: 15, color: AppTheme.vInk),
                     decoration: const InputDecoration(
                       hintText: '50 000 0000',
-                      hintStyle: TextStyle(
-                          color: AppTheme.vInk3),
+                      hintStyle: TextStyle(color: AppTheme.vInk3),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 14),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     ),
                   ),
                 ),
@@ -793,21 +740,15 @@ class _InviteSheetState extends State<_InviteSheet> {
             children: _roles.map((role) {
               final selected = role == _selectedRole;
               return GestureDetector(
-                onTap: () =>
-                    setState(() => _selectedRole = role),
+                onTap: () => setState(() => _selectedRole = role),
                 child: AnimatedContainer(
-                  duration:
-                      const Duration(milliseconds: 160),
+                  duration: const Duration(milliseconds: 160),
                   decoration: BoxDecoration(
-                    color: selected
-                        ? AppTheme.vPrimaryTint
-                        : AppTheme.vSurface2,
-                    borderRadius:
-                        BorderRadius.circular(10),
+                    color:
+                        selected ? AppTheme.vPrimaryTint : AppTheme.vSurface2,
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: selected
-                          ? AppTheme.vPrimary
-                          : AppTheme.vLine2,
+                      color: selected ? AppTheme.vPrimary : AppTheme.vLine2,
                       width: selected ? 1.5 : 1,
                     ),
                   ),
@@ -816,12 +757,8 @@ class _InviteSheetState extends State<_InviteSheet> {
                     role,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: selected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: selected
-                          ? AppTheme.vPrimary
-                          : AppTheme.vInk3,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                      color: selected ? AppTheme.vPrimary : AppTheme.vInk3,
                     ),
                   ),
                 ),
@@ -836,18 +773,14 @@ class _InviteSheetState extends State<_InviteSheet> {
             child: FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.vPrimary,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: _send,
               child: const Text(
                 'Send invite',
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
               ),
             ),
           ),

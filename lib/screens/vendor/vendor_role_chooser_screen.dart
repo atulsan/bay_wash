@@ -7,7 +7,8 @@ import 'vendor_login_screen.dart';
 class VendorRoleChooserScreen extends StatefulWidget {
   const VendorRoleChooserScreen({super.key});
   @override
-  State<VendorRoleChooserScreen> createState() => _VendorRoleChooserScreenState();
+  State<VendorRoleChooserScreen> createState() =>
+      _VendorRoleChooserScreenState();
 }
 
 class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
@@ -19,7 +20,8 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 550));
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 550));
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
     _slide = Tween(begin: const Offset(0, 0.06), end: Offset.zero)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
@@ -27,10 +29,13 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
-  void _go(String role) => Navigator.of(context)
-      .push(slideUpRoute(VendorLoginScreen(role: role)));
+  void _go(String role) =>
+      Navigator.of(context).push(slideUpRoute(VendorLoginScreen(role: role)));
 
   @override
   Widget build(BuildContext context) {
@@ -48,18 +53,28 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                 children: [
                   const EWVendorLogo(size: 28),
                   const SizedBox(height: 36),
-                  Text('How will you use', style: TextStyle(
-                    fontWeight: FontWeight.w800, fontSize: 30,
-                    letterSpacing: -0.6, color: AppTheme.vInk, height: 1.1)),
-                  RichText(text: const TextSpan(
+                  Text('How will you use',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 30,
+                          letterSpacing: -0.6,
+                          color: AppTheme.vInk,
+                          height: 1.1)),
+                  RichText(
+                      text: const TextSpan(
                     text: 'Emirates Wash?',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 30,
-                        letterSpacing: -0.6, color: AppTheme.vPrimary, height: 1.1),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 30,
+                        letterSpacing: -0.6,
+                        color: AppTheme.vPrimary,
+                        height: 1.1),
                   )),
                   const SizedBox(height: 10),
                   const Text(
-                    'Pick the role that matches you. You can switch later from Settings.',
-                    style: TextStyle(fontSize: 14.5, color: AppTheme.vInk3, height: 1.45)),
+                      'Pick the role that matches you. You can switch later from Settings.',
+                      style: TextStyle(
+                          fontSize: 14.5, color: AppTheme.vInk3, height: 1.45)),
                   const SizedBox(height: 28),
                   Expanded(
                     child: Column(
@@ -69,8 +84,14 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                           badge: 'Owner / Admin',
                           icon: Icons.business_rounded,
                           title: 'I run the business',
-                          body: 'Register the wash, upload trade licence, set bays & pricing, manage staff and payouts.',
-                          tags: const ['Trade licence', 'Add bays', 'Manage staff', 'See revenue'],
+                          body:
+                              'Register the wash, upload trade licence, set bays & pricing, manage staff and payouts.',
+                          tags: const [
+                            'Trade licence',
+                            'Add bays',
+                            'Manage staff',
+                            'See revenue'
+                          ],
                           onTap: () => _go('manager'),
                         ),
                         const SizedBox(height: 12),
@@ -79,8 +100,13 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                           badge: 'Counter / Bay staff',
                           icon: Icons.local_car_wash_rounded,
                           title: 'I work at a wash',
-                          body: 'Quick onboarding — basic details, link to your manager\'s location, start pulling cars from the queue.',
-                          tags: const ['Link with code', 'Update queue', 'Mark complete'],
+                          body:
+                              'Quick onboarding — basic details, link to your manager\'s location, start pulling cars from the queue.',
+                          tags: const [
+                            'Link with code',
+                            'Update queue',
+                            'Mark complete'
+                          ],
                           onTap: () => _go('operator'),
                         ),
                         const Spacer(),
@@ -90,11 +116,16 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                             child: RichText(
                               text: const TextSpan(
                                 text: 'Already onboarded? ',
-                                style: TextStyle(fontSize: 13, color: AppTheme.vInk3),
-                                children: [TextSpan(
-                                  text: 'Sign in',
-                                  style: TextStyle(color: AppTheme.vPrimary, fontWeight: FontWeight.w700),
-                                )],
+                                style: TextStyle(
+                                    fontSize: 13, color: AppTheme.vInk3),
+                                children: [
+                                  TextSpan(
+                                    text: 'Sign in',
+                                    style: TextStyle(
+                                        color: AppTheme.vPrimary,
+                                        fontWeight: FontWeight.w700),
+                                  )
+                                ],
                               ),
                             ),
                           ),
@@ -122,8 +153,13 @@ class _RoleCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const _RoleCard({
-    required this.primary, required this.badge, required this.icon,
-    required this.title, required this.body, required this.tags, required this.onTap,
+    required this.primary,
+    required this.badge,
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.tags,
+    required this.onTap,
   });
 
   @override
@@ -140,8 +176,12 @@ class _RoleCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           border: primary ? null : Border.all(color: AppTheme.vLine),
           boxShadow: primary
-              ? [BoxShadow(color: AppTheme.vPrimary.withValues(alpha: 0.25),
-                  blurRadius: 24, offset: const Offset(0, 10))]
+              ? [
+                  BoxShadow(
+                      color: AppTheme.vPrimary.withValues(alpha: 0.25),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10))
+                ]
               : null,
         ),
         child: Column(
@@ -150,51 +190,75 @@ class _RoleCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  width: 38, height: 38,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
-                    color: primary ? Colors.white.withValues(alpha: 0.15) : AppTheme.vPrimaryTint,
+                    color: primary
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : AppTheme.vPrimaryTint,
                     borderRadius: BorderRadius.circular(11),
                   ),
-                  child: Icon(icon, size: 18,
+                  child: Icon(icon,
+                      size: 18,
                       color: primary ? Colors.white : AppTheme.vPrimary),
                 ),
                 const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: primary ? Colors.white.withValues(alpha: 0.15) : AppTheme.vSurface2,
+                    color: primary
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : AppTheme.vSurface2,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: Text(badge, style: TextStyle(
-                    fontSize: 10, fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8, color: primary ? Colors.white70 : AppTheme.vInk3,
-                  )),
+                  child: Text(badge,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                        color: primary ? Colors.white70 : AppTheme.vInk3,
+                      )),
                 ),
                 const Spacer(),
-                Icon(Icons.arrow_forward_rounded, size: 18,
-                    color: primary ? Colors.white70 : AppTheme.vInk3),
+                Icon(Icons.arrow_forward_rounded,
+                    size: 18, color: primary ? Colors.white70 : AppTheme.vInk3),
               ],
             ),
             const SizedBox(height: 12),
-            Text(title, style: TextStyle(
-                fontWeight: FontWeight.w800, fontSize: 19,
-                letterSpacing: -0.4, color: fg)),
+            Text(title,
+                style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 19,
+                    letterSpacing: -0.4,
+                    color: fg)),
             const SizedBox(height: 4),
-            Text(body, style: TextStyle(fontSize: 12.5, color: sub, height: 1.4)),
+            Text(body,
+                style: TextStyle(fontSize: 12.5, color: sub, height: 1.4)),
             const SizedBox(height: 12),
             Wrap(
-              spacing: 6, runSpacing: 6,
-              children: tags.map((t) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: primary ? Colors.white.withValues(alpha: 0.15) : AppTheme.vSurface2,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(t, style: TextStyle(
-                  fontSize: 10.5, fontWeight: FontWeight.w600,
-                  color: primary ? Colors.white.withValues(alpha: 0.95) : AppTheme.vInk2,
-                )),
-              )).toList(),
+              spacing: 6,
+              runSpacing: 6,
+              children: tags
+                  .map((t) => Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: primary
+                              ? Colors.white.withValues(alpha: 0.15)
+                              : AppTheme.vSurface2,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(t,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: primary
+                                  ? Colors.white.withValues(alpha: 0.95)
+                                  : AppTheme.vInk2,
+                            )),
+                      ))
+                  .toList(),
             ),
           ],
         ),

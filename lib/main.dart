@@ -10,14 +10,14 @@ void main() => runApp(const EmiratesWashApp());
 class EmiratesWashApp extends StatefulWidget {
   const EmiratesWashApp({super.key});
 
-  static _EmiratesWashAppState of(BuildContext context) =>
-      context.findAncestorStateOfType<_EmiratesWashAppState>()!;
+  static EmiratesWashAppState of(BuildContext context) =>
+      context.findAncestorStateOfType<EmiratesWashAppState>()!;
 
   @override
-  State<EmiratesWashApp> createState() => _EmiratesWashAppState();
+  State<EmiratesWashApp> createState() => EmiratesWashAppState();
 }
 
-class _EmiratesWashAppState extends State<EmiratesWashApp> {
+class EmiratesWashAppState extends State<EmiratesWashApp> {
   Locale _locale = const Locale('en');
 
   void setLocale(Locale locale) => setState(() => _locale = locale);

@@ -34,8 +34,7 @@ class VendorQueueScreen extends StatelessWidget {
                       SliverToBoxAdapter(
                         child: _QueueSections(vs: vs),
                       ),
-                      const SliverToBoxAdapter(
-                          child: SizedBox(height: 32)),
+                      const SliverToBoxAdapter(child: SizedBox(height: 32)),
                     ],
                   ),
                 ),
@@ -132,8 +131,7 @@ class _MoreMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       offset: const Offset(0, 44),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       color: AppTheme.vSurface,
       child: Container(
         width: 36,
@@ -143,8 +141,7 @@ class _MoreMenu extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppTheme.vLine2),
         ),
-        child:
-            const Icon(Icons.more_horiz, size: 18, color: AppTheme.vInk),
+        child: const Icon(Icons.more_horiz, size: 18, color: AppTheme.vInk),
       ),
       onSelected: (value) {
         switch (value) {
@@ -158,14 +155,12 @@ class _MoreMenu extends StatelessWidget {
             break;
           case 'emergency':
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Emergency close initiated')),
+              const SnackBar(content: Text('Emergency close initiated')),
             );
             break;
           case 'camera':
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Camera refresh requested')),
+              const SnackBar(content: Text('Camera refresh requested')),
             );
             break;
           case 'export':
@@ -177,16 +172,14 @@ class _MoreMenu extends StatelessWidget {
       },
       itemBuilder: (_) => [
         _menuItem('walkin', Icons.directions_car_outlined, 'Add walk-in'),
-        _menuItem(
-            'emergency', Icons.warning_amber_rounded, 'Emergency close'),
+        _menuItem('emergency', Icons.warning_amber_rounded, 'Emergency close'),
         _menuItem('camera', Icons.videocam_outlined, 'Refresh camera'),
         _menuItem('export', Icons.download_outlined, 'Export data'),
       ],
     );
   }
 
-  PopupMenuItem<String> _menuItem(
-      String value, IconData icon, String label) {
+  PopupMenuItem<String> _menuItem(String value, IconData icon, String label) {
     return PopupMenuItem<String>(
       value: value,
       child: Row(
@@ -314,8 +307,8 @@ class _QuickActions extends StatelessWidget {
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.vPrimary,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -327,8 +320,8 @@ class _QuickActions extends StatelessWidget {
               ),
               icon: const Icon(Icons.add_rounded, size: 18),
               label: const Text('Add walk-in',
-                  style: TextStyle(
-                      fontSize: 13.5, fontWeight: FontWeight.w700)),
+                  style:
+                      TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
             ),
           ),
           const SizedBox(width: 10),
@@ -336,10 +329,9 @@ class _QuickActions extends StatelessWidget {
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.vInk,
-                side: const BorderSide(
-                    color: AppTheme.vLine, width: 1.5),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
+                side: const BorderSide(color: AppTheme.vLine, width: 1.5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -349,12 +341,10 @@ class _QuickActions extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 builder: (_) => const _MarkCompleteSheet(),
               ),
-              icon: const Icon(
-                  Icons.check_circle_outline_rounded,
-                  size: 18),
+              icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
               label: const Text('Mark complete',
-                  style: TextStyle(
-                      fontSize: 13.5, fontWeight: FontWeight.w700)),
+                  style:
+                      TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -377,27 +367,24 @@ class _QueueSections extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (vs.washingCars.isNotEmpty) ...[
-            VSectionHeader(
-                title: 'In progress',
-                count: vs.washingCars.length),
+            VSectionHeader(title: 'In progress', count: vs.washingCars.length),
             ...vs.washingCars.map((car) => _QueueCard(car: car)),
           ],
           if (vs.queuedCars.isNotEmpty) ...[
             VSectionHeader(
                 title: 'Waiting',
                 count: vs.queuedCars.length,
-                topPadding:
-                    vs.washingCars.isNotEmpty ? 20 : 0),
+                topPadding: vs.washingCars.isNotEmpty ? 20 : 0),
             ...vs.queuedCars.map((car) => _QueueCard(car: car)),
           ],
           if (vs.arrivingCars.isNotEmpty) ...[
             VSectionHeader(
                 title: 'Arriving soon',
                 count: vs.arrivingCars.length,
-                topPadding: (vs.washingCars.isNotEmpty ||
-                        vs.queuedCars.isNotEmpty)
-                    ? 20
-                    : 0),
+                topPadding:
+                    (vs.washingCars.isNotEmpty || vs.queuedCars.isNotEmpty)
+                        ? 20
+                        : 0),
             ...vs.arrivingCars.map((car) => _QueueCard(car: car)),
           ],
           if (vs.queue.isEmpty)
@@ -440,9 +427,8 @@ class _QueueCard extends StatelessWidget {
         color: AppTheme.vSurface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: car.state == 'washing'
-              ? AppTheme.vPrimaryTint
-              : AppTheme.vLine2,
+          color:
+              car.state == 'washing' ? AppTheme.vPrimaryTint : AppTheme.vLine2,
           width: 1.5,
         ),
       ),
@@ -477,8 +463,7 @@ class _QueueCard extends StatelessWidget {
                           child: Text(
                             car.customer,
                             style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.vInk3),
+                                fontSize: 12, color: AppTheme.vInk3),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -515,8 +500,7 @@ class _WashingExtras extends StatelessWidget {
         Row(
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: AppTheme.vPrimaryTint,
                 borderRadius: BorderRadius.circular(6),
@@ -550,8 +534,7 @@ class _WashingExtras extends StatelessWidget {
             value: car.progress,
             minHeight: 6,
             backgroundColor: AppTheme.vLine2,
-            valueColor:
-                const AlwaysStoppedAnimation(AppTheme.vPrimary),
+            valueColor: const AlwaysStoppedAnimation(AppTheme.vPrimary),
           ),
         ),
         const SizedBox(height: 10),
@@ -560,10 +543,9 @@ class _WashingExtras extends StatelessWidget {
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.vInk2,
-                side: const BorderSide(
-                    color: AppTheme.vLine, width: 1.5),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
+                side: const BorderSide(color: AppTheme.vLine, width: 1.5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
                 textStyle: const TextStyle(
@@ -577,8 +559,7 @@ class _WashingExtras extends StatelessWidget {
               child: FilledButton(
                 style: FilledButton.styleFrom(
                   backgroundColor: AppTheme.vPrimary,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   textStyle: const TextStyle(
@@ -617,8 +598,7 @@ class _QueuedExtras extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: AppTheme.vStatusBusyBg,
             borderRadius: BorderRadius.circular(6),
@@ -636,12 +616,11 @@ class _QueuedExtras extends StatelessWidget {
         FilledButton(
           style: FilledButton.styleFrom(
             backgroundColor: AppTheme.vPrimary,
-            padding: const EdgeInsets.symmetric(
-                horizontal: 14, vertical: 9),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-            textStyle: const TextStyle(
-                fontSize: 12.5, fontWeight: FontWeight.w700),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            textStyle:
+                const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
           ),
           onPressed: () => showModalBottomSheet(
             context: context,
@@ -667,8 +646,7 @@ class _ArrivingExtras extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: AppTheme.vPrimaryTint,
             borderRadius: BorderRadius.circular(6),
@@ -686,14 +664,12 @@ class _ArrivingExtras extends StatelessWidget {
         OutlinedButton(
           style: OutlinedButton.styleFrom(
             foregroundColor: AppTheme.vPrimary,
-            side: const BorderSide(
-                color: AppTheme.vPrimary, width: 1.5),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 14, vertical: 9),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-            textStyle: const TextStyle(
-                fontSize: 12.5, fontWeight: FontWeight.w700),
+            side: const BorderSide(color: AppTheme.vPrimary, width: 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            textStyle:
+                const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
           ),
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -737,8 +713,7 @@ class _WalkInSheetState extends State<_WalkInSheet> {
   void _submit() {
     if (_plateCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please enter a plate number')),
+        const SnackBar(content: Text('Please enter a plate number')),
       );
       return;
     }
@@ -829,17 +804,13 @@ class _WalkInSheetState extends State<_WalkInSheet> {
                   onTap: () => setState(() => _emirate = e),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 160),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: selected
-                          ? AppTheme.vPrimary
-                          : AppTheme.vSurface2,
+                      color: selected ? AppTheme.vPrimary : AppTheme.vSurface2,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: selected
-                            ? AppTheme.vPrimary
-                            : AppTheme.vLine,
+                        color: selected ? AppTheme.vPrimary : AppTheme.vLine,
                         width: 1.5,
                       ),
                     ),
@@ -848,9 +819,7 @@ class _WalkInSheetState extends State<_WalkInSheet> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: selected
-                            ? Colors.white
-                            : AppTheme.vInk2,
+                        color: selected ? Colors.white : AppTheme.vInk2,
                       ),
                     ),
                   ),
@@ -890,9 +859,7 @@ class _WalkInSheetState extends State<_WalkInSheet> {
                             : AppTheme.vSurface2,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: selected
-                              ? AppTheme.vPrimary
-                              : AppTheme.vLine,
+                          color: selected ? AppTheme.vPrimary : AppTheme.vLine,
                           width: 1.5,
                         ),
                       ),
@@ -914,9 +881,8 @@ class _WalkInSheetState extends State<_WalkInSheet> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: selected
-                                  ? AppTheme.vPrimary
-                                  : AppTheme.vInk4,
+                              color:
+                                  selected ? AppTheme.vPrimary : AppTheme.vInk4,
                             ),
                           ),
                         ],
@@ -933,16 +899,14 @@ class _WalkInSheetState extends State<_WalkInSheet> {
             child: FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.vPrimary,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: _submit,
               child: const Text(
                 'Add to queue',
-                style: TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -1010,8 +974,7 @@ class _MarkCompleteSheet extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'No cars in queue',
-                        style: TextStyle(
-                            fontSize: 14, color: AppTheme.vInk3),
+                        style: TextStyle(fontSize: 14, color: AppTheme.vInk3),
                       ),
                     ),
                   );
@@ -1020,23 +983,19 @@ class _MarkCompleteSheet extends StatelessWidget {
                   shrinkWrap: true,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   itemCount: cars.length,
-                  separatorBuilder: (_, __) => const Divider(
-                      color: AppTheme.vLine2, height: 1),
+                  separatorBuilder: (_, __) =>
+                      const Divider(color: AppTheme.vLine2, height: 1),
                   itemBuilder: (context, i) {
                     final car = cars[i];
                     return Padding(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         children: [
-                          VPlate(
-                              code: car.plate,
-                              emirate: car.emirate),
+                          VPlate(code: car.plate, emirate: car.emirate),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(car.model,
                                     style: const TextStyle(
@@ -1051,32 +1010,22 @@ class _MarkCompleteSheet extends StatelessWidget {
                           const SizedBox(width: 8),
                           FilledButton(
                             style: FilledButton.styleFrom(
-                              backgroundColor:
-                                  AppTheme.vStatusFree,
-                              padding:
-                                  const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 9),
+                              backgroundColor: AppTheme.vStatusFree,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 9),
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(10)),
+                                  borderRadius: BorderRadius.circular(10)),
                               textStyle: const TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight:
-                                      FontWeight.w700),
+                                  fontSize: 12.5, fontWeight: FontWeight.w700),
                             ),
                             onPressed: () {
                               final plate = car.plate;
-                              VendorState.instance
-                                  .markCarComplete(car.id);
+                              VendorState.instance.markCarComplete(car.id);
                               Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                      '$plate marked as complete'),
-                                  backgroundColor:
-                                      AppTheme.vStatusFree,
+                                  content: Text('$plate marked as complete'),
+                                  backgroundColor: AppTheme.vStatusFree,
                                 ),
                               );
                             },
@@ -1153,9 +1102,7 @@ class _AssignBaySheet extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'No idle bays available',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.vInk3),
+                        style: TextStyle(fontSize: 14, color: AppTheme.vInk3),
                       ),
                     ),
                   );
@@ -1164,13 +1111,12 @@ class _AssignBaySheet extends StatelessWidget {
                   shrinkWrap: true,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   itemCount: idleBays.length,
-                  separatorBuilder: (_, __) => const Divider(
-                      color: AppTheme.vLine2, height: 1),
+                  separatorBuilder: (_, __) =>
+                      const Divider(color: AppTheme.vLine2, height: 1),
                   itemBuilder: (context, i) {
                     final bay = idleBays[i];
                     return Padding(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         children: [
                           Container(
@@ -1178,8 +1124,7 @@ class _AssignBaySheet extends StatelessWidget {
                             height: 44,
                             decoration: BoxDecoration(
                               color: AppTheme.vStatusFreeBg,
-                              borderRadius:
-                                  BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
                               child: Text(
@@ -1195,8 +1140,7 @@ class _AssignBaySheet extends StatelessWidget {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Bay ${bay.id}',
@@ -1210,8 +1154,7 @@ class _AssignBaySheet extends StatelessWidget {
                                 Text(
                                   'Washer ${bay.washerName ?? "—"}',
                                   style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppTheme.vInk3),
+                                      fontSize: 12, color: AppTheme.vInk3),
                                 ),
                               ],
                             ),
@@ -1219,30 +1162,21 @@ class _AssignBaySheet extends StatelessWidget {
                           FilledButton(
                             style: FilledButton.styleFrom(
                               backgroundColor: AppTheme.vPrimary,
-                              padding:
-                                  const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 9),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 9),
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(10)),
+                                  borderRadius: BorderRadius.circular(10)),
                               textStyle: const TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight:
-                                      FontWeight.w700),
+                                  fontSize: 12.5, fontWeight: FontWeight.w700),
                             ),
                             onPressed: () {
                               final bayId = bay.id;
-                              VendorState.instance
-                                  .assignCarToBay(carId, bayId);
+                              VendorState.instance.assignCarToBay(carId, bayId);
                               Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                      'Assigned to bay $bayId'),
-                                  backgroundColor:
-                                      AppTheme.vStatusFree,
+                                  content: Text('Assigned to bay $bayId'),
+                                  backgroundColor: AppTheme.vStatusFree,
                                 ),
                               );
                             },
@@ -1335,16 +1269,14 @@ class _NotificationsSheet extends StatelessWidget {
             child: ListenableBuilder(
               listenable: VendorState.instance,
               builder: (context, _) {
-                final notifications =
-                    VendorState.instance.notifications;
+                final notifications = VendorState.instance.notifications;
                 if (notifications.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.all(32),
                     child: Center(
                       child: Text(
                         'No notifications',
-                        style: TextStyle(
-                            fontSize: 14, color: AppTheme.vInk3),
+                        style: TextStyle(fontSize: 14, color: AppTheme.vInk3),
                       ),
                     ),
                   );
@@ -1353,26 +1285,21 @@ class _NotificationsSheet extends StatelessWidget {
                   shrinkWrap: true,
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   itemCount: notifications.length,
-                  separatorBuilder: (_, __) => const Divider(
-                      color: AppTheme.vLine2, height: 1),
+                  separatorBuilder: (_, __) =>
+                      const Divider(color: AppTheme.vLine2, height: 1),
                   itemBuilder: (context, i) {
                     final notif = notifications[i];
                     return GestureDetector(
                       onTap: () {
-                        if (!notif.read) {
-                          notif.read = true;
-                          VendorState.instance.notifyListeners();
-                        }
+                        VendorState.instance.markNotificationRead(notif);
                       },
                       behavior: HitTestBehavior.opaque,
                       child: Opacity(
                         opacity: notif.read ? 0.5 : 1.0,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           child: Row(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
                                 width: 40,
@@ -1381,8 +1308,7 @@ class _NotificationsSheet extends StatelessWidget {
                                   color: notif.icon == 'warning'
                                       ? AppTheme.vStatusBusyBg
                                       : AppTheme.vPrimaryTint,
-                                  borderRadius:
-                                      BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
                                   _iconForType(notif.icon),
@@ -1395,8 +1321,7 @@ class _NotificationsSheet extends StatelessWidget {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -1405,8 +1330,7 @@ class _NotificationsSheet extends StatelessWidget {
                                             notif.title,
                                             style: TextStyle(
                                               fontSize: 13.5,
-                                              fontWeight:
-                                                  FontWeight.w700,
+                                              fontWeight: FontWeight.w700,
                                               color: notif.read
                                                   ? AppTheme.vInk3
                                                   : AppTheme.vInk,
@@ -1439,8 +1363,7 @@ class _NotificationsSheet extends StatelessWidget {
                                 Container(
                                   width: 8,
                                   height: 8,
-                                  margin:
-                                      const EdgeInsets.only(top: 5),
+                                  margin: const EdgeInsets.only(top: 5),
                                   decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: AppTheme.vPrimary,

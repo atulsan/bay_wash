@@ -58,8 +58,7 @@ class VendorSignupManagerScreen extends StatefulWidget {
       _VendorSignupManagerScreenState();
 }
 
-class _VendorSignupManagerScreenState
-    extends State<VendorSignupManagerScreen> {
+class _VendorSignupManagerScreenState extends State<VendorSignupManagerScreen> {
   int _step = 0;
   bool _submitted = false;
 
@@ -80,34 +79,40 @@ class _VendorSignupManagerScreenState
   late final Map<String, _DaySchedule> _schedule;
 
   // Step 4
-  int _manualBays  = 0;
-  int _autoBays    = 0;
-  int _vacuumBays  = 0;
+  int _manualBays = 0;
+  int _autoBays = 0;
+  int _vacuumBays = 0;
   late List<_ServiceItem> _serviceItems;
 
   static const _emiratesLabels = [
-    'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Fujairah', 'RAK', 'UAQ'
+    'Dubai',
+    'Abu Dhabi',
+    'Sharjah',
+    'Ajman',
+    'Fujairah',
+    'RAK',
+    'UAQ'
   ];
 
   @override
   void initState() {
     super.initState();
     _schedule = {
-      'Mon': _DaySchedule(open: true,  from: '7:00 AM',  to: '11:00 PM'),
-      'Tue': _DaySchedule(open: true,  from: '7:00 AM',  to: '11:00 PM'),
-      'Wed': _DaySchedule(open: true,  from: '7:00 AM',  to: '11:00 PM'),
-      'Thu': _DaySchedule(open: true,  from: '7:00 AM',  to: '11:00 PM'),
-      'Fri': _DaySchedule(open: true,  from: '8:00 AM',  to: '11:00 PM'),
-      'Sat': _DaySchedule(open: true,  from: '7:00 AM',  to: '11:00 PM'),
-      'Sun': _DaySchedule(open: false, from: '9:00 AM',  to: '6:00 PM'),
+      'Mon': _DaySchedule(open: true, from: '7:00 AM', to: '11:00 PM'),
+      'Tue': _DaySchedule(open: true, from: '7:00 AM', to: '11:00 PM'),
+      'Wed': _DaySchedule(open: true, from: '7:00 AM', to: '11:00 PM'),
+      'Thu': _DaySchedule(open: true, from: '7:00 AM', to: '11:00 PM'),
+      'Fri': _DaySchedule(open: true, from: '8:00 AM', to: '11:00 PM'),
+      'Sat': _DaySchedule(open: true, from: '7:00 AM', to: '11:00 PM'),
+      'Sun': _DaySchedule(open: false, from: '9:00 AM', to: '6:00 PM'),
     };
     _serviceItems = [
-      _ServiceItem(name: 'Exterior Wash',   priceAed: 0),
-      _ServiceItem(name: 'Interior Clean',  priceAed: 0),
-      _ServiceItem(name: 'Polish',          priceAed: 0),
-      _ServiceItem(name: 'Tyre Shine',      priceAed: 0),
-      _ServiceItem(name: 'Full Detail',     priceAed: 0),
-      _ServiceItem(name: 'Engine Clean',    priceAed: 0),
+      _ServiceItem(name: 'Exterior Wash', priceAed: 0),
+      _ServiceItem(name: 'Interior Clean', priceAed: 0),
+      _ServiceItem(name: 'Polish', priceAed: 0),
+      _ServiceItem(name: 'Tyre Shine', priceAed: 0),
+      _ServiceItem(name: 'Full Detail', priceAed: 0),
+      _ServiceItem(name: 'Engine Clean', priceAed: 0),
       _ServiceItem(name: 'Ceramic Coating', priceAed: 0),
     ];
   }
@@ -131,37 +136,38 @@ class _VendorSignupManagerScreenState
   }
 
   void _back() {
-    if (_step > 0) setState(() => _step--);
-    else Navigator.of(context).pop();
+    if (_step > 0) {
+      setState(() => _step--);
+    } else {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _submitForm() async {
     final data = <String, dynamic>{
-      'businessName':  _bizNameCtrl.text,
-      'businessType':  _bizType,
-      'emirate':       _emiratesLabels[_selectedEmirate],
-      'ownerPhone':    '+971 ${_phoneCtrl.text}',
-      'tradeLicence':  _licenceCtrl.text,
-      'vatNumber':     _vatCtrl.text,
-      'address':       _addressCtrl.text,
+      'businessName': _bizNameCtrl.text,
+      'businessType': _bizType,
+      'emirate': _emiratesLabels[_selectedEmirate],
+      'ownerPhone': '+971 ${_phoneCtrl.text}',
+      'tradeLicence': _licenceCtrl.text,
+      'vatNumber': _vatCtrl.text,
+      'address': _addressCtrl.text,
       'location': {
         'lat': _pinLocation.latitude,
         'lng': _pinLocation.longitude,
       },
-      'schedule':      {
-        for (final day in _daysOrder) day: _schedule[day]!.toJson()
-      },
+      'schedule': {for (final day in _daysOrder) day: _schedule[day]!.toJson()},
       'bays': {
-        'manual':    _manualBays,
+        'manual': _manualBays,
         'automatic': _autoBays,
-        'vacuum':    _vacuumBays,
-        'total':     _manualBays + _autoBays + _vacuumBays,
+        'vacuum': _vacuumBays,
+        'total': _manualBays + _autoBays + _vacuumBays,
       },
-      'services':      _serviceItems
+      'services': _serviceItems
           .where((s) => s.selected)
           .map((s) => s.toJson())
           .toList(),
-      'submittedAt':   DateTime.now().toIso8601String(),
+      'submittedAt': DateTime.now().toIso8601String(),
     };
     await VendorDataStore.saveRegistration(data);
     setState(() => _submitted = true);
@@ -230,10 +236,10 @@ class _VendorSignupManagerScreenState
           vacuumBays: _vacuumBays,
           serviceItems: _serviceItems,
           onManualBays: (v) => setState(() => _manualBays = v),
-          onAutoBays:   (v) => setState(() => _autoBays = v),
+          onAutoBays: (v) => setState(() => _autoBays = v),
           onVacuumBays: (v) => setState(() => _vacuumBays = v),
-          onServiceToggle: (i) =>
-              setState(() => _serviceItems[i].selected = !_serviceItems[i].selected),
+          onServiceToggle: (i) => setState(
+              () => _serviceItems[i].selected = !_serviceItems[i].selected),
           onPriceSet: (i, price) => setState(() {
             _serviceItems[i].priceAed = price.clamp(0, 9999);
           }),
@@ -241,8 +247,7 @@ class _VendorSignupManagerScreenState
             _serviceItems.add(_ServiceItem(
                 name: name, priceAed: price, selected: true, isCustom: true));
           }),
-          onRemoveCustom: (i) =>
-              setState(() => _serviceItems.removeAt(i)),
+          onRemoveCustom: (i) => setState(() => _serviceItems.removeAt(i)),
         ),
     };
   }
@@ -259,38 +264,48 @@ class _Step1 extends StatelessWidget {
   final ValueChanged<int> onEmirate;
 
   static const _labels = [
-    'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Fujairah', 'RAK', 'UAQ'
+    'Dubai',
+    'Abu Dhabi',
+    'Sharjah',
+    'Ajman',
+    'Fujairah',
+    'RAK',
+    'UAQ'
   ];
 
   const _Step1({
-    required this.bizNameCtrl, required this.bizType,
-    required this.selectedEmirate, required this.phoneCtrl,
-    required this.onBizType, required this.onEmirate,
+    required this.bizNameCtrl,
+    required this.bizType,
+    required this.selectedEmirate,
+    required this.phoneCtrl,
+    required this.onBizType,
+    required this.onEmirate,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Tell us about your wash', style: TextStyle(
-          fontWeight: FontWeight.w700, fontSize: 20,
-          letterSpacing: -0.3, color: AppTheme.vInk)),
+      const Text('Tell us about your wash',
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              letterSpacing: -0.3,
+              color: AppTheme.vInk)),
       const SizedBox(height: 6),
       const Text("We'll cross-check this with your trade licence later.",
           style: TextStyle(fontSize: 13.5, color: AppTheme.vInk3)),
       const SizedBox(height: 22),
-
       VField(
         label: 'Business name',
         hint: 'As shown on your trade licence',
         child: TextFormField(
           controller: bizNameCtrl,
           decoration: vInputDecoration(hint: 'e.g. Marina Quick Wash'),
-          style: const TextStyle(fontSize: 15,
-              fontWeight: FontWeight.w500, color: AppTheme.vInk),
+          style: const TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
         ),
       ),
       const SizedBox(height: 16),
-
       VField(
         label: 'Business type',
         child: VSegRow(
@@ -298,17 +313,16 @@ class _Step1 extends StatelessWidget {
           onChanged: onBizType,
           options: const [
             (id: 'independent', label: 'Independent'),
-            (id: 'petrol',      label: 'Petrol pump'),
-            (id: 'detail',      label: 'Detailing'),
+            (id: 'petrol', label: 'Petrol pump'),
+            (id: 'detail', label: 'Detailing'),
           ],
         ),
       ),
       const SizedBox(height: 16),
-
       VField(
         label: 'Emirate',
         child: DropdownButtonFormField<int>(
-          value: selectedEmirate,
+          initialValue: selectedEmirate,
           decoration: vInputDecoration(hint: 'Select emirate'),
           style: const TextStyle(
               fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
@@ -316,19 +330,22 @@ class _Step1 extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           icon: const Icon(Icons.keyboard_arrow_down_rounded,
               size: 20, color: AppTheme.vInk3),
-          items: List.generate(_labels.length, (i) => DropdownMenuItem(
-            value: i,
-            child: Text(_labels[i],
-                style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.vInk)),
-          )),
-          onChanged: (v) { if (v != null) onEmirate(v); },
+          items: List.generate(
+              _labels.length,
+              (i) => DropdownMenuItem(
+                    value: i,
+                    child: Text(_labels[i],
+                        style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.vInk)),
+                  )),
+          onChanged: (v) {
+            if (v != null) onEmirate(v);
+          },
         ),
       ),
       const SizedBox(height: 16),
-
       VField(
         label: 'Owner mobile (UAE)',
         child: VPhoneField(controller: phoneCtrl),
@@ -363,25 +380,27 @@ class _Step2State extends State<_Step2> {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Verify your business', style: TextStyle(
-          fontWeight: FontWeight.w700, fontSize: 20,
-          letterSpacing: -0.3, color: AppTheme.vInk)),
+      const Text('Verify your business',
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              letterSpacing: -0.3,
+              color: AppTheme.vInk)),
       const SizedBox(height: 6),
-      const Text('We use these to keep the marketplace trustworthy. Reviewed within 24h.',
+      const Text(
+          'We use these to keep the marketplace trustworthy. Reviewed within 24h.',
           style: TextStyle(fontSize: 13.5, color: AppTheme.vInk3)),
       const SizedBox(height: 22),
-
       VField(
         label: 'Trade licence number',
         child: TextFormField(
           controller: widget.licenceCtrl,
           decoration: vInputDecoration(hint: 'e.g. DED-CN-1234567'),
-          style: const TextStyle(fontSize: 15,
-              fontWeight: FontWeight.w500, color: AppTheme.vInk),
+          style: const TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
         ),
       ),
       const SizedBox(height: 16),
-
       VField(
         label: 'Trade licence document',
         child: _UploadTile(
@@ -393,11 +412,10 @@ class _Step2State extends State<_Step2> {
           onTap: _licenceUploaded
               ? null
               : () => _simulateUpload(
-                    () => setState(() => _licenceUploaded = true)),
+                  () => setState(() => _licenceUploaded = true)),
         ),
       ),
       const SizedBox(height: 16),
-
       VField(
         label: 'Emirates ID (owner)',
         child: _UploadTile(
@@ -409,23 +427,21 @@ class _Step2State extends State<_Step2> {
           onTap: _emiratesIdUploaded
               ? null
               : () => _simulateUpload(
-                    () => setState(() => _emiratesIdUploaded = true)),
+                  () => setState(() => _emiratesIdUploaded = true)),
         ),
       ),
       const SizedBox(height: 16),
-
       VField(
         label: 'VAT number',
         hint: 'Optional — leave blank if not registered',
         child: TextFormField(
           controller: widget.vatCtrl,
           decoration: vInputDecoration(hint: '100xxxxxxxx00003'),
-          style: const TextStyle(fontSize: 15,
-              fontWeight: FontWeight.w500, color: AppTheme.vInk),
+          style: const TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
         ),
       ),
       const SizedBox(height: 16),
-
       Container(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         decoration: BoxDecoration(
@@ -433,12 +449,15 @@ class _Step2State extends State<_Step2> {
           border: Border.all(color: AppTheme.vPrimary),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        child:
+            const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.verified_user_rounded, size: 18, color: AppTheme.vPrimary),
           SizedBox(width: 10),
-          Expanded(child: Text(
+          Expanded(
+              child: Text(
             'Your data stays in the UAE. Documents are encrypted and never shared with end users.',
-            style: TextStyle(fontSize: 12.5, color: AppTheme.vPrimary700, height: 1.45),
+            style: TextStyle(
+                fontSize: 12.5, color: AppTheme.vPrimary700, height: 1.45),
           )),
         ]),
       ),
@@ -456,8 +475,10 @@ class _UploadTile extends StatefulWidget {
 
   const _UploadTile({
     required this.uploaded,
-    required this.uploadedLabel, required this.uploadedSub,
-    required this.pendingLabel,  required this.pendingSub,
+    required this.uploadedLabel,
+    required this.uploadedSub,
+    required this.pendingLabel,
+    required this.pendingSub,
     required this.onTap,
   });
 
@@ -479,8 +500,9 @@ class _UploadTileState extends State<_UploadTile> {
               setState(() => _loading = true);
               widget.onTap!();
               // Reset loading once parent flips `uploaded`
-              Future.delayed(const Duration(milliseconds: 700),
-                  () { if (mounted) setState(() => _loading = false); });
+              Future.delayed(const Duration(milliseconds: 700), () {
+                if (mounted) setState(() => _loading = false);
+              });
             },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -503,7 +525,8 @@ class _UploadTileState extends State<_UploadTile> {
         ),
         child: Row(children: [
           Container(
-            width: 38, height: 38,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: AppTheme.vSurface,
               borderRadius: BorderRadius.circular(10),
@@ -523,7 +546,8 @@ class _UploadTileState extends State<_UploadTile> {
                   ),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Column(
+          Expanded(
+              child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -539,7 +563,9 @@ class _UploadTileState extends State<_UploadTile> {
               ),
               const SizedBox(height: 2),
               Text(
-                _loading ? 'Uploading…' : (done ? widget.uploadedSub : widget.pendingSub),
+                _loading
+                    ? 'Uploading…'
+                    : (done ? widget.uploadedSub : widget.pendingSub),
                 style: const TextStyle(fontSize: 11.5, color: AppTheme.vInk3),
               ),
             ],
@@ -553,14 +579,18 @@ class _UploadTileState extends State<_UploadTile> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text('Upload',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
                       color: AppTheme.vInk2)),
             ),
           if (done)
             GestureDetector(
-              onTap: () {},   // re-upload: no-op for demo
+              onTap: () {}, // re-upload: no-op for demo
               child: const Text('Replace',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                       color: AppTheme.vInk3)),
             ),
         ]),
@@ -623,7 +653,10 @@ class _Step3State extends State<_Step3> {
         return;
       }
       final pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
       final loc = LatLng(pos.latitude, pos.longitude);
       if (mounted) {
         setState(() {
@@ -641,9 +674,12 @@ class _Step3State extends State<_Step3> {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Pin your location', style: TextStyle(
-          fontWeight: FontWeight.w700, fontSize: 20,
-          letterSpacing: -0.3, color: AppTheme.vInk)),
+      const Text('Pin your location',
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              letterSpacing: -0.3,
+              color: AppTheme.vInk)),
       const SizedBox(height: 6),
       const Text('Tap the map to pin your exact spot, or use GPS.',
           style: TextStyle(fontSize: 13.5, color: AppTheme.vInk3)),
@@ -692,7 +728,8 @@ class _Step3State extends State<_Step3> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.vPrimary.withValues(alpha: 0.45),
+                                color:
+                                    AppTheme.vPrimary.withValues(alpha: 0.45),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               )
@@ -701,8 +738,8 @@ class _Step3State extends State<_Step3> {
                           child: const Icon(Icons.local_car_wash_rounded,
                               color: Colors.white, size: 16),
                         ),
-                        Container(width: 2, height: 8,
-                            color: AppTheme.vPrimary),
+                        Container(
+                            width: 2, height: 8, color: AppTheme.vPrimary),
                       ],
                     ),
                   ),
@@ -716,8 +753,8 @@ class _Step3State extends State<_Step3> {
               child: GestureDetector(
                 onTap: _loadingGps ? null : _locateMe,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: AppTheme.vSurface,
                     borderRadius: BorderRadius.circular(999),
@@ -769,9 +806,10 @@ class _Step3State extends State<_Step3> {
         label: 'Address',
         child: TextFormField(
           controller: widget.addressCtrl,
-          decoration: vInputDecoration(hint: 'e.g. Dubai Marina Mall, Dubai Marina'),
-          style: const TextStyle(fontSize: 15,
-              fontWeight: FontWeight.w500, color: AppTheme.vInk),
+          decoration:
+              vInputDecoration(hint: 'e.g. Dubai Marina Mall, Dubai Marina'),
+          style: const TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
         ),
       ),
       const SizedBox(height: 16),
@@ -793,20 +831,24 @@ class _Step3State extends State<_Step3> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('DAY BY DAY', style: TextStyle(
-                      fontSize: 10, fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8, color: AppTheme.vInk3)),
+                  const Text('DAY BY DAY',
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                          color: AppTheme.vInk3)),
                   GestureDetector(
                     onTap: () {
                       final mon = widget.schedule['Mon']!;
                       for (final d in widget.daysOrder) {
                         widget.schedule[d]!.from = mon.from;
-                        widget.schedule[d]!.to   = mon.to;
+                        widget.schedule[d]!.to = mon.to;
                       }
                       widget.onScheduleChange();
                     },
                     child: const Text('Copy Mon → all',
-                        style: TextStyle(fontSize: 11.5,
+                        style: TextStyle(
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.vPrimary)),
                   ),
@@ -817,7 +859,7 @@ class _Step3State extends State<_Step3> {
 
             // Day rows
             ...widget.daysOrder.asMap().entries.map((e) {
-              final i   = e.key;
+              final i = e.key;
               final day = e.value;
               return _DayRow(
                 day: day,
@@ -855,8 +897,12 @@ class _DayRow extends StatelessWidget {
   final ValueChanged<String> onToChange;
 
   const _DayRow({
-    required this.day,  required this.sched, required this.isLast,
-    required this.onToggle, required this.onFromChange, required this.onToChange,
+    required this.day,
+    required this.sched,
+    required this.isLast,
+    required this.onToggle,
+    required this.onFromChange,
+    required this.onToChange,
   });
 
   @override
@@ -867,14 +913,18 @@ class _DayRow extends StatelessWidget {
         child: Row(children: [
           SizedBox(
             width: 30,
-            child: Text(day, style: const TextStyle(
-                fontSize: 12.5, fontWeight: FontWeight.w700, color: AppTheme.vInk2)),
+            child: Text(day,
+                style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.vInk2)),
           ),
           const SizedBox(width: 6),
           VToggle(on: sched.open, onChanged: onToggle),
           const SizedBox(width: 10),
           if (sched.open) ...[
-            Expanded(child: _TimeDropdown(
+            Expanded(
+                child: _TimeDropdown(
               value: sched.from,
               onChanged: onFromChange,
             )),
@@ -882,20 +932,24 @@ class _DayRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Container(width: 8, height: 1.5, color: AppTheme.vLine),
             ),
-            Expanded(child: _TimeDropdown(
+            Expanded(
+                child: _TimeDropdown(
               value: sched.to,
               onChanged: onToChange,
             )),
           ] else
             const Expanded(
-              child: Text('Closed', style: TextStyle(
-                  fontSize: 12.5, fontWeight: FontWeight.w600,
-                  color: AppTheme.vInk4)),
+              child: Text('Closed',
+                  style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.vInk4)),
             ),
         ]),
       ),
       if (!isLast)
-        const Divider(height: 1, indent: 14, endIndent: 14, color: AppTheme.vLine2),
+        const Divider(
+            height: 1, indent: 14, endIndent: 14, color: AppTheme.vLine2),
     ]);
   }
 }
@@ -926,9 +980,7 @@ class _TimeDropdown extends StatelessWidget {
           dropdownColor: AppTheme.vSurface,
           borderRadius: BorderRadius.circular(12),
           style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.vInk),
+              fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.vInk),
           items: _kTimeSlots
               .map((t) => DropdownMenuItem(
                     value: t,
@@ -939,7 +991,9 @@ class _TimeDropdown extends StatelessWidget {
                             color: AppTheme.vInk)),
                   ))
               .toList(),
-          onChanged: (v) { if (v != null) onChanged(v); },
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
         ),
       ),
     );
@@ -958,11 +1012,17 @@ class _Step4 extends StatefulWidget {
   final ValueChanged<int> onRemoveCustom;
 
   const _Step4({
-    required this.manualBays, required this.autoBays, required this.vacuumBays,
+    required this.manualBays,
+    required this.autoBays,
+    required this.vacuumBays,
     required this.serviceItems,
-    required this.onManualBays, required this.onAutoBays, required this.onVacuumBays,
+    required this.onManualBays,
+    required this.onAutoBays,
+    required this.onVacuumBays,
     required this.onServiceToggle,
-    required this.onPriceSet, required this.onAddCustom, required this.onRemoveCustom,
+    required this.onPriceSet,
+    required this.onAddCustom,
+    required this.onRemoveCustom,
   });
 
   @override
@@ -982,13 +1042,15 @@ class _Step4State extends State<_Step4> {
 
   @override
   Widget build(BuildContext context) {
-    final selected =
-        widget.serviceItems.where((s) => s.selected).toList();
+    final selected = widget.serviceItems.where((s) => s.selected).toList();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Bays & services', style: TextStyle(
-          fontWeight: FontWeight.w700, fontSize: 20,
-          letterSpacing: -0.3, color: AppTheme.vInk)),
+      const Text('Bays & services',
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              letterSpacing: -0.3,
+              color: AppTheme.vInk)),
       const SizedBox(height: 6),
       const Text('Set your bay types and what services you offer.',
           style: TextStyle(fontSize: 13.5, color: AppTheme.vInk3)),
@@ -1010,38 +1072,49 @@ class _Step4State extends State<_Step4> {
               label: 'Manual',
               sub: 'Attendant-operated',
               value: widget.manualBays,
-              isFirst: true, isLast: false,
+              isFirst: true,
+              isLast: false,
               onChanged: widget.onManualBays,
             ),
-            const Divider(height: 1, indent: 14, endIndent: 14, color: AppTheme.vLine2),
+            const Divider(
+                height: 1, indent: 14, endIndent: 14, color: AppTheme.vLine2),
             _BayTypeRow(
               icon: Icons.smart_toy_rounded,
               label: 'Automatic',
               sub: 'Drive-through tunnel',
               value: widget.autoBays,
-              isFirst: false, isLast: false,
+              isFirst: false,
+              isLast: false,
               onChanged: widget.onAutoBays,
             ),
-            const Divider(height: 1, indent: 14, endIndent: 14, color: AppTheme.vLine2),
+            const Divider(
+                height: 1, indent: 14, endIndent: 14, color: AppTheme.vLine2),
             _BayTypeRow(
               icon: Icons.air_rounded,
               label: 'Vacuum stations',
               sub: 'Self-service interior',
               value: widget.vacuumBays,
-              isFirst: false, isLast: true,
+              isFirst: false,
+              isLast: true,
               onChanged: widget.onVacuumBays,
             ),
             const Divider(height: 1, color: AppTheme.vLine2),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               child: Row(children: [
-                const Text('TOTAL', style: TextStyle(
-                    fontSize: 10.5, fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6, color: AppTheme.vInk3)),
+                const Text('TOTAL',
+                    style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                        color: AppTheme.vInk3)),
                 const Spacer(),
-                Text('${widget.manualBays + widget.autoBays + widget.vacuumBays} bays',
-                    style: const TextStyle(fontWeight: FontWeight.w800,
-                        fontSize: 15, color: AppTheme.vInk)),
+                Text(
+                    '${widget.manualBays + widget.autoBays + widget.vacuumBays} bays',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: AppTheme.vInk)),
               ]),
             ),
           ]),
@@ -1055,18 +1128,19 @@ class _Step4State extends State<_Step4> {
         hint: 'Tap to toggle · selected services appear in pricing below',
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Wrap(
-            spacing: 8, runSpacing: 8,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               // Preset + custom chips
               ...List.generate(widget.serviceItems.length, (i) {
-                final s  = widget.serviceItems[i];
+                final s = widget.serviceItems[i];
                 final on = s.selected;
                 return GestureDetector(
                   onTap: () => widget.onServiceToggle(i),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: on ? AppTheme.vPrimaryTint : AppTheme.vSurface,
                       border: Border.all(
@@ -1080,9 +1154,12 @@ class _Step4State extends State<_Step4> {
                             size: 12, color: AppTheme.vPrimary),
                         const SizedBox(width: 4),
                       ],
-                      Text(s.name, style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w600,
-                          color: on ? AppTheme.vPrimary700 : AppTheme.vInk2)),
+                      Text(s.name,
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  on ? AppTheme.vPrimary700 : AppTheme.vInk2)),
                       // Delete button for custom services
                       if (s.isCustom) ...[
                         const SizedBox(width: 5),
@@ -1103,34 +1180,30 @@ class _Step4State extends State<_Step4> {
                 onTap: () => setState(() => _showAddForm = !_showAddForm),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: _showAddForm
                         ? AppTheme.vPrimaryTint
                         : AppTheme.vSurface2,
                     border: Border.all(
-                        color: _showAddForm
-                            ? AppTheme.vPrimary
-                            : AppTheme.vLine,
+                        color:
+                            _showAddForm ? AppTheme.vPrimary : AppTheme.vLine,
                         width: 1.5),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(
-                      _showAddForm
-                          ? Icons.close_rounded
-                          : Icons.add_rounded,
+                      _showAddForm ? Icons.close_rounded : Icons.add_rounded,
                       size: 13,
-                      color: _showAddForm
-                          ? AppTheme.vPrimary
-                          : AppTheme.vInk3,
+                      color: _showAddForm ? AppTheme.vPrimary : AppTheme.vInk3,
                     ),
                     const SizedBox(width: 5),
                     Text(
                       'Add custom',
                       style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                           color: _showAddForm
                               ? AppTheme.vPrimary700
                               : AppTheme.vInk3),
@@ -1148,70 +1221,78 @@ class _Step4State extends State<_Step4> {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: AppTheme.vSurface2,
-                border: Border.all(
-                    color: AppTheme.vPrimary.withValues(alpha: 0.3)),
+                border:
+                    Border.all(color: AppTheme.vPrimary.withValues(alpha: 0.3)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                const Text('NEW SERVICE', style: TextStyle(
-                    fontSize: 10, fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8, color: AppTheme.vInk3)),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _customNameCtrl,
-                  decoration: vInputDecoration(
-                      hint: 'e.g. Foam wash, Underbody clean…'),
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500,
-                      color: AppTheme.vInk),
-                  textCapitalization: TextCapitalization.words,
-                ),
-                const SizedBox(height: 12),
-                Row(children: [
-                  const Text('Starting price', style: TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600,
-                      color: AppTheme.vInk2)),
-                  const Spacer(),
-                  _PriceField(
-                    key: const ValueKey('custom_price'),
-                    initialPrice: _customPrice,
-                    onChanged: (v) => setState(() => _customPrice = v),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text('AED', style: TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w600,
-                      color: AppTheme.vInk3)),
-                ]),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.vPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      minimumSize: Size.zero,
-                    ),
-                    onPressed: () {
-                      final name = _customNameCtrl.text.trim();
-                      if (name.isNotEmpty) {
-                        widget.onAddCustom(name, _customPrice);
-                        _customNameCtrl.clear();
-                        setState(() {
-                          _customPrice = 50;
-                          _showAddForm = false;
-                        });
-                      }
-                    },
-                    child: const Text('Add service',
+                    const Text('NEW SERVICE',
                         style: TextStyle(
-                            fontSize: 13.5, fontWeight: FontWeight.w700)),
-                  ),
-                ),
-              ]),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                            color: AppTheme.vInk3)),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _customNameCtrl,
+                      decoration: vInputDecoration(
+                          hint: 'e.g. Foam wash, Underbody clean…'),
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.vInk),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(children: [
+                      const Text('Starting price',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.vInk2)),
+                      const Spacer(),
+                      _PriceField(
+                        key: const ValueKey('custom_price'),
+                        initialPrice: _customPrice,
+                        onChanged: (v) => setState(() => _customPrice = v),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text('AED',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.vInk3)),
+                    ]),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppTheme.vPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          minimumSize: Size.zero,
+                        ),
+                        onPressed: () {
+                          final name = _customNameCtrl.text.trim();
+                          if (name.isNotEmpty) {
+                            widget.onAddCustom(name, _customPrice);
+                            _customNameCtrl.clear();
+                            setState(() {
+                              _customPrice = 50;
+                              _showAddForm = false;
+                            });
+                          }
+                        },
+                        child: const Text('Add service',
+                            style: TextStyle(
+                                fontSize: 13.5, fontWeight: FontWeight.w700)),
+                      ),
+                    ),
+                  ]),
             ),
           ],
         ]),
@@ -1252,16 +1333,22 @@ class _Step4State extends State<_Step4> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(children: [
-                      Expanded(child: Column(
+                      Expanded(
+                          child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(s.name, style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14, color: AppTheme.vInk)),
+                          Text(s.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: AppTheme.vInk)),
                           if (s.isCustom)
-                            const Text('Custom', style: TextStyle(
-                                fontSize: 10.5, fontWeight: FontWeight.w600,
-                                letterSpacing: 0.4, color: AppTheme.vPrimary)),
+                            const Text('Custom',
+                                style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.4,
+                                    color: AppTheme.vPrimary)),
                         ],
                       )),
                       _PriceField(
@@ -1270,9 +1357,11 @@ class _Step4State extends State<_Step4> {
                         onChanged: (v) => widget.onPriceSet(idx, v),
                       ),
                       const SizedBox(width: 8),
-                      const Text('AED', style: TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.w600,
-                          color: AppTheme.vInk3)),
+                      const Text('AED',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.vInk3)),
                     ]),
                   );
                 }).toList(),
@@ -1291,8 +1380,12 @@ class _BayTypeRow extends StatelessWidget {
   final bool isFirst, isLast;
   final ValueChanged<int> onChanged;
   const _BayTypeRow({
-    required this.icon, required this.label, required this.sub,
-    required this.value, required this.isFirst, required this.isLast,
+    required this.icon,
+    required this.label,
+    required this.sub,
+    required this.value,
+    required this.isFirst,
+    required this.isLast,
     required this.onChanged,
   });
 
@@ -1302,7 +1395,8 @@ class _BayTypeRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       child: Row(children: [
         Container(
-          width: 34, height: 34,
+          width: 34,
+          height: 34,
           decoration: BoxDecoration(
             color: AppTheme.vPrimaryTint,
             borderRadius: BorderRadius.circular(9),
@@ -1310,10 +1404,16 @@ class _BayTypeRow extends StatelessWidget {
           child: Icon(icon, size: 16, color: AppTheme.vPrimary),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(
-              fontWeight: FontWeight.w700, fontSize: 13.5, color: AppTheme.vInk)),
-          Text(sub, style: const TextStyle(fontSize: 11.5, color: AppTheme.vInk3)),
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13.5,
+                  color: AppTheme.vInk)),
+          Text(sub,
+              style: const TextStyle(fontSize: 11.5, color: AppTheme.vInk3)),
         ])),
         _StepBtn(
           icon: Icons.remove_rounded,
@@ -1321,9 +1421,12 @@ class _BayTypeRow extends StatelessWidget {
         ),
         SizedBox(
           width: 36,
-          child: Text('$value', textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w800,
-                  fontSize: 16, color: AppTheme.vInk)),
+          child: Text('$value',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  color: AppTheme.vInk)),
         ),
         _StepBtn(
           icon: Icons.add_rounded,
@@ -1339,7 +1442,8 @@ class _BayTypeRow extends StatelessWidget {
 class _PriceField extends StatefulWidget {
   final int initialPrice;
   final ValueChanged<int> onChanged;
-  const _PriceField({super.key, required this.initialPrice, required this.onChanged});
+  const _PriceField(
+      {super.key, required this.initialPrice, required this.onChanged});
 
   @override
   State<_PriceField> createState() => _PriceFieldState();
@@ -1385,8 +1489,8 @@ class _PriceFieldState extends State<_PriceField> {
           controller: _ctrl,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.w800,
-              fontSize: 15, color: AppTheme.vInk),
+          style: const TextStyle(
+              fontWeight: FontWeight.w800, fontSize: 15, color: AppTheme.vInk),
           decoration: const InputDecoration(
             border: InputBorder.none,
             contentPadding: EdgeInsets.zero,
@@ -1422,15 +1526,16 @@ class _StepBtn extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 32, height: 32,
+        width: 32,
+        height: 32,
         decoration: BoxDecoration(
           color: onTap != null ? AppTheme.vSurface : AppTheme.vSurface2,
           border: Border.all(
               color: onTap != null ? AppTheme.vLine : AppTheme.vLine2),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 14,
-            color: onTap != null ? AppTheme.vInk : AppTheme.vInk4),
+        child: Icon(icon,
+            size: 14, color: onTap != null ? AppTheme.vInk : AppTheme.vInk4),
       ),
     );
   }
@@ -1453,17 +1558,20 @@ class _SubmittedView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 80, height: 80,
+                width: 80,
+                height: 80,
                 decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.vStatusFreeBg),
+                    shape: BoxShape.circle, color: AppTheme.vStatusFreeBg),
                 child: const Icon(Icons.check_circle_rounded,
                     color: AppTheme.vStatusFree, size: 44),
               ),
               const SizedBox(height: 24),
-              const Text('Application submitted!', style: TextStyle(
-                  fontWeight: FontWeight.w800, fontSize: 22,
-                  letterSpacing: -0.4, color: AppTheme.vInk)),
+              const Text('Application submitted!',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 22,
+                      letterSpacing: -0.4,
+                      color: AppTheme.vInk)),
               const SizedBox(height: 10),
               const Text(
                 'Our team will review your trade licence and details within '
@@ -1484,8 +1592,8 @@ class _SubmittedView extends StatelessWidget {
                   ),
                   onPressed: onDone,
                   child: const Text('Done',
-                      style: TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w700)),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
@@ -1495,4 +1603,3 @@ class _SubmittedView extends StatelessWidget {
     );
   }
 }
-

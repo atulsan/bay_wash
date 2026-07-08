@@ -83,10 +83,10 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen>
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
+                            color: Colors.white.withValues(alpha: 0.18),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                               width: 1.5,
                             ),
                           ),
@@ -111,7 +111,7 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen>
                           'Select your portal to continue',
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.white.withOpacity(0.80),
+                            color: Colors.white.withValues(alpha: 0.80),
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -142,7 +142,7 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen>
                           'By continuing you agree to our Terms & Privacy Policy',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.white.withOpacity(0.55),
+                            color: Colors.white.withValues(alpha: 0.55),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -223,7 +223,7 @@ class _PortalCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: badgeColor.withOpacity(0.12),
+                            color: badgeColor.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -271,7 +271,7 @@ class _Circle extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(opacity),
+        color: Colors.white.withValues(alpha: opacity),
       ),
     );
   }

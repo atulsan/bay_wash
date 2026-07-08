@@ -34,6 +34,21 @@ Users can reserve a slot directly from the detail sheet:
 
 Payment is a fully mocked demo flow (no real transaction).
 
+### Booking operations workflow
+The booking tracker now implements the end-to-end arrival, queue, dispatch, service, payment, and commission workflow:
+
+1. **Customer intent** — user can reserve a future slot with in-app payment or join the app walk-in queue from the wash detail sheet.
+2. **Arrival capture** — each booking carries a source of truth: app booking, app walk-in, staff lead, token/kiosk, or sensor/camera.
+3. **Vendor redemption** — advance bookings move through QR/code redemption before queue staging.
+4. **Queue staging** — operator can route the job into an **AUTO present queue** or **MANUAL present queue**.
+5. **Service selection** — selected package is confirmed before the job becomes ready for wash dispatch.
+6. **Dispatch engine** — bay assignment is simulated, then `WASH_START` and `WASH_END` events move the job through the bay.
+7. **Interior stage** — Standard and Premium bookings include an optional separate interior queue and interior cleaning events.
+8. **Payment and commission** — in-app payments trigger commission earned/settled state; at-site vendor payments close with no app commission.
+9. **Edge-case enforcement** — operator controls expose late arrival, no-show, vendor override, and bay/staff shortage actions.
+
+This workflow is a demo simulation inside `BookingStatusScreen`; no real vendor system, POS, bay controller, or settlement API is connected yet.
+
 ### Queue detection (works without business sign-up)
 Every wash has a `DetectionMethod`:
 
@@ -67,6 +82,7 @@ Every wash has a `DetectionMethod`:
 lib/
   main.dart                      ← App root, locale state
   models/car_wash.dart           ← CarWash, WashStatus, DetectionMethod
+  models/app_booking.dart         ← Booking, queue, payment, workflow enums
   data/dummy_data.dart           ← 10 Dubai car washes (dummy data)
   l10n/app_localizations.dart    ← EN + AR strings
   theme/app_theme.dart           ← Colours, ThemeData
@@ -78,6 +94,7 @@ lib/
     otp_screen.dart
     home_screen.dart             ← Map, sort/filter, bottom sheet
     payment_screen.dart          ← Reserve & Pay flow (3 steps)
+    booking_status_screen.dart   ← End-to-end booking workflow tracker
   widgets/
     wash_marker.dart             ← Map bubble markers
     wash_list_card.dart          ← Bottom sheet list item (shows price)

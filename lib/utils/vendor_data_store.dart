@@ -25,8 +25,7 @@ class VendorDataStore {
   /// prints the full payload to the console for quick inspection.
   static Future<void> saveRegistration(Map<String, dynamic> data) async {
     _lastRegistration = Map<String, dynamic>.unmodifiable(data);
-    _lastRegistrationJson =
-        const JsonEncoder.withIndent('  ').convert(data);
+    _lastRegistrationJson = const JsonEncoder.withIndent('  ').convert(data);
 
     if (kDebugMode) {
       debugPrint('\n╔══════════════════════════════════════════╗');

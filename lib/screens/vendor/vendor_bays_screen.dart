@@ -26,8 +26,8 @@ class VendorBaysScreen extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.vInk,
                     side: const BorderSide(color: AppTheme.vLine),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                     minimumSize: Size.zero,
@@ -289,8 +289,7 @@ class _AiSuggestionBanner extends StatelessWidget {
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.vPrimary,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(9)),
               minimumSize: Size.zero,
@@ -299,8 +298,7 @@ class _AiSuggestionBanner extends StatelessWidget {
               VendorState.instance.assignCarToBay(car.id, bay.id);
             },
             child: const Text('Assign',
-                style:
-                    TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -378,8 +376,7 @@ class _IdleBayCard extends StatelessWidget {
           FilledButton.icon(
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.vPrimary,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
               minimumSize: Size.zero,
@@ -387,8 +384,7 @@ class _IdleBayCard extends StatelessWidget {
             onPressed: () => _showAssignSheet(context, bay),
             icon: const Icon(Icons.add_rounded, size: 14),
             label: const Text('Pull next',
-                style:
-                    TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -415,8 +411,7 @@ class _ActiveBayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPaused = bay.state == 'paused';
-    final progressColor =
-        isPaused ? AppTheme.vStatusBusyBg : AppTheme.vPrimary;
+    final progressColor = isPaused ? AppTheme.vStatusBusyBg : AppTheme.vPrimary;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -435,9 +430,7 @@ class _ActiveBayCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: isPaused
-                      ? const Color(0xFFF8EDD0)
-                      : AppTheme.vPrimary,
+                  color: isPaused ? const Color(0xFFF8EDD0) : AppTheme.vPrimary,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
@@ -521,8 +514,7 @@ class _ActiveBayCard extends StatelessWidget {
             children: [
               Text(
                 '${bay.elapsedMins} min elapsed · ${bay.washerName ?? '—'}',
-                style: const TextStyle(
-                    fontSize: 11.5, color: AppTheme.vInk3),
+                style: const TextStyle(fontSize: 11.5, color: AppTheme.vInk3),
               ),
             ],
           ),
@@ -540,8 +532,7 @@ class _ActiveBayCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10)),
                     minimumSize: Size.zero,
                   ),
-                  onPressed: () =>
-                      VendorState.instance.addBayTime(bay.id, 300),
+                  onPressed: () => VendorState.instance.addBayTime(bay.id, 300),
                   child: const Text('+5 min',
                       style: TextStyle(
                           fontSize: 12.5, fontWeight: FontWeight.w700)),
@@ -558,8 +549,7 @@ class _ActiveBayCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10)),
                     minimumSize: Size.zero,
                   ),
-                  onPressed: () =>
-                      VendorState.instance.toggleBayPause(bay.id),
+                  onPressed: () => VendorState.instance.toggleBayPause(bay.id),
                   child: Text(
                     bay.paused ? 'Resume' : 'Pause',
                     style: const TextStyle(
@@ -755,8 +745,7 @@ class _AssignBaySheet extends StatelessWidget {
                                   Text(
                                     car.model,
                                     style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppTheme.vInk3),
+                                        fontSize: 12, color: AppTheme.vInk3),
                                   ),
                                 ],
                               ),
@@ -861,9 +850,7 @@ class _ConfigureSheetState extends State<_ConfigureSheet> {
           _BayStepper(
             label: 'Manual Bays',
             value: _manual,
-            onDecrement: _manual > 0
-                ? () => setState(() => _manual--)
-                : null,
+            onDecrement: _manual > 0 ? () => setState(() => _manual--) : null,
             onIncrement: () => setState(() => _manual++),
           ),
           const SizedBox(height: 12),
@@ -872,9 +859,7 @@ class _ConfigureSheetState extends State<_ConfigureSheet> {
           _BayStepper(
             label: 'Automatic Bays',
             value: _auto,
-            onDecrement: _auto > 0
-                ? () => setState(() => _auto--)
-                : null,
+            onDecrement: _auto > 0 ? () => setState(() => _auto--) : null,
             onIncrement: () => setState(() => _auto++),
           ),
           const SizedBox(height: 12),
@@ -883,17 +868,14 @@ class _ConfigureSheetState extends State<_ConfigureSheet> {
           _BayStepper(
             label: 'Vacuum Stations',
             value: _vacuum,
-            onDecrement: _vacuum > 0
-                ? () => setState(() => _vacuum--)
-                : null,
+            onDecrement: _vacuum > 0 ? () => setState(() => _vacuum--) : null,
             onIncrement: () => setState(() => _vacuum++),
           ),
           const SizedBox(height: 16),
 
           // Total
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               color: AppTheme.vPrimaryTint,
               borderRadius: BorderRadius.circular(12),
@@ -926,15 +908,15 @@ class _ConfigureSheetState extends State<_ConfigureSheet> {
                     borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: () {
-                VendorState.instance.manualBays = _manual;
-                VendorState.instance.autoBays = _auto;
-                VendorState.instance.vacuumBays = _vacuum;
-                VendorState.instance.notifyListeners();
+                VendorState.instance.updateBayCounts(
+                  manual: _manual,
+                  auto: _auto,
+                  vacuum: _vacuum,
+                );
                 Navigator.pop(context);
               },
               child: const Text('Save',
-                  style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w700)),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             ),
           ),
         ],

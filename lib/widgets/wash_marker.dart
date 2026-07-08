@@ -15,10 +15,10 @@ class WashMarker extends StatelessWidget {
   });
 
   Color get _color => switch (wash.status) {
-        WashStatus.free => AppTheme.statusFree,
-        WashStatus.busy => AppTheme.statusBusy,
-        WashStatus.full => AppTheme.statusFull,
-      };
+    WashStatus.free => AppTheme.statusFree,
+    WashStatus.busy => AppTheme.statusBusy,
+    WashStatus.full => AppTheme.statusFull,
+  };
 
   String get _label =>
       wash.waitTimeMinutes == 0 ? 'Free' : '${wash.waitTimeMinutes}m';
@@ -39,7 +39,7 @@ class WashMarker extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   blurRadius: isSelected ? 12 : 6,
                   offset: const Offset(0, 2),
                 ),

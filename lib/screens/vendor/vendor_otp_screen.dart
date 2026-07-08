@@ -24,26 +24,33 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
   void initState() {
     super.initState();
     _startTimer();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _focuses[0].requestFocus());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _focuses[0].requestFocus());
   }
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
-      setState(() { if (_resend > 0) _resend--; });
+      setState(() {
+        if (_resend > 0) _resend--;
+      });
     });
   }
 
   @override
   void dispose() {
-    for (final c in _controllers) c.dispose();
-    for (final f in _focuses) f.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focuses) {
+      f.dispose();
+    }
     _timer?.cancel();
     super.dispose();
   }
 
-  void _verify() => Navigator.of(context).pushReplacement(
-      fadeRoute(VendorMainScreen(role: widget.role)));
+  void _verify() => Navigator.of(context)
+      .pushReplacement(fadeRoute(VendorMainScreen(role: widget.role)));
 
   @override
   Widget build(BuildContext context) {
@@ -61,16 +68,25 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Enter the 6-digit code',
-                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 26,
-                            letterSpacing: -0.4, color: AppTheme.vInk)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 26,
+                            letterSpacing: -0.4,
+                            color: AppTheme.vInk)),
                     const SizedBox(height: 8),
-                    RichText(text: TextSpan(
+                    RichText(
+                        text: TextSpan(
                       text: 'We sent it to ',
-                      style: const TextStyle(fontSize: 14, color: AppTheme.vInk3),
-                      children: [TextSpan(
-                        text: widget.phone,
-                        style: const TextStyle(color: AppTheme.vInk, fontWeight: FontWeight.w700),
-                      )],
+                      style:
+                          const TextStyle(fontSize: 14, color: AppTheme.vInk3),
+                      children: [
+                        TextSpan(
+                          text: widget.phone,
+                          style: const TextStyle(
+                              color: AppTheme.vInk,
+                              fontWeight: FontWeight.w700),
+                        )
+                      ],
                     )),
                     const SizedBox(height: 30),
 
@@ -89,24 +105,33 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                                 textAlign: TextAlign.center,
                                 keyboardType: TextInputType.number,
                                 maxLength: 1,
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.w800, fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 24,
                                     color: AppTheme.vInk),
                                 decoration: InputDecoration(
                                   counterText: '',
                                   filled: true,
-                                  fillColor: hasValue ? AppTheme.vPrimaryTint : AppTheme.vSurface,
+                                  fillColor: hasValue
+                                      ? AppTheme.vPrimaryTint
+                                      : AppTheme.vSurface,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
-                                        color: hasValue ? AppTheme.vPrimary : AppTheme.vLine,
+                                        color: hasValue
+                                            ? AppTheme.vPrimary
+                                            : AppTheme.vLine,
                                         width: 1.5),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
-                                        color: hasValue ? AppTheme.vPrimary : AppTheme.vLine,
+                                        color: hasValue
+                                            ? AppTheme.vPrimary
+                                            : AppTheme.vLine,
                                         width: 1.5),
                                   ),
                                   focusedBorder: OutlineInputBorder(
@@ -123,8 +148,11 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                                   if (v.isEmpty && i > 0) {
                                     _focuses[i - 1].requestFocus();
                                   }
-                                  if (_controllers.every((c) => c.text.isNotEmpty)) {
-                                    Future.delayed(const Duration(milliseconds: 300), _verify);
+                                  if (_controllers
+                                      .every((c) => c.text.isNotEmpty)) {
+                                    Future.delayed(
+                                        const Duration(milliseconds: 300),
+                                        _verify);
                                   }
                                 },
                               ),
@@ -138,16 +166,23 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        RichText(text: TextSpan(
+                        RichText(
+                            text: TextSpan(
                           text: 'Resend in ',
-                          style: const TextStyle(fontSize: 13, color: AppTheme.vInk3),
-                          children: [TextSpan(
-                            text: '00:${_resend.toString().padLeft(2, '0')}',
-                            style: const TextStyle(color: AppTheme.vInk, fontWeight: FontWeight.w700),
-                          )],
+                          style: const TextStyle(
+                              fontSize: 13, color: AppTheme.vInk3),
+                          children: [
+                            TextSpan(
+                              text: '00:${_resend.toString().padLeft(2, '0')}',
+                              style: const TextStyle(
+                                  color: AppTheme.vInk,
+                                  fontWeight: FontWeight.w700),
+                            )
+                          ],
                         )),
                         const Text('Wrong number?',
-                            style: TextStyle(fontSize: 13, color: AppTheme.vInk4)),
+                            style:
+                                TextStyle(fontSize: 13, color: AppTheme.vInk4)),
                       ],
                     ),
 
@@ -155,15 +190,18 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
 
                     // Security note
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
                         color: AppTheme.vSurface2,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Row(children: [
-                        Icon(Icons.verified_user_rounded, size: 16, color: AppTheme.vPrimary),
+                        Icon(Icons.verified_user_rounded,
+                            size: 16, color: AppTheme.vPrimary),
                         SizedBox(width: 10),
-                        Expanded(child: Text(
+                        Expanded(
+                            child: Text(
                           'Never share this code. Emirates Wash will never ask for it.',
                           style: TextStyle(fontSize: 12, color: AppTheme.vInk3),
                         )),
@@ -186,7 +224,8 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                           ),
                           onPressed: filled == 6 ? _verify : null,
                           child: const Text('Verify & sign in',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w700)),
                         ),
                       ),
                     ),
@@ -195,7 +234,8 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                       child: TextButton(
                         onPressed: _verify,
                         child: const Text('Skip (Demo)',
-                            style: TextStyle(color: AppTheme.vInk3, fontSize: 13)),
+                            style:
+                                TextStyle(color: AppTheme.vInk3, fontSize: 13)),
                       ),
                     ),
                   ],

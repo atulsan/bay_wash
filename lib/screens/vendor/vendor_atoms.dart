@@ -115,8 +115,8 @@ class VTopBar extends StatelessWidget {
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(subtitle!,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppTheme.vInk3)),
+                      style:
+                          const TextStyle(fontSize: 12, color: AppTheme.vInk3)),
                 ],
               ],
             ),
@@ -234,8 +234,7 @@ class VField extends StatelessWidget {
         if (hint != null) ...[
           const SizedBox(height: 5),
           Text(hint!,
-              style:
-                  const TextStyle(fontSize: 11.5, color: AppTheme.vInk4)),
+              style: const TextStyle(fontSize: 11.5, color: AppTheme.vInk4)),
         ],
       ],
     );
@@ -260,8 +259,7 @@ InputDecoration vInputDecoration({String? hint, Widget? prefix}) {
     focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppTheme.vPrimary, width: 1.5)),
-    contentPadding:
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
   );
 }
 
@@ -283,11 +281,10 @@ class VPhoneField extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
             decoration: const BoxDecoration(
-              border: Border(
-                  right: BorderSide(color: AppTheme.vLine, width: 1.5)),
+              border:
+                  Border(right: BorderSide(color: AppTheme.vLine, width: 1.5)),
             ),
             child: const Row(
               children: [
@@ -312,8 +309,8 @@ class VPhoneField extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: defaultValue.isEmpty ? '50 000 0000' : null,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 16),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
               ),
             ),
           ),
@@ -330,10 +327,7 @@ class VSegRow extends StatelessWidget {
   final ValueChanged<String>? onChanged;
 
   const VSegRow(
-      {super.key,
-      required this.value,
-      required this.options,
-      this.onChanged});
+      {super.key, required this.value, required this.options, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -369,8 +363,7 @@ class VSegRow extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight:
-                        on ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: on ? FontWeight.w700 : FontWeight.w500,
                     color: on ? AppTheme.vInk : AppTheme.vInk3,
                   ),
                 ),
@@ -410,8 +403,7 @@ class VSectionHeader extends StatelessWidget {
           if (count != null) ...[
             const SizedBox(width: 8),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
               decoration: BoxDecoration(
                 color: AppTheme.vSurface2,
                 borderRadius: BorderRadius.circular(999),
@@ -455,9 +447,7 @@ class VKpiTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: primary ? AppTheme.vPrimary : AppTheme.vSurface2,
         borderRadius: BorderRadius.circular(12),
-        border: primary
-            ? null
-            : Border.all(color: AppTheme.vLine2, width: 1),
+        border: primary ? null : Border.all(color: AppTheme.vLine2, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,8 +458,7 @@ class VKpiTile extends StatelessWidget {
               fontSize: 9.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.7,
-              color:
-                  primary ? Colors.white70 : AppTheme.vInk3,
+              color: primary ? Colors.white70 : AppTheme.vInk3,
             ),
           ),
           const SizedBox(height: 4),
@@ -492,9 +481,7 @@ class VKpiTile extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
-                        color: primary
-                            ? Colors.white60
-                            : AppTheme.vInk3)),
+                        color: primary ? Colors.white60 : AppTheme.vInk3)),
               ],
               if (sub != null) ...[
                 const Spacer(),
@@ -502,9 +489,7 @@ class VKpiTile extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
-                        color: primary
-                            ? Colors.white60
-                            : AppTheme.vInk3)),
+                        color: primary ? Colors.white60 : AppTheme.vInk3)),
               ],
             ],
           ),
@@ -528,22 +513,19 @@ class VStatusChip extends StatelessWidget {
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-          color: bg, borderRadius: BorderRadius.circular(999)),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
               width: 7,
               height: 7,
-              decoration:
-                  BoxDecoration(shape: BoxShape.circle, color: fg)),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: fg)),
           const SizedBox(width: 5),
           Text(label,
               style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: fg)),
+                  fontSize: 11.5, fontWeight: FontWeight.w600, color: fg)),
         ],
       ),
     );
@@ -571,9 +553,8 @@ class _VLivePulseState extends State<VLivePulse>
     _ctrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1800))
       ..repeat();
-    _anim = CurvedAnimation(
-        parent: _ctrl,
-        curve: const Cubic(0.2, 0.7, 0.3, 1.0));
+    _anim =
+        CurvedAnimation(parent: _ctrl, curve: const Cubic(0.2, 0.7, 0.3, 1.0));
   }
 
   @override
@@ -669,8 +650,8 @@ class VCircleBtn extends StatelessWidget {
                 top: -3,
                 right: -3,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 4, vertical: 1),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   decoration: BoxDecoration(
                     color: AppTheme.vStatusFull,
                     borderRadius: BorderRadius.circular(999),
@@ -740,13 +721,13 @@ class VServiceBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg) = switch (service) {
       'Standard' => (AppTheme.vPrimaryTint, AppTheme.vPrimary700),
-      'Premium'  => (const Color(0xFFF8EFD8), const Color(0xFF8C6B1E)),
-      _          => (AppTheme.vSurface2, AppTheme.vInk2),
+      'Premium' => (const Color(0xFFF8EFD8), const Color(0xFF8C6B1E)),
+      _ => (AppTheme.vSurface2, AppTheme.vInk2),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(
-          color: bg, borderRadius: BorderRadius.circular(6)),
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
       child: Text(
         service.toUpperCase(),
         style: TextStyle(
@@ -804,9 +785,7 @@ class VTabBar extends StatelessWidget {
                     width: 46,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: on
-                          ? AppTheme.vPrimaryTint
-                          : Colors.transparent,
+                      color: on ? AppTheme.vPrimaryTint : Colors.transparent,
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Icon(icon,
@@ -818,8 +797,7 @@ class VTabBar extends StatelessWidget {
                     label,
                     style: TextStyle(
                       fontSize: 10.5,
-                      fontWeight:
-                          on ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: on ? FontWeight.w700 : FontWeight.w500,
                       color: on ? AppTheme.vPrimary : AppTheme.vInk3,
                     ),
                   ),
@@ -835,15 +813,12 @@ class VTabBar extends StatelessWidget {
 
 // ── Small button helper ───────────────────────────────────────────────────────
 ButtonStyle vSmallBtn({bool primary = false}) => FilledButton.styleFrom(
-      backgroundColor:
-          primary ? AppTheme.vPrimary : AppTheme.vSurface2,
+      backgroundColor: primary ? AppTheme.vPrimary : AppTheme.vSurface2,
       foregroundColor: primary ? Colors.white : AppTheme.vInk,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 0,
-      side: primary
-          ? null
-          : const BorderSide(color: AppTheme.vLine, width: 1),
+      side: primary ? null : const BorderSide(color: AppTheme.vLine, width: 1),
     );
 
 // ── Upload row ────────────────────────────────────────────────────────────────
@@ -852,10 +827,7 @@ class VUploadRow extends StatelessWidget {
   final String label;
   final String sub;
   const VUploadRow(
-      {super.key,
-      required this.done,
-      required this.label,
-      required this.sub});
+      {super.key, required this.done, required this.label, required this.sub});
 
   @override
   Widget build(BuildContext context) {
@@ -880,9 +852,7 @@ class VUploadRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              done
-                  ? Icons.check_circle_rounded
-                  : Icons.upload_rounded,
+              done ? Icons.check_circle_rounded : Icons.upload_rounded,
               color: done ? AppTheme.vStatusFree : AppTheme.vInk3,
               size: 18,
             ),
@@ -896,13 +866,11 @@ class VUploadRow extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
-                        color: done
-                            ? AppTheme.vStatusFree
-                            : AppTheme.vInk)),
+                        color: done ? AppTheme.vStatusFree : AppTheme.vInk)),
                 const SizedBox(height: 2),
                 Text(sub,
-                    style: const TextStyle(
-                        fontSize: 11.5, color: AppTheme.vInk3)),
+                    style:
+                        const TextStyle(fontSize: 11.5, color: AppTheme.vInk3)),
               ],
             ),
           ),
@@ -944,7 +912,9 @@ class VToggle extends StatelessWidget {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black26, blurRadius: 3, offset: Offset(0, 1))
+                        color: Colors.black26,
+                        blurRadius: 3,
+                        offset: Offset(0, 1))
                   ],
                 ),
               ),

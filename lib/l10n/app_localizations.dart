@@ -44,8 +44,10 @@ class AppLocalizations {
     'detection_camera_ai': 'AI Camera',
     'detection_crowd': 'Community',
     'detection_verified': 'Business Verified',
-    'detection_camera_desc': 'Queue detected automatically via AI camera — no sign-up needed',
-    'detection_crowd_desc': 'Queue reported by nearby app users — no sign-up needed',
+    'detection_camera_desc':
+        'Queue detected automatically via AI camera — no sign-up needed',
+    'detection_crowd_desc':
+        'Queue reported by nearby app users — no sign-up needed',
     'detection_verified_desc': 'Queue reported directly by the business',
     'how_detected': 'How queue is detected',
     // Login
@@ -99,6 +101,10 @@ class AppLocalizations {
     'no_results': 'No washes match your filters',
     'no_results_sub': 'Try adjusting or clearing filters',
     'active_filters': 'Active filters',
+    'list_view': 'List',
+    'filter_view': 'Filter',
+    'search_washes': 'Search washes, areas, services',
+    'filter_status': 'Filter by Status',
   };
 
   static const _ar = <String, String>{
@@ -134,8 +140,10 @@ class AppLocalizations {
     'detection_camera_ai': 'كاميرا ذكاء اصطناعي',
     'detection_crowd': 'مجتمعي',
     'detection_verified': 'موثق من المحل',
-    'detection_camera_desc': 'يُكتشف الطابور تلقائياً عبر كاميرا الذكاء الاصطناعي — بدون تسجيل',
-    'detection_crowd_desc': 'أبلغ عن الطابور مستخدمو التطبيق القريبون — بدون تسجيل',
+    'detection_camera_desc':
+        'يُكتشف الطابور تلقائياً عبر كاميرا الذكاء الاصطناعي — بدون تسجيل',
+    'detection_crowd_desc':
+        'أبلغ عن الطابور مستخدمو التطبيق القريبون — بدون تسجيل',
     'detection_verified_desc': 'يُبلَّغ عن الطابور مباشرة من المنشأة',
     'how_detected': 'كيف يُكتشف الطابور',
     // Login
@@ -189,6 +197,10 @@ class AppLocalizations {
     'no_results': 'لا توجد مراكز تطابق فلاترك',
     'no_results_sub': 'جرب تعديل الفلاتر أو مسحها',
     'active_filters': 'فلاتر نشطة',
+    'list_view': 'القائمة',
+    'filter_view': 'التصفية',
+    'search_washes': 'ابحث عن مركز أو منطقة أو خدمة',
+    'filter_status': 'تصفية حسب الحالة',
   };
 
   String t(String key) => (isArabic ? _ar[key] : _en[key]) ?? _en[key] ?? key;
@@ -213,8 +225,7 @@ class _AppLocalizationsDelegate
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      ['en', 'ar'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => ['en', 'ar'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async =>

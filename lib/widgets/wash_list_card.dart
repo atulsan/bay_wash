@@ -36,18 +36,18 @@ class WashListCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.googleBlue.withOpacity(0.05)
+              ? AppTheme.googleBlue.withValues(alpha: 0.05)
               : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? AppTheme.googleBlue.withOpacity(0.35)
+                ? AppTheme.googleBlue.withValues(alpha: 0.35)
                 : AppTheme.divider,
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.06 : 0.03),
+              color: Colors.black.withValues(alpha: isSelected ? 0.06 : 0.03),
               blurRadius: isSelected ? 12 : 6,
               offset: const Offset(0, 2),
             ),
@@ -58,9 +58,7 @@ class WashListCard extends StatelessWidget {
             // Status dot + wait time column
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                StatusBadge(status: wash.status, compact: true),
-              ],
+              children: [StatusBadge(status: wash.status, compact: true)],
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -81,8 +79,11 @@ class WashListCard extends StatelessWidget {
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      const Icon(Icons.schedule_rounded,
-                          size: 13, color: AppTheme.textSecondary),
+                      const Icon(
+                        Icons.schedule_rounded,
+                        size: 13,
+                        color: AppTheme.textSecondary,
+                      ),
                       const SizedBox(width: 3),
                       Text(
                         waitLabel,
@@ -92,8 +93,11 @@ class WashListCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Icon(Icons.directions_car_outlined,
-                          size: 13, color: AppTheme.textSecondary),
+                      const Icon(
+                        Icons.directions_car_outlined,
+                        size: 13,
+                        color: AppTheme.textSecondary,
+                      ),
                       const SizedBox(width: 3),
                       Text(
                         '${wash.carsInQueue}',
@@ -112,7 +116,9 @@ class WashListCard extends StatelessWidget {
                       Text(
                         '${l10n.t('from_price')} ${wash.priceBasic.toStringAsFixed(0)}',
                         style: const TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.googleBlue,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.googleBlue,
                         ),
                       ),
                     ],
@@ -127,8 +133,11 @@ class WashListCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded,
-                        size: 13, color: Color(0xFFFBBC04)),
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 13,
+                      color: Color(0xFFFBBC04),
+                    ),
                     const SizedBox(width: 2),
                     Text(
                       wash.rating.toStringAsFixed(1),
