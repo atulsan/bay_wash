@@ -1,0 +1,1 @@
+enum PortalType { user, vendor }

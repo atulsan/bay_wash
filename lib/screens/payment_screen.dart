@@ -21,6 +21,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   int _selectedPackage = 1;
   String? _selectedSlot;
   bool _processing = false;
+  String _paymentMethod = 'card'; // 'card' | 'applePay'
   late final String _bookingRef;
 
   final _cardCtrl = TextEditingController();
@@ -52,8 +53,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         final displayH = h > 12
             ? h - 12
             : h == 0
-            ? 12
-            : h;
+                ? 12
+                : h;
         slots.add('$displayH:${m.toString().padLeft(2, '0')} $ap');
       }
     }
@@ -61,10 +62,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   double get _price => switch (_selectedPackage) {
-    0 => widget.wash.priceBasic,
-    1 => widget.wash.priceStandard,
-    _ => widget.wash.pricePremium,
-  };
+        0 => widget.wash.priceBasic,
+        1 => widget.wash.priceStandard,
+        _ => widget.wash.pricePremium,
+      };
 
   void _proceed() {
     if (_step == 0) {
@@ -76,7 +77,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
       }
       setState(() => _step = 1);
     } else if (_step == 1) {
-      if (!_formKey.currentState!.validate()) return;
+      if (_paymentMethod == 'card' && !_formKey.currentState!.validate()) {
+        return;
+      }
       setState(() => _processing = true);
       Future.delayed(const Duration(milliseconds: 1600), () {
         if (mounted) {
@@ -133,55 +136,56 @@ class _PaymentScreenState extends State<PaymentScreen> {
         transitionBuilder: (child, anim) => FadeTransition(
           opacity: anim,
           child: SlideTransition(
-            position:
-                Tween<Offset>(
-                  begin: const Offset(0.04, 0),
-                  end: Offset.zero,
-                ).animate(
-                  CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
-                ),
+            position: Tween<Offset>(
+              begin: const Offset(0.04, 0),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+            ),
             child: child,
           ),
         ),
         child: switch (_step) {
           0 => _BookingStep(
-            key: const ValueKey(0),
-            wash: widget.wash,
-            selectedPackage: _selectedPackage,
-            selectedSlot: _selectedSlot,
-            slots: _slots,
-            price: _price,
-            onPackage: (p) => setState(() => _selectedPackage = p),
-            onSlot: (s) => setState(() => _selectedSlot = s),
-            onNext: _proceed,
-            l10n: l10n,
-          ),
+              key: const ValueKey(0),
+              wash: widget.wash,
+              selectedPackage: _selectedPackage,
+              selectedSlot: _selectedSlot,
+              slots: _slots,
+              price: _price,
+              onPackage: (p) => setState(() => _selectedPackage = p),
+              onSlot: (s) => setState(() => _selectedSlot = s),
+              onNext: _proceed,
+              l10n: l10n,
+            ),
           1 => _CardStep(
-            key: const ValueKey(1),
-            formKey: _formKey,
-            cardCtrl: _cardCtrl,
-            expiryCtrl: _expiryCtrl,
-            cvvCtrl: _cvvCtrl,
-            nameCtrl: _nameCtrl,
-            price: _price,
-            selectedPackage: _selectedPackage,
-            slot: _selectedSlot!,
-            washName: washName,
-            processing: _processing,
-            onPay: _proceed,
-            l10n: l10n,
-          ),
+              key: const ValueKey(1),
+              formKey: _formKey,
+              cardCtrl: _cardCtrl,
+              expiryCtrl: _expiryCtrl,
+              cvvCtrl: _cvvCtrl,
+              nameCtrl: _nameCtrl,
+              price: _price,
+              selectedPackage: _selectedPackage,
+              slot: _selectedSlot!,
+              washName: washName,
+              processing: _processing,
+              paymentMethod: _paymentMethod,
+              onPaymentMethod: (m) => setState(() => _paymentMethod = m),
+              onPay: _proceed,
+              l10n: l10n,
+            ),
           _ => _ConfirmStep(
-            key: const ValueKey(2),
-            wash: widget.wash,
-            washName: washName,
-            slot: _selectedSlot ?? '',
-            selectedPackage: _selectedPackage,
-            price: _price,
-            bookingRef: _bookingRef,
-            l10n: l10n,
-            onDone: () => Navigator.of(context).pop(),
-          ),
+              key: const ValueKey(2),
+              wash: widget.wash,
+              washName: washName,
+              slot: _selectedSlot ?? '',
+              selectedPackage: _selectedPackage,
+              price: _price,
+              bookingRef: _bookingRef,
+              l10n: l10n,
+              onDone: () => Navigator.of(context).pop(),
+            ),
         },
       ),
     );
@@ -325,13 +329,13 @@ class _BookingStep extends StatelessWidget {
   }
 
   Widget _sectionLabel(String text) => Text(
-    text,
-    style: const TextStyle(
-      fontSize: 15,
-      fontWeight: FontWeight.w700,
-      color: AppTheme.textPrimary,
-    ),
-  );
+        text,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          color: AppTheme.textPrimary,
+        ),
+      );
 }
 
 class _PackageCard extends StatelessWidget {
@@ -444,6 +448,8 @@ class _CardStep extends StatelessWidget {
   final String slot;
   final String washName;
   final bool processing;
+  final String paymentMethod;
+  final ValueChanged<String> onPaymentMethod;
   final VoidCallback onPay;
   final AppLocalizations l10n;
 
@@ -459,6 +465,8 @@ class _CardStep extends StatelessWidget {
     required this.slot,
     required this.washName,
     required this.processing,
+    required this.paymentMethod,
+    required this.onPaymentMethod,
     required this.onPay,
     required this.l10n,
   });
@@ -468,6 +476,8 @@ class _CardStep extends StatelessWidget {
     final packageName = l10n.t(
       ['basic_wash', 'standard_wash', 'premium_wash'][selectedPackage],
     );
+    final isApplePay = paymentMethod == 'applePay';
+
     return Column(
       children: [
         Expanded(
@@ -501,118 +511,162 @@ class _CardStep extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text(
-                  l10n.t('card_number'),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                const Text(
+                  'Payment Method',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Form(
-                  key: formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _CardField(
-                        controller: cardCtrl,
-                        hint: '1234  5678  9012  3456',
-                        inputFormatters: [_CardNumberFormatter()],
-                        keyboardType: TextInputType.number,
-                        validator: (v) =>
-                            (v == null || v.replaceAll(' ', '').length < 16)
-                            ? 'Enter a valid card number'
-                            : null,
-                        prefixIcon: Icons.credit_card_rounded,
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _PaymentMethodTile(
+                        label: 'Card',
+                        icon: Icons.credit_card_rounded,
+                        selected: !isApplePay,
+                        color: AppTheme.googleBlue,
+                        onTap: () => onPaymentMethod('card'),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.t('expiry'),
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                _CardField(
-                                  controller: expiryCtrl,
-                                  hint: 'MM/YY',
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    _ExpiryFormatter(),
-                                    LengthLimitingTextInputFormatter(5),
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  validator: (v) => (v == null || v.length < 5)
-                                      ? 'Invalid'
-                                      : null,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.t('cvv'),
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                _CardField(
-                                  controller: cvvCtrl,
-                                  hint: '•••',
-                                  obscure: true,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    LengthLimitingTextInputFormatter(4),
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  validator: (v) => (v == null || v.length < 3)
-                                      ? 'Invalid'
-                                      : null,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _PaymentMethodTile(
+                        label: 'Apple Pay',
+                        icon: Icons.apple_rounded,
+                        selected: isApplePay,
+                        color: Colors.black,
+                        onTap: () => onPaymentMethod('applePay'),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.t('cardholder_name'),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textSecondary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                if (!isApplePay) ...[
+                  Text(
+                    l10n.t('card_number'),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Form(
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _CardField(
+                          controller: cardCtrl,
+                          hint: '1234  5678  9012  3456',
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            _CardNumberFormatter(),
+                            LengthLimitingTextInputFormatter(19),
+                          ],
+                          keyboardType: TextInputType.number,
+                          validator: (v) =>
+                              (v == null || v.replaceAll(' ', '').length < 16)
+                                  ? 'Enter a valid card number'
+                                  : null,
+                          prefixIcon: Icons.credit_card_rounded,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      _CardField(
-                        controller: nameCtrl,
-                        hint: 'Full name on card',
-                        keyboardType: TextInputType.name,
-                        textCapitalization: TextCapitalization.words,
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Enter cardholder name'
-                            : null,
-                        prefixIcon: Icons.person_outline_rounded,
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.t('expiry'),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _CardField(
+                                    controller: expiryCtrl,
+                                    hint: 'MM/YY',
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      _ExpiryFormatter(),
+                                      LengthLimitingTextInputFormatter(5),
+                                    ],
+                                    keyboardType: TextInputType.number,
+                                    validator: (v) =>
+                                        (v == null || v.length < 5)
+                                            ? 'Invalid'
+                                            : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.t('cvv'),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _CardField(
+                                    controller: cvvCtrl,
+                                    hint: '•••',
+                                    obscure: true,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(4),
+                                    ],
+                                    keyboardType: TextInputType.number,
+                                    validator: (v) =>
+                                        (v == null || v.length < 3)
+                                            ? 'Invalid'
+                                            : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.t('cardholder_name'),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _CardField(
+                          controller: nameCtrl,
+                          hint: 'Full name on card',
+                          keyboardType: TextInputType.name,
+                          textCapitalization: TextCapitalization.words,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Enter cardholder name'
+                              : null,
+                          prefixIcon: Icons.person_outline_rounded,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ] else ...[
+                  _ApplePayPanel(price: price),
+                ],
+
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -638,11 +692,14 @@ class _CardStep extends StatelessWidget {
         ),
         _BottomBar(
           price: price,
-          label: '${l10n.t('pay_now')} AED ${price.toStringAsFixed(0)}',
+          label: isApplePay
+              ? 'Pay with Apple Pay'
+              : '${l10n.t('pay_now')} AED ${price.toStringAsFixed(0)}',
           onTap: onPay,
           processing: processing,
           l10n: l10n,
           showPrice: false,
+          isApplePay: isApplePay,
         ),
       ],
     );
@@ -950,6 +1007,141 @@ class _ConfirmCard extends StatelessWidget {
   }
 }
 
+// ── Payment method tile ─────────────────────────────────────────────────────
+
+class _PaymentMethodTile extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _PaymentMethodTile({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        decoration: BoxDecoration(
+          color: selected ? color.withValues(alpha: 0.07) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: selected ? color : AppTheme.divider,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon,
+                size: 20, color: selected ? color : AppTheme.textSecondary),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: selected ? color : AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Apple Pay panel ─────────────────────────────────────────────────────────
+
+class _ApplePayPanel extends StatelessWidget {
+  final double price;
+  const _ApplePayPanel({required this.price});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8F9FA),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.divider),
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.apple_rounded,
+                    color: Colors.white, size: 36),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Apple Pay',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "You'll be prompted to confirm with\nFace ID or Touch ID",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.textSecondary,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _appleFeature(Icons.lock_outline_rounded, 'Secure'),
+                  const SizedBox(width: 24),
+                  _appleFeature(Icons.bolt_rounded, 'Fast'),
+                  const SizedBox(width: 24),
+                  _appleFeature(Icons.verified_outlined, 'Private'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _appleFeature(IconData icon, String label) {
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: Colors.black),
+        const SizedBox(height: 4),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary)),
+      ],
+    );
+  }
+}
+
 // ── Shared bottom action bar ────────────────────────────────────────────────
 
 class _BottomBar extends StatelessWidget {
@@ -958,6 +1150,7 @@ class _BottomBar extends StatelessWidget {
   final VoidCallback onTap;
   final bool processing;
   final bool showPrice;
+  final bool isApplePay;
   final AppLocalizations l10n;
 
   const _BottomBar({
@@ -967,6 +1160,7 @@ class _BottomBar extends StatelessWidget {
     required this.l10n,
     this.processing = false,
     this.showPrice = true,
+    this.isApplePay = false,
   });
 
   @override
@@ -1008,7 +1202,8 @@ class _BottomBar extends StatelessWidget {
           Expanded(
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.googleBlue,
+                backgroundColor:
+                    isApplePay ? Colors.black : AppTheme.googleBlue,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -1024,12 +1219,25 @@ class _BottomBar extends StatelessWidget {
                         color: Colors.white,
                       ),
                     )
-                  : Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (isApplePay) ...[
+                          const Icon(
+                            Icons.apple_rounded,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        Text(
+                          label,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
             ),
           ),

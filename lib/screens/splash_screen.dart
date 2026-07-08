@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/page_routes.dart';
-import 'login_screen.dart';
+import 'portal_selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -44,7 +44,8 @@ class _SplashScreenState extends State<SplashScreen>
     _ctrl.forward().then((_) async {
       await Future.delayed(const Duration(milliseconds: 900));
       if (mounted) {
-        Navigator.of(context).pushReplacement(fadeRoute(const LoginScreen()));
+        Navigator.of(context)
+            .pushReplacement(fadeRoute(const PortalSelectionScreen()));
       }
     });
   }

@@ -4,11 +4,14 @@ import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../theme/app_theme.dart';
 import '../utils/page_routes.dart';
+import '../utils/portal_type.dart';
 import 'home_screen.dart';
 import 'otp_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final PortalType portalType;
+
+  const LoginScreen({super.key, this.portalType = PortalType.user});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -63,6 +66,16 @@ class _LoginScreenState extends State<LoginScreen>
     final l10n = AppLocalizations.of(context);
     final isAr = l10n.isArabic;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final isVendor = widget.portalType == PortalType.vendor;
+
+    final portalColor =
+        isVendor ? const Color(0xFF34A853) : AppTheme.googleBlue;
+    final portalIcon =
+        isVendor ? Icons.storefront_rounded : Icons.local_car_wash_rounded;
+    final portalHeading = isVendor ? 'Vendor Sign In' : l10n.t('login_heading');
+    final portalSub = isVendor
+        ? 'Enter your registered business number'
+        : l10n.t('login_sub');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -78,8 +91,7 @@ class _LoginScreenState extends State<LoginScreen>
                 padding: EdgeInsets.fromLTRB(28, 0, 28, bottom + 24),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minHeight:
-                        MediaQuery.of(context).size.height -
+                    minHeight: MediaQuery.of(context).size.height -
                         MediaQuery.of(context).padding.top -
                         MediaQuery.of(context).padding.bottom,
                   ),
@@ -90,31 +102,67 @@ class _LoginScreenState extends State<LoginScreen>
                           : CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 40),
-                        // Top language toggle
-                        Align(
-                          alignment: isAr
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
-                          child: _LangButton(isArabic: isAr),
+                        // Top row: back + language toggle
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                              ),
+                              color: AppTheme.textSecondary,
+                              onPressed: () => Navigator.of(context).pop(),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                            const Spacer(),
+                            _LangButton(isArabic: isAr),
+                          ],
                         ),
                         const Spacer(flex: 2),
-                        // Logo
-                        Container(
-                          width: 68,
-                          height: 68,
-                          decoration: BoxDecoration(
-                            color: AppTheme.googleBlue.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: const Icon(
-                            Icons.local_car_wash_rounded,
-                            color: AppTheme.googleBlue,
-                            size: 36,
-                          ),
+                        // Portal badge
+                        Row(
+                          children: [
+                            Container(
+                              width: 68,
+                              height: 68,
+                              decoration: BoxDecoration(
+                                color: portalColor.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: Icon(
+                                portalIcon,
+                                color: portalColor,
+                                size: 36,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: portalColor.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: portalColor.withValues(alpha: 0.25),
+                                ),
+                              ),
+                              child: Text(
+                                isVendor ? 'Vendor Portal' : 'User Portal',
+                                style: TextStyle(
+                                  color: portalColor,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 22),
                         Text(
-                          l10n.t('login_heading'),
+                          portalHeading,
                           style: const TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.w800,
@@ -125,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          l10n.t('login_sub'),
+                          portalSub,
                           style: const TextStyle(
                             fontSize: 15,
                             color: AppTheme.textSecondary,
@@ -149,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen>
                             width: double.infinity,
                             child: FilledButton(
                               style: FilledButton.styleFrom(
-                                backgroundColor: AppTheme.googleBlue,
+                                backgroundColor: portalColor,
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
                                 ),
