@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import '../utils/page_routes.dart';
 import '../utils/portal_type.dart';
 import 'login_screen.dart';
@@ -53,20 +54,47 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1350A0), Color(0xFF1A73E8)],
+            colors: [AppTheme.bayInk, AppTheme.vPrimary700, AppTheme.bayTeal],
+            stops: [0.0, 0.62, 1.0],
           ),
         ),
         child: Stack(
           children: [
             Positioned(
-              top: -80,
-              right: -80,
-              child: _Circle(size: 280, opacity: 0.06),
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 190,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.bayAqua.withValues(alpha: 0.18),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
             ),
             Positioned(
-              bottom: -100,
-              left: -60,
-              child: _Circle(size: 320, opacity: 0.05),
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      AppTheme.baySand.withValues(alpha: 0.14),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
             ),
             SafeArea(
               child: FadeTransition(
@@ -84,31 +112,43 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen>
                           height: 80,
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.18),
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(22),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.3),
                               width: 1.5,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.20),
+                                blurRadius: 20,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
                           ),
-                          child: const Icon(
-                            Icons.local_car_wash_rounded,
-                            size: 42,
-                            color: Colors.white,
+                          clipBehavior: Clip.antiAlias,
+                          foregroundDecoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Image.asset(
+                            'assets/brand/bay_wash_icon_dark.jpeg',
+                            fit: BoxFit.cover,
                           ),
                         ),
                         const SizedBox(height: 24),
                         const Text(
-                          'Emirates Wash',
+                          'Bay Wash',
                           style: TextStyle(
                             fontSize: 30,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w900,
                             color: Colors.white,
-                            letterSpacing: -0.5,
+                            letterSpacing: 0,
+                            fontFamilyFallback: AppTheme.brandFontFallback,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Select your portal to continue',
+                          'Choose how you use Bay Wash bays',
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.white.withValues(alpha: 0.80),
@@ -118,12 +158,13 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen>
                         const Spacer(),
                         _PortalCard(
                           icon: Icons.local_car_wash_rounded,
-                          iconColor: const Color(0xFF1A73E8),
-                          iconBg: const Color(0xFFE8F0FE),
-                          label: 'User Portal',
-                          description: 'Find car washes near you',
+                          iconColor: AppTheme.bayTeal,
+                          iconBg: AppTheme.bayMist,
+                          label: 'Customer App',
+                          description:
+                              'Find Bay Wash bays in Abu Dhabi and Dubai',
                           badgeLabel: 'Customer',
-                          badgeColor: const Color(0xFF1A73E8),
+                          badgeColor: AppTheme.bayTeal,
                           onTap: () => _selectPortal(PortalType.user),
                         ),
                         const SizedBox(height: 16),
@@ -131,9 +172,10 @@ class _PortalSelectionScreenState extends State<PortalSelectionScreen>
                           icon: Icons.storefront_rounded,
                           iconColor: const Color(0xFF34A853),
                           iconBg: const Color(0xFFE6F4EA),
-                          label: 'Vendor Portal',
-                          description: 'Manage your car wash business',
-                          badgeLabel: 'Business',
+                          label: 'Bay Wash Station Portal',
+                          description:
+                              'Manage station queues, bays, bookings, and staff',
+                          badgeLabel: 'Station',
                           badgeColor: const Color(0xFF34A853),
                           onTap: () => _selectPortal(PortalType.vendor),
                         ),
@@ -209,13 +251,18 @@ class _PortalCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          label,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF202124),
-                            letterSpacing: -0.3,
+                        Flexible(
+                          child: Text(
+                            label,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF202124),
+                              letterSpacing: 0,
+                              fontFamilyFallback: AppTheme.brandFontFallback,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -254,24 +301,6 @@ class _PortalCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Circle extends StatelessWidget {
-  final double size;
-  final double opacity;
-  const _Circle({required this.size, required this.opacity});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: opacity),
       ),
     );
   }

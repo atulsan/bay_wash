@@ -1,4 +1,4 @@
-// vendor_atoms.dart — shared widgets for the Vendor Console
+// vendor_atoms.dart — shared widgets for the Bay Wash station console
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
@@ -28,7 +28,7 @@ class EWVendorLogo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Emirates Wash',
+              'Bay Wash',
               style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: size * 0.57,
@@ -39,7 +39,7 @@ class EWVendorLogo extends StatelessWidget {
             ),
             const SizedBox(height: 3),
             Text(
-              'VENDOR CONSOLE',
+              'STATION CONSOLE',
               style: TextStyle(
                 fontSize: size * 0.36,
                 fontWeight: FontWeight.w700,
@@ -302,6 +302,11 @@ class VPhoneField extends StatelessWidget {
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.phone,
+              enableSuggestions: false,
+              autocorrect: false,
+              autofillHints: const <String>[],
+              smartDashesType: SmartDashesType.disabled,
+              smartQuotesType: SmartQuotesType.disabled,
               style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,

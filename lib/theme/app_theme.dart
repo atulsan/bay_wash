@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
-  // ── User portal (Google Blue) ────────────────────────────────────────────
+  // ── Bay Wash customer palette ─────────────────────────────────────────────
+  static const bayInk = Color(0xFF061E25);
+  static const bayTeal = Color(0xFF00A88A);
+  static const bayAqua = Color(0xFF44D7C5);
+  static const bayMist = Color(0xFFEAF4F1);
+  static const bayCream = Color(0xFFFAF7EF);
+  static const baySand = Color(0xFFC69B64);
+  static const brandFontFallback = <String>[
+    'Inter',
+    'SF Pro Display',
+    'SF Pro Text',
+    'Roboto',
+    'Arial',
+  ];
+
+  // ── User portal legacy colors ─────────────────────────────────────────────
   static const googleBlue = Color(0xFF1A73E8);
+  static const nextbikeBlue = Color(0xFF005AA9);
+  static const nextbikeDarkBlue = Color(0xFF003F7D);
   static const statusFree = Color(0xFF34A853);
   static const statusBusy = Color(0xFFFBBC04);
   static const statusFull = Color(0xFFEA4335);
@@ -10,7 +27,7 @@ abstract final class AppTheme {
   static const textSecondary = Color(0xFF5F6368);
   static const divider = Color(0xFFE8EAED);
 
-  // ── Vendor portal (Teal / UAE) ───────────────────────────────────────────
+  // ── Bay Wash station portal (Teal / UAE) ────────────────────────────────────
   static const vPrimary = Color(0xFF0A4D4A);
   static const vPrimary600 = Color(0xFF0E5F5B);
   static const vPrimary700 = Color(0xFF073D3B);
@@ -35,7 +52,7 @@ abstract final class AppTheme {
   static final light = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: googleBlue,
+      seedColor: bayTeal,
       brightness: Brightness.light,
     ),
     scaffoldBackgroundColor: Colors.white,
@@ -47,7 +64,7 @@ abstract final class AppTheme {
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.white,
-      foregroundColor: googleBlue,
+      foregroundColor: bayInk,
       elevation: 4,
     ),
     cardTheme: CardThemeData(

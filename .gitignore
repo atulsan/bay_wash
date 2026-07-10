@@ -33,3 +33,10 @@ macos/Flutter/GeneratedPluginRegistrant.swift
 
 # macOS system
 .DS_Store
+
+# Local demo media
+demo_videos/
+
+# Python
+__pycache__/
+*.py[cod]

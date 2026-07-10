@@ -5,19 +5,19 @@ import 'l10n/app_localizations.dart';
 import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
 
-void main() => runApp(const EmiratesWashApp());
+void main() => runApp(const BayWashApp());
 
-class EmiratesWashApp extends StatefulWidget {
-  const EmiratesWashApp({super.key});
+class BayWashApp extends StatefulWidget {
+  const BayWashApp({super.key});
 
-  static EmiratesWashAppState of(BuildContext context) =>
-      context.findAncestorStateOfType<EmiratesWashAppState>()!;
+  static BayWashAppState of(BuildContext context) =>
+      context.findAncestorStateOfType<BayWashAppState>()!;
 
   @override
-  State<EmiratesWashApp> createState() => EmiratesWashAppState();
+  State<BayWashApp> createState() => BayWashAppState();
 }
 
-class EmiratesWashAppState extends State<EmiratesWashApp> {
+class BayWashAppState extends State<BayWashApp> {
   Locale _locale = const Locale('en');
 
   void setLocale(Locale locale) => setState(() => _locale = locale);
@@ -25,7 +25,7 @@ class EmiratesWashAppState extends State<EmiratesWashApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Emirates Wash',
+      title: 'Bay Wash',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       locale: _locale,

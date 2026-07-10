@@ -1,11 +1,11 @@
 {
-    "name": "emirates_wash",
-    "short_name": "emirates_wash",
+    "name": "Bay Wash",
+    "short_name": "Bay Wash",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Find and manage Bay Wash bays in Abu Dhabi and Dubai.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

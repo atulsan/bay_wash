@@ -1,4 +1,4 @@
-// vendor_queue_screen.dart — Live queue management for vendor console
+// vendor_queue_screen.dart — Live queue management for Bay Wash station console
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'vendor_atoms.dart';
@@ -697,7 +697,7 @@ class _WalkInSheetState extends State<_WalkInSheet> {
   String _emirate = 'DXB';
   String _svc = 'Standard';
 
-  static const _emirates = ['DXB', 'AUH', 'SHJ', 'AJM'];
+  static const _emirates = ['DXB', 'AUH'];
   static const _services = <(String, String)>[
     ('Basic', '25 AED'),
     ('Standard', '60 AED'),

@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Emirates Wash</string>
+	<string>Bay Wash</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -19,7 +19,40 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>emirates_wash</string>
+	<string>Bay Wash</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+	</dict>
+	<key>UIFileSharingEnabled</key>
+	<false/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>AppIconDark</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIconDark</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -33,24 +66,24 @@
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 		<key>UISceneConfigurations</key>
 		<dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 			<key>UIWindowSceneSessionRoleApplication</key>
 			<array>
 				<dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Emirates Wash needs your location to find nearby car washes.</string>
+	<string>Bay Wash needs your location to find nearby wash bays.</string>
 					<key>UISceneClassName</key>
 					<string>UIWindowScene</string>
 					<key>UISceneConfigurationName</key>

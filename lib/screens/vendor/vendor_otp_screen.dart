@@ -104,6 +104,11 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                                 focusNode: _focuses[i],
                                 textAlign: TextAlign.center,
                                 keyboardType: TextInputType.number,
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                autofillHints: const <String>[],
+                                smartDashesType: SmartDashesType.disabled,
+                                smartQuotesType: SmartQuotesType.disabled,
                                 maxLength: 1,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly
@@ -202,7 +207,7 @@ class _VendorOtpScreenState extends State<VendorOtpScreen> {
                         SizedBox(width: 10),
                         Expanded(
                             child: Text(
-                          'Never share this code. Emirates Wash will never ask for it.',
+                          'Never share this code. Bay Wash will never ask for it.',
                           style: TextStyle(fontSize: 12, color: AppTheme.vInk3),
                         )),
                       ]),

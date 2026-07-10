@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import '../utils/page_routes.dart';
 import 'portal_selection_screen.dart';
 
@@ -64,21 +65,47 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1350A0), Color(0xFF1A73E8)],
+            colors: [AppTheme.bayInk, AppTheme.vPrimary700, AppTheme.bayTeal],
+            stops: [0.0, 0.62, 1.0],
           ),
         ),
         child: Stack(
           children: [
-            // Subtle background circles
             Positioned(
-              top: -80,
-              right: -80,
-              child: _BackgroundCircle(size: 280, opacity: 0.06),
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 210,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.bayAqua.withValues(alpha: 0.20),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
             ),
             Positioned(
-              bottom: -100,
-              left: -60,
-              child: _BackgroundCircle(size: 320, opacity: 0.05),
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      AppTheme.baySand.withValues(alpha: 0.16),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
             ),
             Center(
               child: FadeTransition(
@@ -92,17 +119,31 @@ class _SplashScreenState extends State<SplashScreen>
                         width: 96,
                         height: 96,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.18),
-                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(26),
                           border: Border.all(
                             color: Colors.white.withValues(alpha: 0.3),
                             width: 1.5,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.22),
+                              blurRadius: 24,
+                              offset: const Offset(0, 14),
+                            ),
+                          ],
                         ),
-                        child: const Icon(
-                          Icons.local_car_wash_rounded,
-                          size: 50,
-                          color: Colors.white,
+                        clipBehavior: Clip.antiAlias,
+                        foregroundDecoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(26),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2,
+                          ),
+                        ),
+                        child: Image.asset(
+                          'assets/brand/bay_wash_icon_dark.jpeg',
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -112,17 +153,18 @@ class _SplashScreenState extends State<SplashScreen>
                       child: Column(
                         children: [
                           const Text(
-                            'Emirates Wash',
+                            'Bay Wash',
                             style: TextStyle(
                               fontSize: 34,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w900,
                               color: Colors.white,
-                              letterSpacing: -0.8,
+                              letterSpacing: 0,
+                              fontFamilyFallback: AppTheme.brandFontFallback,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "UAE's Smartest Car Wash Finder",
+                            'Car wash bays in Abu Dhabi and Dubai',
                             style: TextStyle(
                               fontSize: 15,
                               color: Colors.white.withValues(alpha: 0.80),
@@ -139,24 +181,6 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _BackgroundCircle extends StatelessWidget {
-  final double size;
-  final double opacity;
-  const _BackgroundCircle({required this.size, required this.opacity});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: opacity),
       ),
     );
   }

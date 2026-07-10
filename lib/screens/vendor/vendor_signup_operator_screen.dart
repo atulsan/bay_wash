@@ -87,7 +87,7 @@ class _Step1 extends StatelessWidget {
                 letterSpacing: -0.3,
                 color: AppTheme.vInk)),
         const SizedBox(height: 6),
-        const Text('Just the basics. Your manager keeps the business records.',
+        const Text('Just the basics. Your station manager keeps the records.',
             style: TextStyle(fontSize: 13.5, color: AppTheme.vInk3)),
         const SizedBox(height: 22),
         VField(
@@ -293,7 +293,7 @@ class _Step2 extends StatelessWidget {
                           letterSpacing: 0.5,
                           color: AppTheme.vPrimary700)),
                   const SizedBox(height: 3),
-                  const Text('Marina Quick Wash',
+                  const Text('Bay Wash Station - Sheikh Zayed Road',
                       style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
@@ -303,7 +303,7 @@ class _Step2 extends StatelessWidget {
                     Icon(Icons.location_on_rounded,
                         size: 11, color: AppTheme.vInk3),
                     SizedBox(width: 3),
-                    Text('Dubai Marina · 3 bays',
+                    Text('Dubai · 3 wash bays',
                         style: TextStyle(fontSize: 12, color: AppTheme.vInk3)),
                   ]),
                 ])),

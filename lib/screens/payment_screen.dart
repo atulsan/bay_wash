@@ -210,7 +210,7 @@ class _StepIndicator extends StatelessWidget {
               height: 3,
               margin: EdgeInsets.only(right: i < 1 ? 4 : 0),
               decoration: BoxDecoration(
-                color: active ? AppTheme.googleBlue : AppTheme.divider,
+                color: active ? AppTheme.bayTeal : AppTheme.divider,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -295,7 +295,7 @@ class _BookingStep extends StatelessWidget {
                         duration: const Duration(milliseconds: 180),
                         decoration: BoxDecoration(
                           color: selected
-                              ? AppTheme.googleBlue
+                              ? AppTheme.bayTeal
                               : const Color(0xFFF1F3F4),
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -360,7 +360,7 @@ class _PackageCard extends StatelessWidget {
   ];
   static const _colors = [
     Color(0xFF00897B),
-    AppTheme.googleBlue,
+    AppTheme.bayTeal,
     Color(0xFF7B1FA2),
   ];
 
@@ -490,10 +490,10 @@ class _CardStep extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppTheme.googleBlue.withValues(alpha: 0.05),
+                    color: AppTheme.bayTeal.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: AppTheme.googleBlue.withValues(alpha: 0.15),
+                      color: AppTheme.bayTeal.withValues(alpha: 0.15),
                     ),
                   ),
                   child: Column(
@@ -505,7 +505,7 @@ class _CardStep extends StatelessWidget {
                         l10n.t('total'),
                         'AED ${price.toStringAsFixed(0)}',
                         bold: true,
-                        color: AppTheme.googleBlue,
+                        color: AppTheme.bayTeal,
                       ),
                     ],
                   ),
@@ -527,7 +527,7 @@ class _CardStep extends StatelessWidget {
                         label: 'Card',
                         icon: Icons.credit_card_rounded,
                         selected: !isApplePay,
-                        color: AppTheme.googleBlue,
+                        color: AppTheme.bayTeal,
                         onTap: () => onPaymentMethod('card'),
                       ),
                     ),
@@ -760,6 +760,11 @@ class _CardField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscure,
+      enableSuggestions: false,
+      autocorrect: false,
+      autofillHints: const <String>[],
+      smartDashesType: SmartDashesType.disabled,
+      smartQuotesType: SmartQuotesType.disabled,
       inputFormatters: inputFormatters,
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
@@ -790,7 +795,7 @@ class _CardField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppTheme.googleBlue, width: 1.5),
+          borderSide: const BorderSide(color: AppTheme.bayTeal, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -921,7 +926,7 @@ class _ConfirmStepState extends State<_ConfirmStep>
             width: double.infinity,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.googleBlue,
+                backgroundColor: AppTheme.bayTeal,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -979,7 +984,7 @@ class _ConfirmCard extends StatelessWidget {
             l10n.t('total'),
             'AED ${price.toStringAsFixed(0)}',
             bold: true,
-            color: AppTheme.googleBlue,
+            color: AppTheme.bayTeal,
           ),
         ],
       ),
@@ -1202,8 +1207,7 @@ class _BottomBar extends StatelessWidget {
           Expanded(
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor:
-                    isApplePay ? Colors.black : AppTheme.googleBlue,
+                backgroundColor: isApplePay ? Colors.black : AppTheme.bayTeal,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),

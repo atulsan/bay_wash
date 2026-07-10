@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,24 +9,25 @@ import '../data/dummy_data.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../models/car_wash.dart';
+import '../services/app_icon_service.dart';
+import '../services/route_eta_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/distance.dart';
 import '../widgets/wash_detail_sheet.dart';
 import '../widgets/wash_list_card.dart';
 import '../widgets/wash_marker.dart';
 
-enum SortBy { distance, waitTime, rating }
+enum SortBy { distance, waitTime, routeEta, rating }
 
 enum HomeSheetMode { list, filter }
 
 const _allServices = [
+  'Express Wash',
+  'Automatic Wash',
   'Exterior Wash',
   'Interior Clean',
-  'Full Detail',
-  'Polish',
+  'Vacuum Bay',
   'Tyre Shine',
-  'Engine Clean',
-  'Ceramic Coating',
 ];
 
 class HomeScreen extends StatefulWidget {
@@ -38,16 +41,24 @@ class _HomeScreenState extends State<HomeScreen> {
   final _mapController = MapController();
   final _sheetController = DraggableScrollableController();
   final _searchCtrl = TextEditingController();
+  final _routeEtaService = RouteEtaService();
+  final _appIconService = const AppIconService();
 
-  static const _defaultCenter = LatLng(25.2048, 55.2708);
-  LatLng _origin = _defaultCenter;
+  static const _defaultCenter = LatLng(24.78, 54.96);
+  static const _dubaiTestOrigin = LatLng(25.2048, 55.2708);
+  static const _abuDhabiTestOrigin = LatLng(24.4539, 54.3773);
+  LatLng _origin = _dubaiTestOrigin;
+  String _originLabel = 'Test location · Dubai Mall';
 
   CarWash? _selectedWash;
+  final Map<String, RouteEta> _routeEtas = {};
+  final Set<String> _loadingRouteEtaIds = {};
   HomeSheetMode _sheetMode = HomeSheetMode.list;
   WashStatus? _statusFilter;
   SortBy _sortBy = SortBy.distance;
   final Set<String> _serviceFilter = {};
   bool _loadingLocation = false;
+  BayWashAppIcon _selectedAppIcon = BayWashAppIcon.light;
 
   List<CarWash> get _sortedWashes {
     final list = [...dummyCarWashes];
@@ -62,6 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
             haversineKm(_origin.latitude, _origin.longitude, b.lat, b.lng),
           ),
         SortBy.waitTime => a.waitTimeMinutes.compareTo(b.waitTimeMinutes),
+        SortBy.routeEta => (_routeEtas[a.id]?.totalMinutes ?? 9999)
+            .compareTo(_routeEtas[b.id]?.totalMinutes ?? 9999),
         SortBy.rating => b.rating.compareTo(a.rating),
       },
     );
@@ -98,6 +111,14 @@ class _HomeScreenState extends State<HomeScreen> {
       (_searchCtrl.text.trim().isNotEmpty ? 1 : 0);
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_refreshRouteEtas());
+    });
+  }
+
+  @override
   void dispose() {
     _searchCtrl.dispose();
     _sheetController.dispose();
@@ -126,8 +147,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
       final loc = LatLng(pos.latitude, pos.longitude);
-      setState(() => _origin = loc);
+      setState(() {
+        _origin = loc;
+        _originLabel = 'GPS location';
+        _routeEtas.clear();
+      });
       _mapController.move(loc, 13);
+      unawaited(_refreshRouteEtas(force: true));
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -155,10 +181,97 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (ctx, sc) => WashDetailSheet(
           wash: wash,
           userLocation: _origin,
+          routeEta: _routeEtas[wash.id],
+          isRouteEtaLoading: _loadingRouteEtaIds.contains(wash.id),
+          routeEtaLoader: () => _estimateRouteEtaForSheet(wash),
           scrollController: sc,
         ),
       ),
     ).then((_) => setState(() => _selectedWash = null));
+  }
+
+  Future<RouteEta> _estimateRouteEtaForSheet(CarWash wash) async {
+    if (mounted) {
+      setState(() => _loadingRouteEtaIds.add(wash.id));
+    }
+    final eta = await _routeEtaService.estimate(
+      origin: _origin,
+      destination: wash.latLng,
+      queueWaitMinutes: wash.waitTimeMinutes,
+    );
+    if (mounted) {
+      setState(() {
+        _routeEtas[wash.id] = eta;
+        _loadingRouteEtaIds.remove(wash.id);
+      });
+    }
+    return eta;
+  }
+
+  Future<void> _refreshRouteEtas({bool force = false}) async {
+    final washes = _filteredWashes;
+    for (final wash in washes) {
+      unawaited(_loadRouteEta(wash, force: force));
+      await Future<void>.delayed(const Duration(milliseconds: 90));
+    }
+  }
+
+  Future<void> _loadRouteEta(CarWash wash, {bool force = false}) async {
+    if (!force && _routeEtas.containsKey(wash.id)) return;
+    if (_loadingRouteEtaIds.contains(wash.id)) return;
+    setState(() => _loadingRouteEtaIds.add(wash.id));
+
+    final eta = await _routeEtaService.estimate(
+      origin: _origin,
+      destination: wash.latLng,
+      queueWaitMinutes: wash.waitTimeMinutes,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _routeEtas[wash.id] = eta;
+      _loadingRouteEtaIds.remove(wash.id);
+    });
+  }
+
+  Future<void> _setAppIcon(BayWashAppIcon icon) async {
+    try {
+      final changed = await _appIconService.setIcon(icon);
+      if (!mounted) return;
+      if (changed) {
+        setState(() => _selectedAppIcon = icon);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${icon.name} app icon selected')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('App icon switching is available on phone builds.'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not change app icon on this device.'),
+        ),
+      );
+    }
+  }
+
+  void _showAppSettings() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _AppSettingsSheet(
+        selectedIcon: _selectedAppIcon,
+        onIconSelected: (icon) {
+          Navigator.of(context).pop();
+          unawaited(_setAppIcon(icon));
+        },
+      ),
+    );
   }
 
   @override
@@ -188,6 +301,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           _buildTopBar(context, l10n),
+          _buildOriginPill(),
+          _buildRouteStatusPill(l10n),
           _buildLocateFab(),
           _buildBottomSheet(context, l10n, filtered),
         ],
@@ -196,24 +311,50 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMap(AppLocalizations l10n, List<CarWash> washes) {
-    // Esri = English labels globally; CartoDB Voyager = Arabic/local labels in MENA
-    final tileUrl = l10n.isArabic
-        ? 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
-        : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
+    final tileUrl =
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+    final selected = _selectedWash;
 
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
         initialCenter: _defaultCenter,
-        initialZoom: 11,
+        initialZoom: 8.4,
         onTap: (_, __) => setState(() => _selectedWash = null),
       ),
       children: [
         TileLayer(
           key: ValueKey(tileUrl),
           urlTemplate: tileUrl,
-          userAgentPackageName: 'com.emirateswash.app',
+          subdomains: const ['a', 'b', 'c', 'd'],
+          userAgentPackageName: 'com.baywash.app',
         ),
+        if (selected != null) ...[
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: [
+                  ..._routePoints(selected),
+                ],
+                color: AppTheme.bayTeal.withValues(alpha: 0.90),
+                strokeWidth: 5,
+                borderColor: Colors.white,
+                borderStrokeWidth: 3,
+              ),
+            ],
+          ),
+          CircleLayer(
+            circles: [
+              CircleMarker(
+                point: selected.latLng,
+                radius: 44,
+                color: AppTheme.bayTeal.withValues(alpha: 0.10),
+                borderColor: AppTheme.bayTeal.withValues(alpha: 0.24),
+                borderStrokeWidth: 1.5,
+              ),
+            ],
+          ),
+        ],
         MarkerLayer(
           markers: washes
               .map(
@@ -225,36 +366,215 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: WashMarker(
                     wash: wash,
                     isSelected: _selectedWash?.id == wash.id,
+                    routeEtaMinutes: _routeEtas[wash.id]?.totalMinutes,
                     onTap: () => _onMarkerTap(wash),
                   ),
                 ),
               )
               .toList(),
         ),
-        if (_origin != _defaultCenter)
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: _origin,
-                width: 22,
-                height: 22,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.googleBlue,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.googleBlue.withValues(alpha: 0.45),
-                        blurRadius: 10,
+        MarkerLayer(
+          markers: [
+            Marker(
+              point: _origin,
+              width: 150,
+              height: 58,
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.textPrimary,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.16),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Text(
+                      'Present location',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: AppTheme.bayTeal,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.bayTeal.withValues(alpha: 0.45),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
       ],
+    );
+  }
+
+  List<LatLng> _routePoints(CarWash selected) {
+    final geometry = _routeEtas[selected.id]?.routeGeometry;
+    if (geometry != null && geometry.length >= 2) {
+      return geometry;
+    }
+    return [
+      _origin,
+      LatLng(
+        (_origin.latitude + selected.lat) / 2 + 0.015,
+        (_origin.longitude + selected.lng) / 2,
+      ),
+      selected.latLng,
+    ];
+  }
+
+  void _setTestOrigin(LatLng origin, String label) {
+    setState(() {
+      _origin = origin;
+      _originLabel = label;
+      _routeEtas.clear();
+    });
+    _mapController.move(origin, 11);
+    unawaited(_refreshRouteEtas(force: true));
+  }
+
+  Widget _buildOriginPill() {
+    return Positioned(
+      left: 14,
+      right: 14,
+      top: MediaQuery.of(context).padding.top + 74,
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.96),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppTheme.divider),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.10),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.my_location_rounded,
+                    size: 16,
+                    color: AppTheme.bayTeal,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      _originLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _OriginQuickButton(
+            label: 'DXB',
+            selected: _origin == _dubaiTestOrigin,
+            onTap: () => _setTestOrigin(
+              _dubaiTestOrigin,
+              'Test location · Dubai Mall',
+            ),
+          ),
+          const SizedBox(width: 6),
+          _OriginQuickButton(
+            label: 'AUH',
+            selected: _origin == _abuDhabiTestOrigin,
+            onTap: () => _setTestOrigin(
+              _abuDhabiTestOrigin,
+              'Test location · Abu Dhabi Corniche',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRouteStatusPill(AppLocalizations l10n) {
+    final hasOrsEta = _routeEtas.values.any((eta) => eta.isOpenRouteService);
+    final isLoading = _loadingRouteEtaIds.isNotEmpty;
+    final routeApiEnabled = _routeEtaService.hasApiKey;
+
+    return Positioned(
+      left: 14,
+      top: MediaQuery.of(context).padding.top + 126,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.96),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppTheme.divider),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              hasOrsEta ? Icons.route_rounded : Icons.near_me_rounded,
+              size: 16,
+              color: hasOrsEta ? AppTheme.statusFree : AppTheme.bayTeal,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              hasOrsEta
+                  ? l10n.t('ors_route')
+                  : routeApiEnabled && isLoading
+                      ? '${l10n.t('route_eta')}...'
+                      : l10n.t('route_estimate'),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -265,39 +585,57 @@ class _HomeScreenState extends State<HomeScreen> {
       right: 0,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+          padding: const EdgeInsets.fromLTRB(22, 12, 22, 0),
           child: Container(
-            height: 52,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
+              color: AppTheme.bayInk,
+              borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.12),
-                  blurRadius: 14,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withValues(alpha: 0.18),
+                  blurRadius: 18,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.local_car_wash_rounded,
-                  color: AppTheme.googleBlue,
-                  size: 22,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    l10n.t('app_title'),
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
-                    ),
+                GestureDetector(
+                  onTap: _showAppSettings,
+                  child: const Icon(
+                    Icons.menu_rounded,
+                    color: Colors.white,
+                    size: 27,
                   ),
                 ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.t('app_title'),
+                        style: const TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 0,
+                          fontFamilyFallback: AppTheme.brandFontFallback,
+                        ),
+                      ),
+                      const SizedBox(width: 7),
+                      const Icon(
+                        Icons.local_car_wash_rounded,
+                        color: Colors.white,
+                        size: 23,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
                 _LanguageToggle(isArabic: l10n.isArabic),
               ],
             ),
@@ -310,20 +648,37 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildLocateFab() {
     return Positioned(
       right: 14,
-      bottom: 320,
-      child: FloatingActionButton.small(
-        heroTag: 'locate',
-        onPressed: _loadingLocation ? null : _locateMe,
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.googleBlue,
-        elevation: 4,
-        child: _loadingLocation
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.my_location_rounded, size: 20),
+      top: MediaQuery.of(context).padding.top + 142,
+      child: Column(
+        children: [
+          _RoundMapButton(
+            icon: Icons.my_location_rounded,
+            onTap: _loadingLocation ? null : _locateMe,
+            child: _loadingLocation
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : null,
+          ),
+          const SizedBox(height: 12),
+          _RoundMapButton(
+            icon: Icons.tune_rounded,
+            onTap: () => setState(() => _sheetMode = HomeSheetMode.filter),
+          ),
+          const SizedBox(height: 12),
+          _RoundMapButton(
+            icon: Icons.info_outline_rounded,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Pin number shows estimated available bays'),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -335,22 +690,22 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     return DraggableScrollableSheet(
       controller: _sheetController,
-      initialChildSize: 0.30,
-      minChildSize: 0.08,
+      initialChildSize: 0.34,
+      minChildSize: 0.10,
       maxChildSize: 0.92,
       snap: true,
-      snapSizes: const [0.08, 0.30, 0.74, 0.92],
+      snapSizes: const [0.10, 0.34, 0.74, 0.92],
       builder: (_, scrollController) {
         return Container(
           clipBehavior: Clip.hardEdge,
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black12,
-                blurRadius: 18,
-                offset: Offset(0, -3),
+                color: Color(0x33000000),
+                blurRadius: 22,
+                offset: Offset(0, -5),
               ),
             ],
           ),
@@ -369,7 +724,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 onVerticalDragEnd: (_) {
-                  const snaps = [0.10, 0.30, 0.74, 0.92];
+                  const snaps = [0.10, 0.34, 0.74, 0.92];
                   final s = _sheetController.size;
                   final nearest = snaps.reduce(
                     (a, b) => (a - s).abs() < (b - s).abs() ? a : b,
@@ -417,22 +772,32 @@ class _HomeScreenState extends State<HomeScreen> {
                         selectedServices: _serviceFilter,
                         onModeChanged: (mode) =>
                             setState(() => _sheetMode = mode),
-                        onSearchChanged: (_) => setState(() {}),
-                        onFilterChanged: (f) =>
-                            setState(() => _statusFilter = f),
-                        onSortChanged: (sort) => setState(() => _sortBy = sort),
+                        onSearchChanged: (_) {
+                          setState(() {});
+                          unawaited(_refreshRouteEtas());
+                        },
+                        onFilterChanged: (f) {
+                          setState(() => _statusFilter = f);
+                          unawaited(_refreshRouteEtas());
+                        },
+                        onSortChanged: (sort) {
+                          setState(() => _sortBy = sort);
+                          unawaited(_refreshRouteEtas());
+                        },
                         onServiceToggled: (service) => setState(() {
                           if (_serviceFilter.contains(service)) {
                             _serviceFilter.remove(service);
                           } else {
                             _serviceFilter.add(service);
                           }
+                          unawaited(_refreshRouteEtas());
                         }),
                         onClearAll: () => setState(() {
                           _searchCtrl.clear();
                           _statusFilter = null;
                           _sortBy = SortBy.distance;
                           _serviceFilter.clear();
+                          unawaited(_refreshRouteEtas());
                         }),
                       );
                     }
@@ -450,6 +815,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: WashListCard(
                         wash: wash,
                         distanceKm: dist,
+                        routeEta: _routeEtas[wash.id],
+                        isRouteEtaLoading:
+                            _loadingRouteEtaIds.contains(wash.id),
                         isSelected: _selectedWash?.id == wash.id,
                         onTap: () => _onMarkerTap(wash),
                       ),
@@ -549,8 +917,9 @@ class _SheetHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
             child: Row(
               children: [
                 Text(
@@ -577,7 +946,7 @@ class _SheetHeader extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.googleBlue,
+                      color: AppTheme.bayTeal,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -600,7 +969,7 @@ class _SheetHeader extends StatelessWidget {
                           child: Text(
                             l10n.t('clear_all'),
                             style: const TextStyle(
-                              color: AppTheme.googleBlue,
+                              color: AppTheme.bayTeal,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -777,14 +1146,13 @@ class _ModeButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 16,
-                color: selected ? AppTheme.googleBlue : AppTheme.textSecondary,
+                color: selected ? AppTheme.bayTeal : AppTheme.textSecondary,
               ),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
-                  color:
-                      selected ? AppTheme.googleBlue : AppTheme.textSecondary,
+                  color: selected ? AppTheme.bayTeal : AppTheme.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                 ),
@@ -914,6 +1282,13 @@ class _FilterPanel extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 _SortChip(
+                  label: l10n.t('sort_eta'),
+                  selected: sortBy == SortBy.routeEta,
+                  icon: Icons.route_rounded,
+                  onTap: () => onSortChanged(SortBy.routeEta),
+                ),
+                const SizedBox(width: 8),
+                _SortChip(
                   label: l10n.t('sort_rating'),
                   selected: sortBy == SortBy.rating,
                   icon: Icons.star_rounded,
@@ -947,9 +1322,8 @@ class _FilterPanel extends StatelessWidget {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: selected
-                        ? AppTheme.googleBlue
-                        : const Color(0xFFF1F3F4),
+                    color:
+                        selected ? AppTheme.bayTeal : const Color(0xFFF1F3F4),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -1011,7 +1385,7 @@ class _StatusFilterChips extends StatelessWidget {
           _FilterChip(
             label: l10n.t('filter_all'),
             selected: currentFilter == null,
-            color: AppTheme.googleBlue,
+            color: AppTheme.bayTeal,
             onTap: () => onFilterChanged(null),
           ),
           _FilterChip(
@@ -1117,7 +1491,7 @@ class _SortChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.googleBlue : const Color(0xFFF1F3F4),
+          color: selected ? AppTheme.bayTeal : const Color(0xFFF1F3F4),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -1144,6 +1518,245 @@ class _SortChip extends StatelessWidget {
   }
 }
 
+class _OriginQuickButton extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _OriginQuickButton({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? AppTheme.bayTeal : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? AppTheme.bayTeal : AppTheme.divider,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? Colors.white : AppTheme.textPrimary,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AppSettingsSheet extends StatelessWidget {
+  final BayWashAppIcon selectedIcon;
+  final ValueChanged<BayWashAppIcon> onIconSelected;
+
+  const _AppSettingsSheet({
+    required this.selectedIcon,
+    required this.onIconSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.18),
+              blurRadius: 22,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text(
+                  'Bay Wash settings',
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'App icon',
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _AppIconChoice(
+                    label: 'Light',
+                    assetPath: 'assets/brand/bay_wash_icon_light.jpeg',
+                    selected: selectedIcon == BayWashAppIcon.light,
+                    onTap: () => onIconSelected(BayWashAppIcon.light),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _AppIconChoice(
+                    label: 'Dark',
+                    assetPath: 'assets/brand/bay_wash_icon_dark.jpeg',
+                    selected: selectedIcon == BayWashAppIcon.dark,
+                    onTap: () => onIconSelected(BayWashAppIcon.dark),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AppIconChoice extends StatelessWidget {
+  final String label;
+  final String assetPath;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _AppIconChoice({
+    required this.label,
+    required this.assetPath,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppTheme.bayTeal.withValues(alpha: 0.08)
+              : const Color(0xFFF6F8FA),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: selected ? AppTheme.bayTeal : AppTheme.divider,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                assetPath,
+                width: 72,
+                height: 72,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                if (selected) ...[
+                  const SizedBox(width: 5),
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    color: AppTheme.bayTeal,
+                    size: 16,
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RoundMapButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  final Widget? child;
+
+  const _RoundMapButton({
+    required this.icon,
+    required this.onTap,
+    this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      shape: const CircleBorder(),
+      elevation: 5,
+      shadowColor: Colors.black26,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: child ??
+                Icon(
+                  icon,
+                  color: AppTheme.textPrimary,
+                  size: 25,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Language toggle ──────────────────────────────────────────────────────────
 
 class _LanguageToggle extends StatelessWidget {
@@ -1154,15 +1767,15 @@ class _LanguageToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () =>
-          EmiratesWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
+          BayWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
         decoration: BoxDecoration(
-          color: AppTheme.googleBlue.withValues(alpha: 0.10),
+          color: Colors.white.withValues(alpha: 0.16),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.googleBlue.withValues(alpha: 0.25),
+            color: Colors.white.withValues(alpha: 0.36),
           ),
         ),
         child: AnimatedSwitcher(
@@ -1171,9 +1784,9 @@ class _LanguageToggle extends StatelessWidget {
             key: ValueKey(isArabic),
             isArabic ? 'EN' : 'عربي',
             style: const TextStyle(
-              color: AppTheme.googleBlue,
+              color: Colors.white,
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ),

@@ -98,6 +98,7 @@ class AppBooking {
     required String packageName,
     required double price,
     required bool interiorCleaningNeeded,
+    int? etaMinutes,
   }) {
     final reference = 'EW-W${100000 + Random().nextInt(899999)}';
     return AppBooking(
@@ -109,7 +110,7 @@ class AppBooking {
       price: price,
       interiorCleaningNeeded: interiorCleaningNeeded,
       queuePosition: max(1, wash.carsInQueue + 1),
-      etaMinutes: wash.waitTimeMinutes + 6,
+      etaMinutes: etaMinutes ?? wash.waitTimeMinutes + 6,
       entryMethod: EntryCaptureMethod.appWalkIn,
       laneType: QueueLaneType.auto,
       paymentMethod: PaymentMethod.inApp,
@@ -120,71 +121,71 @@ class AppBooking {
 
 extension EntryCaptureMethodLabel on EntryCaptureMethod {
   String get label => switch (this) {
-    EntryCaptureMethod.appBooking => 'App booking',
-    EntryCaptureMethod.appWalkIn => 'App walk-in',
-    EntryCaptureMethod.staffLead => 'Staff lead',
-    EntryCaptureMethod.tokenKiosk => 'Token/kiosk',
-    EntryCaptureMethod.sensorCamera => 'Sensor/camera',
-  };
+        EntryCaptureMethod.appBooking => 'App booking',
+        EntryCaptureMethod.appWalkIn => 'App walk-in',
+        EntryCaptureMethod.staffLead => 'Staff lead',
+        EntryCaptureMethod.tokenKiosk => 'Token/kiosk',
+        EntryCaptureMethod.sensorCamera => 'Sensor/camera',
+      };
 }
 
 extension QueueLaneTypeLabel on QueueLaneType {
   String get label => switch (this) {
-    QueueLaneType.auto => 'AUTO present queue',
-    QueueLaneType.manual => 'MANUAL present queue',
-  };
+        QueueLaneType.auto => 'AUTO present queue',
+        QueueLaneType.manual => 'MANUAL present queue',
+      };
 }
 
 extension PaymentMethodLabel on PaymentMethod {
   String get label => switch (this) {
-    PaymentMethod.inApp => 'In-app payment',
-    PaymentMethod.vendorDirect => 'Cash/card at site',
-  };
+        PaymentMethod.inApp => 'In-app payment',
+        PaymentMethod.vendorDirect => 'Cash/card at site',
+      };
 }
 
 extension CommissionStatusLabel on CommissionStatus {
   String get label => switch (this) {
-    CommissionStatus.pending => 'Commission pending',
-    CommissionStatus.earned => 'Commission earned',
-    CommissionStatus.notApplicable => 'No commission',
-  };
+        CommissionStatus.pending => 'Commission pending',
+        CommissionStatus.earned => 'Commission earned',
+        CommissionStatus.notApplicable => 'No commission',
+      };
 }
 
 extension AppBookingStageLabel on AppBookingStage {
   String get label => switch (this) {
-    AppBookingStage.booked => 'Booked',
-    AppBookingStage.arrived => 'Arrived at site',
-    AppBookingStage.checkedIn => 'Checked in',
-    AppBookingStage.queued => 'In queue',
-    AppBookingStage.serviceSelected => 'Service selected',
-    AppBookingStage.readyForWash => 'Ready for dispatch',
-    AppBookingStage.bayAssigned => 'Bay assigned',
-    AppBookingStage.washing => 'Wash started',
-    AppBookingStage.washEnded => 'Wash ended',
-    AppBookingStage.interiorQueued => 'Interior queue',
-    AppBookingStage.interiorCleaning => 'Interior cleaning',
-    AppBookingStage.jobCompleted => 'Job completed',
-    AppBookingStage.paymentClosed => 'Payment closed',
-    AppBookingStage.commissionSettled => 'Settled',
-  };
+        AppBookingStage.booked => 'Booked',
+        AppBookingStage.arrived => 'Arrived at site',
+        AppBookingStage.checkedIn => 'Checked in',
+        AppBookingStage.queued => 'In queue',
+        AppBookingStage.serviceSelected => 'Service selected',
+        AppBookingStage.readyForWash => 'Ready for dispatch',
+        AppBookingStage.bayAssigned => 'Bay assigned',
+        AppBookingStage.washing => 'Wash started',
+        AppBookingStage.washEnded => 'Wash ended',
+        AppBookingStage.interiorQueued => 'Interior queue',
+        AppBookingStage.interiorCleaning => 'Interior cleaning',
+        AppBookingStage.jobCompleted => 'Job completed',
+        AppBookingStage.paymentClosed => 'Payment closed',
+        AppBookingStage.commissionSettled => 'Settled',
+      };
 }
 
 extension BookingEdgeCaseLabel on BookingEdgeCase {
   String get label => switch (this) {
-    BookingEdgeCase.lateArrival => 'Late booking arrival',
-    BookingEdgeCase.noShow => 'No-show booking',
-    BookingEdgeCase.vendorOverride => 'Vendor override',
-    BookingEdgeCase.bayShortage => 'Bay/staff shortage',
-  };
+        BookingEdgeCase.lateArrival => 'Late booking arrival',
+        BookingEdgeCase.noShow => 'No-show booking',
+        BookingEdgeCase.vendorOverride => 'Vendor override',
+        BookingEdgeCase.bayShortage => 'Bay/staff shortage',
+      };
 
   String get action => switch (this) {
-    BookingEdgeCase.lateArrival =>
-      'After grace window, auto-downgrade to walk-in priority.',
-    BookingEdgeCase.noShow =>
-      'Release reserved capacity if not checked in by window end.',
-    BookingEdgeCase.vendorOverride =>
-      'Require reason and supervisor audit trail.',
-    BookingEdgeCase.bayShortage =>
-      'Recalculate ETA and notify customer of delay.',
-  };
+        BookingEdgeCase.lateArrival =>
+          'After grace window, auto-downgrade to walk-in priority.',
+        BookingEdgeCase.noShow =>
+          'Release reserved capacity if not checked in by window end.',
+        BookingEdgeCase.vendorOverride =>
+          'Require reason and supervisor audit trail.',
+        BookingEdgeCase.bayShortage =>
+          'Recalculate ETA and notify customer of delay.',
+      };
 }

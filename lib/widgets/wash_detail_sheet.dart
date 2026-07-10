@@ -5,34 +5,73 @@ import '../models/car_wash.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/booking_status_screen.dart';
 import '../screens/payment_screen.dart';
+import '../services/route_eta_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/distance.dart';
 import '../utils/page_routes.dart';
 import 'detection_badge.dart';
 import 'status_badge.dart';
 
-class WashDetailSheet extends StatelessWidget {
+class WashDetailSheet extends StatefulWidget {
   final CarWash wash;
   final LatLng? userLocation;
+  final RouteEta? routeEta;
+  final bool isRouteEtaLoading;
+  final Future<RouteEta> Function()? routeEtaLoader;
   final ScrollController? scrollController;
 
   const WashDetailSheet({
     super.key,
     required this.wash,
     this.userLocation,
+    this.routeEta,
+    this.isRouteEtaLoading = false,
+    this.routeEtaLoader,
     this.scrollController,
   });
 
   @override
+  State<WashDetailSheet> createState() => _WashDetailSheetState();
+}
+
+class _WashDetailSheetState extends State<WashDetailSheet> {
+  RouteEta? _routeEta;
+  bool _loadingRouteEta = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _routeEta = widget.routeEta;
+    _loadingRouteEta = widget.isRouteEtaLoading;
+    _loadRouteEta();
+  }
+
+  Future<void> _loadRouteEta() async {
+    if (_routeEta != null || widget.routeEtaLoader == null) return;
+    setState(() => _loadingRouteEta = true);
+    final eta = await widget.routeEtaLoader!();
+    if (!mounted) return;
+    setState(() {
+      _routeEta = eta;
+      _loadingRouteEta = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final wash = widget.wash;
+    final userLocation = widget.userLocation;
+    final scrollController = widget.scrollController;
     final l10n = AppLocalizations.of(context);
     final name = l10n.isArabic ? wash.nameAr : wash.name;
     final address = l10n.isArabic ? wash.addressAr : wash.address;
+    final eta = _routeEta ?? widget.routeEta;
+    final isRouteEtaLoading = _loadingRouteEta || widget.isRouteEtaLoading;
 
     final dist = userLocation != null
         ? haversineKm(
-            userLocation!.latitude,
-            userLocation!.longitude,
+            userLocation.latitude,
+            userLocation.longitude,
             wash.lat,
             wash.lng,
           )
@@ -135,7 +174,7 @@ class WashDetailSheet extends StatelessWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.googleBlue.withValues(alpha: 0.08),
+                          color: AppTheme.bayTeal.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -143,11 +182,17 @@ class WashDetailSheet extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.googleBlue,
+                            color: AppTheme.bayTeal,
                           ),
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 10),
+                  _RouteEtaPill(
+                    eta: eta,
+                    isLoading: isRouteEtaLoading,
+                    l10n: l10n,
                   ),
                   const SizedBox(height: 10),
                   // Address
@@ -198,14 +243,14 @@ class WashDetailSheet extends StatelessWidget {
                       const Icon(
                         Icons.phone_outlined,
                         size: 15,
-                        color: AppTheme.googleBlue,
+                        color: AppTheme.bayTeal,
                       ),
                       const SizedBox(width: 5),
                       Text(
                         wash.phone,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppTheme.googleBlue,
+                          color: AppTheme.bayTeal,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -230,13 +275,19 @@ class WashDetailSheet extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _StatBox(
-                          icon: Icons.schedule_rounded,
-                          value: wash.waitTimeMinutes == 0
-                              ? l10n.t('no_wait')
-                              : '${wash.waitTimeMinutes} min',
-                          label: wash.waitTimeMinutes == 0
-                              ? ''
-                              : l10n.t('min_wait'),
+                          icon: Icons.route_rounded,
+                          value: eta != null
+                              ? '${eta.totalMinutes} min'
+                              : isRouteEtaLoading
+                                  ? '...'
+                                  : (wash.waitTimeMinutes == 0
+                                      ? l10n.t('no_wait')
+                                      : '${wash.waitTimeMinutes} min'),
+                          label: eta != null
+                              ? l10n.t('route_eta')
+                              : (wash.waitTimeMinutes == 0
+                                  ? ''
+                                  : l10n.t('min_wait')),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -299,7 +350,7 @@ class WashDetailSheet extends StatelessWidget {
                     width: double.infinity,
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.googleBlue,
+                        backgroundColor: AppTheme.bayTeal,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -350,6 +401,7 @@ class WashDetailSheet extends StatelessWidget {
                           packageName: l10n.t('standard_wash'),
                           price: wash.priceStandard,
                           interiorCleaningNeeded: true,
+                          etaMinutes: eta?.totalMinutes,
                         );
                         Navigator.of(context).pop();
                         Navigator.of(context).push(
@@ -402,14 +454,14 @@ class _StatBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.googleBlue.withValues(alpha: 0.05),
+        color: AppTheme.bayTeal.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.googleBlue.withValues(alpha: 0.12)),
+        border: Border.all(color: AppTheme.bayTeal.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: AppTheme.googleBlue),
+          Icon(icon, size: 20, color: AppTheme.bayTeal),
           const SizedBox(height: 8),
           Text(
             value,
@@ -428,6 +480,97 @@ class _StatBox extends StatelessWidget {
                 color: AppTheme.textSecondary,
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RouteEtaPill extends StatelessWidget {
+  final RouteEta? eta;
+  final bool isLoading;
+  final AppLocalizations l10n;
+
+  const _RouteEtaPill({
+    required this.eta,
+    required this.isLoading,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final item = eta;
+    final queueWaitMinutes = item == null
+        ? 0
+        : (item.totalMinutes - item.driveMinutes).clamp(0, 999);
+    final label = item == null
+        ? (isLoading ? '${l10n.t('route_eta')}...' : l10n.t('route_estimate'))
+        : item.isOpenRouteService
+            ? l10n.t('ors_route')
+            : l10n.t('route_estimate');
+    final value =
+        item == null ? '--' : '${item.totalMinutes} min ${l10n.t('route_eta')}';
+    final sub = item == null
+        ? l10n.t('including_queue')
+        : '${item.driveMinutes} min ${l10n.t('drive_eta')} + $queueWaitMinutes min ${l10n.t('wait_eta')}';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppTheme.bayTeal.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppTheme.bayTeal.withValues(alpha: 0.14)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              item?.isOpenRouteService == true
+                  ? Icons.route_rounded
+                  : Icons.near_me_rounded,
+              color: AppTheme.bayTeal,
+              size: 19,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.bayTeal,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            sub,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppTheme.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

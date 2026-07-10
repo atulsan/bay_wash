@@ -68,13 +68,13 @@ class _LoginScreenState extends State<LoginScreen>
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     final isVendor = widget.portalType == PortalType.vendor;
 
-    final portalColor =
-        isVendor ? const Color(0xFF34A853) : AppTheme.googleBlue;
+    final portalColor = isVendor ? AppTheme.statusFree : AppTheme.bayTeal;
     final portalIcon =
         isVendor ? Icons.storefront_rounded : Icons.local_car_wash_rounded;
-    final portalHeading = isVendor ? 'Vendor Sign In' : l10n.t('login_heading');
+    final portalHeading =
+        isVendor ? 'Bay Wash Station Sign In' : l10n.t('login_heading');
     final portalSub = isVendor
-        ? 'Enter your registered business number'
+        ? 'Enter the mobile registered to your Bay Wash station'
         : l10n.t('login_sub');
 
     return Scaffold(
@@ -150,7 +150,9 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                               child: Text(
-                                isVendor ? 'Vendor Portal' : 'User Portal',
+                                isVendor
+                                    ? 'Bay Wash Station Portal'
+                                    : 'Customer App',
                                 style: TextStyle(
                                   color: portalColor,
                                   fontSize: 13,
@@ -168,7 +170,8 @@ class _LoginScreenState extends State<LoginScreen>
                             fontWeight: FontWeight.w800,
                             color: AppTheme.textPrimary,
                             height: 1.15,
-                            letterSpacing: -0.5,
+                            letterSpacing: 0,
+                            fontFamilyFallback: AppTheme.brandFontFallback,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -344,6 +347,11 @@ class _PhoneField extends StatelessWidget {
               controller: controller,
               focusNode: focusNode,
               keyboardType: TextInputType.phone,
+              enableSuggestions: false,
+              autocorrect: false,
+              autofillHints: const <String>[],
+              smartDashesType: SmartDashesType.disabled,
+              smartQuotesType: SmartQuotesType.disabled,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[\d\s]')),
               ],
@@ -383,20 +391,20 @@ class _LangButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () =>
-          EmiratesWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
+          BayWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.googleBlue.withValues(alpha: 0.08),
+          color: AppTheme.bayTeal.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.googleBlue.withValues(alpha: 0.25),
+            color: AppTheme.bayTeal.withValues(alpha: 0.25),
           ),
         ),
         child: Text(
           isArabic ? 'EN' : 'عربي',
           style: const TextStyle(
-            color: AppTheme.googleBlue,
+            color: AppTheme.bayTeal,
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),

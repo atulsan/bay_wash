@@ -39,7 +39,7 @@ class _ManagerDashboard extends StatelessWidget {
             bottom: false,
             child: VTopBar(
               title: 'Dashboard',
-              subtitle: 'Marina Quick Wash',
+              subtitle: 'Bay Wash Station - Sheikh Zayed Road',
               rightSlot: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.vInk,
@@ -180,10 +180,10 @@ class _ManagerDashboard extends StatelessWidget {
               const SizedBox(height: 18),
 
               // Settings
-              VSectionHeader(title: 'Business', topPadding: 4),
+              VSectionHeader(title: 'Station', topPadding: 4),
               _SettingsTile(
                   icon: Icons.storefront_rounded,
-                  label: 'Wash profile & hours',
+                  label: 'Station profile & hours',
                   onTap: () {}),
               _SettingsTile(
                   icon: Icons.payments_rounded,
@@ -539,7 +539,8 @@ class _OperatorAccount extends StatelessWidget {
     return Column(children: [
       SafeArea(
         bottom: false,
-        child: VTopBar(title: 'Account', subtitle: 'Marina Quick Wash'),
+        child: VTopBar(
+            title: 'Account', subtitle: 'Bay Wash Station - Sheikh Zayed Road'),
       ),
       Expanded(
           child: SingleChildScrollView(

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 
 /// Lightweight in-memory store for vendor registration data.
 ///
@@ -22,17 +21,10 @@ class VendorDataStore {
   /// Persist vendor registration data.
   ///
   /// Serialises [data] to JSON, stores it in memory and (in debug mode)
-  /// prints the full payload to the console for quick inspection.
+  /// keeps it in memory for quick inspection during the current session.
   static Future<void> saveRegistration(Map<String, dynamic> data) async {
     _lastRegistration = Map<String, dynamic>.unmodifiable(data);
     _lastRegistrationJson = const JsonEncoder.withIndent('  ').convert(data);
-
-    if (kDebugMode) {
-      debugPrint('\n╔══════════════════════════════════════════╗');
-      debugPrint('║  VendorDataStore — registration saved     ║');
-      debugPrint('╚══════════════════════════════════════════╝');
-      debugPrint(_lastRegistrationJson);
-    }
   }
 
   /// Clear the in-memory store (useful for testing).

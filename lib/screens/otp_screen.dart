@@ -145,12 +145,12 @@ class _OtpScreenState extends State<OtpScreen>
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: AppTheme.googleBlue.withValues(alpha: 0.10),
+                    color: AppTheme.bayTeal.withValues(alpha: 0.10),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.phone_android_rounded,
-                    color: AppTheme.googleBlue,
+                    color: AppTheme.bayTeal,
                     size: 30,
                   ),
                 ),
@@ -201,7 +201,7 @@ class _OtpScreenState extends State<OtpScreen>
                             child: Text(
                               l10n.t('resend'),
                               style: const TextStyle(
-                                color: AppTheme.googleBlue,
+                                color: AppTheme.bayTeal,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -214,7 +214,7 @@ class _OtpScreenState extends State<OtpScreen>
                   width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.googleBlue,
+                      backgroundColor: AppTheme.bayTeal,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -329,15 +329,15 @@ class _OtpBoxState extends State<_OtpBox> {
       height: 56,
       decoration: BoxDecoration(
         color: focused
-            ? AppTheme.googleBlue.withValues(alpha: 0.07)
+            ? AppTheme.bayTeal.withValues(alpha: 0.07)
             : const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: focused
-              ? AppTheme.googleBlue
+              ? AppTheme.bayTeal
               : filled
-              ? AppTheme.googleBlue.withValues(alpha: 0.4)
-              : AppTheme.divider,
+                  ? AppTheme.bayTeal.withValues(alpha: 0.4)
+                  : AppTheme.divider,
           width: focused ? 2 : 1.5,
         ),
       ),
@@ -349,6 +349,11 @@ class _OtpBoxState extends State<_OtpBox> {
           focusNode: widget.focusNode,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
+          enableSuggestions: false,
+          autocorrect: false,
+          autofillHints: const <String>[],
+          smartDashesType: SmartDashesType.disabled,
+          smartQuotesType: SmartQuotesType.disabled,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(1),

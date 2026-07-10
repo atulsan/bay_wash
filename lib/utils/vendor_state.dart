@@ -214,7 +214,7 @@ class VendorState extends ChangeNotifier {
     QueueCar(
         id: 5,
         plate: 'M 21950',
-        emirate: 'SHJ',
+        emirate: 'AUH',
         model: 'Tesla Model 3 · Red',
         svc: 'Standard',
         bay: '—',
@@ -321,7 +321,7 @@ class VendorState extends ChangeNotifier {
   // ── Notifications ─────────────────────────────────────────────────────────
   final List<VendorNotif> notifications = [
     VendorNotif(
-        title: 'New booking',
+        title: 'New Bay Wash booking',
         icon: 'booking',
         body: 'Aisha M. booked Premium at 10:30 AM',
         time: '2 min ago'),
@@ -333,7 +333,7 @@ class VendorState extends ChangeNotifier {
     VendorNotif(
         title: 'Staff request',
         icon: 'person',
-        body: 'Operator 5 wants to join your team',
+        body: 'Operator 5 wants to join your Bay Wash station team',
         time: '12 min ago'),
   ];
 

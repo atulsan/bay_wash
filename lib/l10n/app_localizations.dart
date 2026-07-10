@@ -13,8 +13,8 @@ class AppLocalizations {
 
   static const _en = <String, String>{
     // General
-    'app_title': 'Emirates Wash',
-    'nearby_washes': 'Nearby Car Washes',
+    'app_title': 'Bay Wash',
+    'nearby_washes': 'Bay Washes near you',
     'filter_all': 'All',
     'status_free': 'Free',
     'status_busy': 'Busy',
@@ -32,27 +32,35 @@ class AppLocalizations {
     'opening_hours': 'Opening Hours',
     'call': 'Call',
     'from_price': 'from AED',
+    'route_eta': 'Total ETA',
+    'ors_route': 'OpenRouteService route',
+    'route_estimate': 'Route estimate',
+    'drive_eta': 'drive',
+    'arrival_eta': 'total',
+    'including_queue': 'drive + queue',
+    'wait_eta': 'wait',
+    'sort_eta': 'Fastest ETA',
     // Services
+    'express_wash': 'Express Wash',
+    'automatic_wash': 'Automatic Wash',
+    'vacuum_bay': 'Vacuum Bay',
     'exterior_wash': 'Exterior Wash',
     'interior_clean': 'Interior Clean',
-    'full_detail': 'Full Detail',
-    'polish': 'Polish',
     'tyre_shine': 'Tyre Shine',
-    'engine_clean': 'Engine Clean',
-    'ceramic_coating': 'Ceramic Coating',
     // Detection
     'detection_camera_ai': 'AI Camera',
     'detection_crowd': 'Community',
-    'detection_verified': 'Business Verified',
+    'detection_verified': 'Station Verified',
     'detection_camera_desc':
         'Queue detected automatically via AI camera — no sign-up needed',
     'detection_crowd_desc':
         'Queue reported by nearby app users — no sign-up needed',
-    'detection_verified_desc': 'Queue reported directly by the business',
+    'detection_verified_desc':
+        'Queue reported directly by the Bay Wash station',
     'how_detected': 'How queue is detected',
     // Login
-    'login_heading': 'Find Car Washes\nNear You',
-    'login_sub': 'UAE\'s smartest car wash finder',
+    'login_heading': 'Find Bay Wash\nBays',
+    'login_sub': 'Abu Dhabi and Dubai Bay Wash bays',
     'phone_hint': '50 123 4567',
     'send_otp': 'Send OTP',
     'continue_guest': 'Continue as Guest',
@@ -88,7 +96,7 @@ class AppLocalizations {
     'total': 'Total',
     'basic_includes': 'Exterior wash',
     'standard_includes': 'Exterior + Interior + Tyre shine',
-    'premium_includes': 'Full detail + Polish + Engine clean',
+    'premium_includes': 'Wash + Interior + Tyre shine',
     // Sort & Filter
     'sort_filter': 'Sort & Filter',
     'sort_by': 'Sort By',
@@ -98,19 +106,19 @@ class AppLocalizations {
     'filter_services': 'Filter by Service',
     'apply': 'Apply',
     'clear_all': 'Clear All',
-    'no_results': 'No washes match your filters',
+    'no_results': 'No Bay Wash stations match your filters',
     'no_results_sub': 'Try adjusting or clearing filters',
     'active_filters': 'Active filters',
     'list_view': 'List',
     'filter_view': 'Filter',
-    'search_washes': 'Search washes, areas, services',
+    'search_washes': 'Search Bay Wash stations, areas, services',
     'filter_status': 'Filter by Status',
   };
 
   static const _ar = <String, String>{
     // General
-    'app_title': 'إمارات ووش',
-    'nearby_washes': 'مراكز الغسيل القريبة',
+    'app_title': 'باي ووش',
+    'nearby_washes': 'مغاسل أدنوك',
     'filter_all': 'الكل',
     'status_free': 'متاح',
     'status_busy': 'مشغول',
@@ -128,27 +136,34 @@ class AppLocalizations {
     'opening_hours': 'ساعات العمل',
     'call': 'اتصل',
     'from_price': 'من AED',
+    'route_eta': 'إجمالي الوقت',
+    'ors_route': 'مسار OpenRouteService',
+    'route_estimate': 'تقدير المسار',
+    'drive_eta': 'قيادة',
+    'arrival_eta': 'الإجمالي',
+    'including_queue': 'قيادة + طابور',
+    'wait_eta': 'انتظار',
+    'sort_eta': 'الأسرع وصولاً',
     // Services
+    'express_wash': 'غسيل سريع',
+    'automatic_wash': 'غسيل آلي',
+    'vacuum_bay': 'منطقة مكنسة',
     'exterior_wash': 'غسيل خارجي',
     'interior_clean': 'تنظيف داخلي',
-    'full_detail': 'تفصيل كامل',
-    'polish': 'تلميع',
     'tyre_shine': 'تلميع الإطارات',
-    'engine_clean': 'تنظيف المحرك',
-    'ceramic_coating': 'طلاء سيراميك',
     // Detection
     'detection_camera_ai': 'كاميرا ذكاء اصطناعي',
     'detection_crowd': 'مجتمعي',
-    'detection_verified': 'موثق من المحل',
+    'detection_verified': 'موثق من المحطة',
     'detection_camera_desc':
         'يُكتشف الطابور تلقائياً عبر كاميرا الذكاء الاصطناعي — بدون تسجيل',
     'detection_crowd_desc':
         'أبلغ عن الطابور مستخدمو التطبيق القريبون — بدون تسجيل',
-    'detection_verified_desc': 'يُبلَّغ عن الطابور مباشرة من المنشأة',
+    'detection_verified_desc': 'يُبلَّغ عن الطابور مباشرة من محطة أدنوك',
     'how_detected': 'كيف يُكتشف الطابور',
     // Login
-    'login_heading': 'ابحث عن\nغسيل السيارات القريب',
-    'login_sub': 'أذكى مكتشف لغسيل السيارات في الإمارات',
+    'login_heading': 'ابحث عن\nمغاسل أدنوك',
+    'login_sub': 'مغاسل أدنوك في أبوظبي ودبي',
     'phone_hint': '50 123 4567',
     'send_otp': 'إرسال الرمز',
     'continue_guest': 'المتابعة كضيف',
@@ -184,7 +199,7 @@ class AppLocalizations {
     'total': 'الإجمالي',
     'basic_includes': 'غسيل خارجي',
     'standard_includes': 'خارجي + داخلي + إطارات',
-    'premium_includes': 'تفصيل كامل + تلميع + محرك',
+    'premium_includes': 'غسيل + داخلي + إطارات',
     // Sort & Filter
     'sort_filter': 'ترتيب وتصفية',
     'sort_by': 'ترتيب حسب',
@@ -194,12 +209,12 @@ class AppLocalizations {
     'filter_services': 'تصفية حسب الخدمة',
     'apply': 'تطبيق',
     'clear_all': 'مسح الكل',
-    'no_results': 'لا توجد مراكز تطابق فلاترك',
+    'no_results': 'لا توجد محطات أدنوك تطابق فلاترك',
     'no_results_sub': 'جرب تعديل الفلاتر أو مسحها',
     'active_filters': 'فلاتر نشطة',
     'list_view': 'القائمة',
     'filter_view': 'التصفية',
-    'search_washes': 'ابحث عن مركز أو منطقة أو خدمة',
+    'search_washes': 'ابحث عن محطة أدنوك أو منطقة أو خدمة',
     'filter_status': 'تصفية حسب الحالة',
   };
 
@@ -207,13 +222,12 @@ class AppLocalizations {
 
   String serviceLabel(String service) {
     final key = switch (service) {
+      'Express Wash' => 'express_wash',
+      'Automatic Wash' => 'automatic_wash',
+      'Vacuum Bay' => 'vacuum_bay',
       'Exterior Wash' => 'exterior_wash',
       'Interior Clean' => 'interior_clean',
-      'Full Detail' => 'full_detail',
-      'Polish' => 'polish',
       'Tyre Shine' => 'tyre_shine',
-      'Engine Clean' => 'engine_clean',
-      'Ceramic Coating' => 'ceramic_coating',
       _ => '',
     };
     return key.isEmpty ? service : t(key);

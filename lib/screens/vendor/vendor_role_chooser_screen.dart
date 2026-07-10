@@ -62,7 +62,7 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                           height: 1.1)),
                   RichText(
                       text: const TextSpan(
-                    text: 'Emirates Wash?',
+                    text: 'Bay Wash?',
                     style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 30,
@@ -72,7 +72,7 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                   )),
                   const SizedBox(height: 10),
                   const Text(
-                      'Pick the role that matches you. You can switch later from Settings.',
+                      'Pick the station role that matches you. You can switch later from Settings.',
                       style: TextStyle(
                           fontSize: 14.5, color: AppTheme.vInk3, height: 1.45)),
                   const SizedBox(height: 28),
@@ -81,13 +81,13 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                       children: [
                         _RoleCard(
                           primary: true,
-                          badge: 'Owner / Admin',
+                          badge: 'Station Manager',
                           icon: Icons.business_rounded,
-                          title: 'I run the business',
+                          title: 'I manage a Bay Wash station',
                           body:
-                              'Register the wash, upload trade licence, set bays & pricing, manage staff and payouts.',
+                              'Set up wash bays, pricing, station hours, queue rules, staff and operations reporting.',
                           tags: const [
-                            'Trade licence',
+                            'Bay Wash station',
                             'Add bays',
                             'Manage staff',
                             'See revenue'
@@ -97,13 +97,13 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                         const SizedBox(height: 12),
                         _RoleCard(
                           primary: false,
-                          badge: 'Counter / Bay staff',
+                          badge: 'Bay staff',
                           icon: Icons.local_car_wash_rounded,
-                          title: 'I work at a wash',
+                          title: 'I work at a Bay Wash bay',
                           body:
-                              'Quick onboarding — basic details, link to your manager\'s location, start pulling cars from the queue.',
+                              'Quick onboarding: link to your Bay Wash station, update queues, assign bays and mark washes complete.',
                           tags: const [
-                            'Link with code',
+                            'Station code',
                             'Update queue',
                             'Mark complete'
                           ],

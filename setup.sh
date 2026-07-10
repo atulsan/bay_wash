@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR"
 
 echo "==> Creating Flutter project scaffold..."
 flutter create . \
-  --project-name emirates_wash \
+  --project-name bay_wash \
   --org com.emirateswash \
   --platforms android,ios \
   --no-overwrite

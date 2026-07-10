@@ -64,7 +64,7 @@ class _VendorSignupManagerScreenState extends State<VendorSignupManagerScreen> {
 
   // Step 1
   final _bizNameCtrl = TextEditingController();
-  String _bizType = 'independent';
+  String _bizType = 'bay_wash_station';
   int _selectedEmirate = 0;
   final _phoneCtrl = TextEditingController(text: '50 312 8844');
 
@@ -74,7 +74,7 @@ class _VendorSignupManagerScreenState extends State<VendorSignupManagerScreen> {
 
   // Step 3
   final _addressCtrl = TextEditingController();
-  LatLng _pinLocation = const LatLng(25.2048, 55.2708); // Dubai default
+  LatLng _pinLocation = const LatLng(25.2048, 55.2708);
   final _daysOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   late final Map<String, _DaySchedule> _schedule;
 
@@ -84,15 +84,7 @@ class _VendorSignupManagerScreenState extends State<VendorSignupManagerScreen> {
   int _vacuumBays = 0;
   late List<_ServiceItem> _serviceItems;
 
-  static const _emiratesLabels = [
-    'Dubai',
-    'Abu Dhabi',
-    'Sharjah',
-    'Ajman',
-    'Fujairah',
-    'RAK',
-    'UAQ'
-  ];
+  static const _emiratesLabels = ['Dubai', 'Abu Dhabi'];
 
   @override
   void initState() {
@@ -107,13 +99,12 @@ class _VendorSignupManagerScreenState extends State<VendorSignupManagerScreen> {
       'Sun': _DaySchedule(open: false, from: '9:00 AM', to: '6:00 PM'),
     };
     _serviceItems = [
+      _ServiceItem(name: 'Express Wash', priceAed: 0),
+      _ServiceItem(name: 'Automatic Wash', priceAed: 0),
       _ServiceItem(name: 'Exterior Wash', priceAed: 0),
       _ServiceItem(name: 'Interior Clean', priceAed: 0),
-      _ServiceItem(name: 'Polish', priceAed: 0),
+      _ServiceItem(name: 'Vacuum Bay', priceAed: 0),
       _ServiceItem(name: 'Tyre Shine', priceAed: 0),
-      _ServiceItem(name: 'Full Detail', priceAed: 0),
-      _ServiceItem(name: 'Engine Clean', priceAed: 0),
-      _ServiceItem(name: 'Ceramic Coating', priceAed: 0),
     ];
   }
 
@@ -209,7 +200,7 @@ class _VendorSignupManagerScreenState extends State<VendorSignupManagerScreen> {
   }
 
   String _stepLabel(int s) =>
-      ['Business basics', 'Verification', 'Location', 'Capacity'][s];
+      ['Station basics', 'Verification', 'Location', 'Capacity'][s];
 
   Widget _buildStep() {
     return switch (_step) {
@@ -253,7 +244,7 @@ class _VendorSignupManagerScreenState extends State<VendorSignupManagerScreen> {
   }
 }
 
-// ── Step 1: Business basics ───────────────────────────────────────────────────
+// ── Step 1: Station basics ───────────────────────────────────────────────────
 
 class _Step1 extends StatelessWidget {
   final TextEditingController bizNameCtrl;
@@ -266,11 +257,6 @@ class _Step1 extends StatelessWidget {
   static const _labels = [
     'Dubai',
     'Abu Dhabi',
-    'Sharjah',
-    'Ajman',
-    'Fujairah',
-    'RAK',
-    'UAQ'
   ];
 
   const _Step1({
@@ -285,36 +271,38 @@ class _Step1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Tell us about your wash',
+      const Text('Tell us about your Bay Wash station',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 20,
               letterSpacing: -0.3,
               color: AppTheme.vInk)),
       const SizedBox(height: 6),
-      const Text("We'll cross-check this with your trade licence later.",
+      const Text(
+          "We'll cross-check this with your Bay Wash station record later.",
           style: TextStyle(fontSize: 13.5, color: AppTheme.vInk3)),
       const SizedBox(height: 22),
       VField(
-        label: 'Business name',
-        hint: 'As shown on your trade licence',
+        label: 'Station name',
+        hint: 'As shown in Bay Wash station records',
         child: TextFormField(
           controller: bizNameCtrl,
-          decoration: vInputDecoration(hint: 'e.g. Marina Quick Wash'),
+          decoration: vInputDecoration(
+              hint: 'e.g. Bay Wash Station - Sheikh Zayed Road'),
           style: const TextStyle(
               fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
         ),
       ),
       const SizedBox(height: 16),
       VField(
-        label: 'Business type',
+        label: 'Station type',
         child: VSegRow(
           value: bizType,
           onChanged: onBizType,
           options: const [
-            (id: 'independent', label: 'Independent'),
-            (id: 'petrol', label: 'Petrol pump'),
-            (id: 'detail', label: 'Detailing'),
+            (id: 'bay_wash_station', label: 'Bay Wash Station'),
+            (id: 'bay_wash_express', label: 'Bay Wash Express'),
+            (id: 'bay_wash_oasis', label: 'Bay Wash Oasis'),
           ],
         ),
       ),
@@ -347,7 +335,7 @@ class _Step1 extends StatelessWidget {
       ),
       const SizedBox(height: 16),
       VField(
-        label: 'Owner mobile (UAE)',
+        label: 'Station manager mobile',
         child: VPhoneField(controller: phoneCtrl),
       ),
     ]);
@@ -380,7 +368,7 @@ class _Step2State extends State<_Step2> {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Verify your business',
+      const Text('Verify your Bay Wash station',
           style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 20,
@@ -388,11 +376,11 @@ class _Step2State extends State<_Step2> {
               color: AppTheme.vInk)),
       const SizedBox(height: 6),
       const Text(
-          'We use these to keep the marketplace trustworthy. Reviewed within 24h.',
+          'We use these to keep station access controlled. Reviewed within 24h.',
           style: TextStyle(fontSize: 13.5, color: AppTheme.vInk3)),
       const SizedBox(height: 22),
       VField(
-        label: 'Trade licence number',
+        label: 'Station reference or licence number',
         child: TextFormField(
           controller: widget.licenceCtrl,
           decoration: vInputDecoration(hint: 'e.g. DED-CN-1234567'),
@@ -402,7 +390,7 @@ class _Step2State extends State<_Step2> {
       ),
       const SizedBox(height: 16),
       VField(
-        label: 'Trade licence document',
+        label: 'Station authorization document',
         child: _UploadTile(
           uploaded: _licenceUploaded,
           uploadedLabel: 'trade-licence.pdf',
@@ -455,7 +443,7 @@ class _Step2State extends State<_Step2> {
           SizedBox(width: 10),
           Expanded(
               child: Text(
-            'Your data stays in the UAE. Documents are encrypted and never shared with end users.',
+            'Station documents are encrypted and never shared with customers.',
             style: TextStyle(
                 fontSize: 12.5, color: AppTheme.vPrimary700, height: 1.45),
           )),
@@ -709,7 +697,7 @@ class _Step3State extends State<_Step3> {
                 TileLayer(
                   urlTemplate:
                       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-                  userAgentPackageName: 'com.emirateswash.app',
+                  userAgentPackageName: 'com.baywash.app',
                 ),
                 MarkerLayer(markers: [
                   Marker(
@@ -806,8 +794,7 @@ class _Step3State extends State<_Step3> {
         label: 'Address',
         child: TextFormField(
           controller: widget.addressCtrl,
-          decoration:
-              vInputDecoration(hint: 'e.g. Dubai Marina Mall, Dubai Marina'),
+          decoration: vInputDecoration(hint: 'e.g. Sheikh Zayed Road, Dubai'),
           style: const TextStyle(
               fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.vInk),
         ),

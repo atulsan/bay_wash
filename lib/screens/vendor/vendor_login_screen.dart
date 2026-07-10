@@ -84,7 +84,7 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
 
               const SizedBox(height: 24),
               Text(
-                isManager ? 'Welcome back, owner.' : 'Welcome back.',
+                isManager ? 'Welcome back, station manager.' : 'Welcome back.',
                 style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 28,
@@ -94,8 +94,8 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
               const SizedBox(height: 8),
               Text(
                 isManager
-                    ? 'Sign in with the mobile registered to the business.'
-                    : 'Sign in with your work mobile. Your manager will see you go online.',
+                    ? 'Sign in with the mobile registered to the Bay Wash station.'
+                    : 'Sign in with your Bay Wash station mobile. Your manager will see you go online.',
                 style: const TextStyle(
                     fontSize: 14, color: AppTheme.vInk3, height: 1.5),
               ),
@@ -148,8 +148,8 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
                   child: RichText(
                     text: TextSpan(
                       text: isManager
-                          ? "Don't have a business account? "
-                          : 'Not on a team yet? ',
+                          ? "Need to set up a station? "
+                          : 'Not linked to a station yet? ',
                       style:
                           const TextStyle(fontSize: 13, color: AppTheme.vInk3),
                       children: [

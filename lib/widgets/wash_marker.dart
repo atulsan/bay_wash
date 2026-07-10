@@ -1,68 +1,91 @@
 import 'package:flutter/material.dart';
+
 import '../models/car_wash.dart';
 import '../theme/app_theme.dart';
 
 class WashMarker extends StatelessWidget {
   final CarWash wash;
   final bool isSelected;
+  final int? routeEtaMinutes;
   final VoidCallback onTap;
 
   const WashMarker({
     super.key,
     required this.wash,
     required this.isSelected,
+    this.routeEtaMinutes,
     required this.onTap,
   });
 
   Color get _color => switch (wash.status) {
-    WashStatus.free => AppTheme.statusFree,
-    WashStatus.busy => AppTheme.statusBusy,
-    WashStatus.full => AppTheme.statusFull,
-  };
+        WashStatus.free => AppTheme.statusFree,
+        WashStatus.busy => AppTheme.statusBusy,
+        WashStatus.full => AppTheme.statusFull,
+      };
 
-  String get _label =>
-      wash.waitTimeMinutes == 0 ? 'Free' : '${wash.waitTimeMinutes}m';
+  String get _label => routeEtaMinutes != null
+      ? '${routeEtaMinutes}m'
+      : (wash.waitTimeMinutes == 0 ? 'Free' : '${wash.waitTimeMinutes}m');
 
   @override
   Widget build(BuildContext context) {
     final color = _color;
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.5),
-                  blurRadius: isSelected ? 12 : 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-              border: isSelected
-                  ? Border.all(color: Colors.white, width: 2.5)
-                  : null,
-            ),
-            child: Text(
-              _label,
-              style: const TextStyle(
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 180),
+        scale: isSelected ? 1.08 : 1,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
                 color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                height: 1,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: color,
+                  width: isSelected ? 2.5 : 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: isSelected ? 0.22 : 0.13,
+                    ),
+                    blurRadius: isSelected ? 16 : 9,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.local_car_wash_rounded,
+                    color: color,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    _label,
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      height: 1,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          CustomPaint(
-            size: const Size(10, 6),
-            painter: _TrianglePainter(color: color),
-          ),
-        ],
+            CustomPaint(
+              size: const Size(10, 6),
+              painter: _TrianglePainter(color: color),
+            ),
+          ],
+        ),
       ),
     );
   }

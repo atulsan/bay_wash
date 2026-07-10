@@ -1,0 +1,25 @@
+name: bay_wash
+
+services:
+  vehicle-counter:
+    build:
+      context: ./services/vehicle_counter
+    environment:
+      VIDEO_SOURCE: /videos/adnoc_demo.mp4
+      MODEL_ID: Intel/vehicle-detection
+      MODEL_VARIANT: yolo26n
+      MODEL_PRECISION: INT8
+      DEVICE: CPU
+      TARGET_FPS: "5"
+      ZONE_CONFIG: /app/config/zones.example.json
+      CONFIDENCE_THRESHOLD: "0.35"
+      IOU_THRESHOLD: "0.45"
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./demo_videos:/videos:ro
+      - ./services/vehicle_counter/config:/app/config:ro
+      - vehicle-counter-cache:/root/.cache/huggingface
+
+volumes:
+  vehicle-counter-cache:

@@ -1,5 +1,5 @@
-name: emirates_wash
-description: Find the nearest free car wash in the UAE.
+name: bay_wash
+description: Bay Wash car wash bay finder and station console.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -14,6 +14,7 @@ dependencies:
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
   geolocator: ^14.0.2
+  http: ^1.2.2
   cupertino_icons: ^1.0.6
 
 dev_dependencies:
@@ -23,3 +24,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/brand/bay_wash_icon_light.jpeg
+    - assets/brand/bay_wash_icon_dark.jpeg

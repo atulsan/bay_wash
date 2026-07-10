@@ -37,8 +37,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
   int get _currentQueuePosition =>
       _stage.index <= AppBookingStage.readyForWash.index
-      ? widget.booking.queuePosition
-      : 0;
+          ? widget.booking.queuePosition
+          : 0;
 
   int get _currentEta => _stage.index <= AppBookingStage.readyForWash.index
       ? widget.booking.etaMinutes
@@ -64,10 +64,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         AppBookingStage.readyForWash => AppBookingStage.bayAssigned,
         AppBookingStage.bayAssigned => AppBookingStage.washing,
         AppBookingStage.washing => AppBookingStage.washEnded,
-        AppBookingStage.washEnded =>
-          widget.booking.interiorCleaningNeeded
-              ? AppBookingStage.interiorQueued
-              : AppBookingStage.jobCompleted,
+        AppBookingStage.washEnded => widget.booking.interiorCleaningNeeded
+            ? AppBookingStage.interiorQueued
+            : AppBookingStage.jobCompleted,
         AppBookingStage.interiorQueued => AppBookingStage.interiorCleaning,
         AppBookingStage.interiorCleaning => AppBookingStage.jobCompleted,
         AppBookingStage.jobCompleted => AppBookingStage.paymentClosed,
@@ -133,8 +132,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               } else {
                 _commissionStatus =
                     _stage.index >= AppBookingStage.paymentClosed.index
-                    ? CommissionStatus.earned
-                    : CommissionStatus.pending;
+                        ? CommissionStatus.earned
+                        : CommissionStatus.pending;
               }
             }),
             onEdgeCaseChanged: (value) => setState(() => _edgeCase = value),
@@ -144,9 +143,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           const SizedBox(height: 20),
           FilledButton.icon(
             style: FilledButton.styleFrom(
-              backgroundColor: _isComplete
-                  ? AppTheme.statusFree
-                  : AppTheme.googleBlue,
+              backgroundColor:
+                  _isComplete ? AppTheme.statusFree : AppTheme.bayTeal,
               padding: const EdgeInsets.symmetric(vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -174,10 +172,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       AppBookingStage.readyForWash => 'Assign bay and start time',
       AppBookingStage.bayAssigned => 'Send WASH_START event',
       AppBookingStage.washing => 'Send WASH_END event',
-      AppBookingStage.washEnded =>
-        widget.booking.interiorCleaningNeeded
-            ? 'Queue interior cleaning'
-            : 'Complete job',
+      AppBookingStage.washEnded => widget.booking.interiorCleaningNeeded
+          ? 'Queue interior cleaning'
+          : 'Complete job',
       AppBookingStage.interiorQueued => 'Start interior cleaning',
       AppBookingStage.interiorCleaning => 'End interior cleaning',
       AppBookingStage.jobCompleted => 'Close payment',
@@ -198,7 +195,7 @@ class _HeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.googleBlue,
+        color: AppTheme.bayTeal,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -338,7 +335,7 @@ class _MetricCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 19, color: AppTheme.googleBlue),
+          Icon(icon, size: 19, color: AppTheme.bayTeal),
           const SizedBox(height: 8),
           Text(
             value,
@@ -518,10 +515,10 @@ class _ProgressList extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: reached ? AppTheme.googleBlue : Colors.white,
+                    color: reached ? AppTheme.bayTeal : Colors.white,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: reached ? AppTheme.googleBlue : AppTheme.divider,
+                      color: reached ? AppTheme.bayTeal : AppTheme.divider,
                       width: 1.5,
                     ),
                   ),
@@ -649,7 +646,7 @@ class _ChoiceRow<T> extends StatelessWidget {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
-                  color: active ? AppTheme.googleBlue : const Color(0xFFF1F3F4),
+                  color: active ? AppTheme.bayTeal : const Color(0xFFF1F3F4),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
