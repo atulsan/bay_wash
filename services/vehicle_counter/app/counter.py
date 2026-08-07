@@ -23,6 +23,9 @@ class CounterState:
     zone_counts: dict[str, int] = field(default_factory=dict)
     detections: list[Detection] = field(default_factory=list)
     updated_at: str | None = None
+    frame_width: int = 0
+    frame_height: int = 0
+    raw_frame: bytes | None = None
     annotated_frame: bytes | None = None
 
 
@@ -52,9 +55,21 @@ class VideoVehicleCounter:
         if self._thread:
             self._thread.join(timeout=2)
 
-    def snapshot(self) -> bytes | None:
+    def snapshot(self, annotated: bool = True) -> bytes | None:
         with self._lock:
-            return self.state.annotated_frame
+            return self.state.annotated_frame if annotated else self.state.raw_frame
+
+    def update_zone_config(self, zone_config: ZoneConfig) -> None:
+        with self._lock:
+            self.zone_config = zone_config
+            self.state.zone_counts = {
+                zone.id: self.state.zone_counts.get(zone.id, 0)
+                for zone in zone_config.zones
+            }
+
+    def current_zone_config(self) -> ZoneConfig:
+        with self._lock:
+            return self.zone_config
 
     def counts(self) -> dict[str, Any]:
         with self._lock:
@@ -75,6 +90,8 @@ class VideoVehicleCounter:
                 "fpsTarget": self.settings.target_fps,
                 "fpsMeasured": round(self.state.fps_measured, 2),
                 "frameIndex": self.state.frame_index,
+                "frameWidth": self.state.frame_width,
+                "frameHeight": self.state.frame_height,
                 "queueCount": self.state.queue_count,
                 "inWashCount": self.state.in_wash_count,
                 "zones": zones,
@@ -89,6 +106,9 @@ class VideoVehicleCounter:
         if not capture.isOpened():
             self._set_error(f"Could not open video source: {self.settings.video_source}")
             return
+        orientation_auto = getattr(cv2, "CAP_PROP_ORIENTATION_AUTO", None)
+        if orientation_auto is not None:
+            capture.set(orientation_auto, 1)
 
         source_fps = capture.get(cv2.CAP_PROP_FPS)
         if source_fps <= 0 or np.isnan(source_fps):
@@ -110,8 +130,16 @@ class VideoVehicleCounter:
 
             started = time.monotonic()
             detections = self.detector.detect(frame)
-            zone_counts = self._count_zones(frame, detections)
-            annotated = self._annotate(frame, detections, zone_counts)
+            with self._lock:
+                zone_config = self.zone_config
+            zone_counts = self._count_zones(frame, detections, zone_config)
+            annotated = self._annotate(
+                frame,
+                detections,
+                zone_counts,
+                zone_config,
+            )
+            raw_frame = self._encode_frame(frame)
             processed += 1
             elapsed_window = max(0.001, time.monotonic() - fps_window_started)
 
@@ -119,6 +147,8 @@ class VideoVehicleCounter:
                 self.state.ready = True
                 self.state.error = None
                 self.state.frame_index = frame_index
+                self.state.frame_width = frame.shape[1]
+                self.state.frame_height = frame.shape[0]
                 self.state.fps_measured = processed / elapsed_window
                 self.state.zone_counts = zone_counts
                 self.state.queue_count = zone_counts.get("entry_queue", 0)
@@ -129,6 +159,7 @@ class VideoVehicleCounter:
                 )
                 self.state.detections = detections
                 self.state.updated_at = datetime.now(timezone.utc).isoformat()
+                self.state.raw_frame = raw_frame
                 self.state.annotated_frame = annotated
 
             sleep_for = frame_interval - (time.monotonic() - started)
@@ -141,12 +172,13 @@ class VideoVehicleCounter:
         self,
         frame: np.ndarray,
         detections: list[Detection],
+        zone_config: ZoneConfig,
     ) -> dict[str, int]:
         height, width = frame.shape[:2]
-        counts = {zone.id: 0 for zone in self.zone_config.zones}
+        counts = {zone.id: 0 for zone in zone_config.zones}
         for detection in detections:
             center_x, center_y = detection.center
-            for zone in self.zone_config.zones:
+            for zone in zone_config.zones:
                 if zone.contains(center_x, center_y, width, height):
                     counts[zone.id] += 1
                     break
@@ -157,10 +189,11 @@ class VideoVehicleCounter:
         frame: np.ndarray,
         detections: list[Detection],
         zone_counts: dict[str, int],
+        zone_config: ZoneConfig,
     ) -> bytes | None:
         annotated = frame.copy()
         height, width = annotated.shape[:2]
-        for zone in self.zone_config.zones:
+        for zone in zone_config.zones:
             polygon = zone.as_pixels(width, height)
             cv2.polylines(annotated, [polygon], True, (0, 168, 138), 3)
             anchor = tuple(polygon[0])
@@ -195,7 +228,10 @@ class VideoVehicleCounter:
                 cv2.LINE_AA,
             )
 
-        ok, encoded = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 82])
+        return self._encode_frame(annotated)
+
+    def _encode_frame(self, frame: np.ndarray) -> bytes | None:
+        ok, encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 82])
         return encoded.tobytes() if ok else None
 
     def _set_error(self, error: str) -> None:

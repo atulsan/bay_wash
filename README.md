@@ -72,15 +72,30 @@ cd /Volumes/Sandisk_mini/work_Space/bay_wash
 docker compose up --build vehicle-counter
 ```
 
-It uses the Intel vehicle detector through OpenVINO, defaults to `yolo26n` + `INT8`
+It uses the Intel vehicle detector through OpenVINO, defaults to `yolo26n` + `FP16`
 on CPU at 5 FPS, and exposes:
 
 ```bash
 curl http://localhost:8090/counts
+curl http://localhost:8090/zones
 open http://localhost:8090/stream.mjpg
 ```
 
-Zone polygons are configured in `services/vehicle_counter/config/zones.example.json`.
+In the vendor portal, open the **Camera** tab to see the processed video, live
+queue/bay counts, detector FPS, and each zone count. Select a zone and tap
+**Edit polygon** to move its points, redraw it, or add another bay. Saving updates
+`services/vehicle_counter/config/zones.example.json` and applies the polygons
+without restarting Docker.
+
+When Flutter runs on an Android emulator, the Camera tab defaults to
+`http://10.0.2.2:8090`. iOS Simulator and desktop default to
+`http://localhost:8090`. For a physical phone, use the connection icon in the
+Camera tab and enter the computer's LAN address, for example
+`http://192.168.1.20:8090`.
+
+The supplied short phone video pans across the forecourt. It is suitable for the
+dashboard/calibration demo, but stable per-bay counts require a fixed camera view.
+
 The current demo mapping is:
 
 | API field | Zone ID | Meaning |
@@ -97,3 +112,7 @@ bay zone: bay_1
 ```
 
 The Flutter app should consume the count API; the model should not run inside the app.
+
+First startup can take several minutes because the container downloads YOLO
+weights, exports an OpenVINO model, and stores it in the `vehicle-counter-models`
+Docker volume.

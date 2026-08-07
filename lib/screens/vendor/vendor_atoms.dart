@@ -764,6 +764,7 @@ class VTabBar extends StatelessWidget {
       (Icons.list_rounded, 'Queue'),
       (Icons.grid_view_rounded, 'Bays'),
       (Icons.calendar_month_rounded, 'Bookings'),
+      (Icons.videocam_rounded, 'Camera'),
       (Icons.person_rounded, isManager ? 'Dashboard' : 'Account'),
     ];
     return Container(

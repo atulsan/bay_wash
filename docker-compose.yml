@@ -8,7 +8,9 @@ services:
       VIDEO_SOURCE: /videos/adnoc_demo.mp4
       MODEL_ID: Intel/vehicle-detection
       MODEL_VARIANT: yolo26n
-      MODEL_PRECISION: INT8
+      MODEL_PRECISION: FP16
+      MODEL_CACHE_DIR: /models
+      ALLOW_RUNTIME_INT8_QUANTIZATION: "false"
       DEVICE: CPU
       TARGET_FPS: "5"
       ZONE_CONFIG: /app/config/zones.example.json
@@ -18,8 +20,10 @@ services:
       - "8090:8090"
     volumes:
       - ./demo_videos:/videos:ro
-      - ./services/vehicle_counter/config:/app/config:ro
+      - ./services/vehicle_counter/config:/app/config
       - vehicle-counter-cache:/root/.cache/huggingface
+      - vehicle-counter-models:/models
 
 volumes:
   vehicle-counter-cache:
+  vehicle-counter-models:

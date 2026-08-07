@@ -5,6 +5,7 @@ import 'vendor_queue_screen.dart';
 import 'vendor_bays_screen.dart';
 import 'vendor_bookings_screen.dart';
 import 'vendor_dashboard_screen.dart';
+import 'vendor_camera_screen.dart';
 
 class VendorMainScreen extends StatefulWidget {
   final String role; // 'manager' | 'operator'
@@ -27,6 +28,7 @@ class _VendorMainScreenState extends State<VendorMainScreen> {
           const VendorQueueScreen(),
           const VendorBaysScreen(),
           const VendorBookingsScreen(),
+          const VendorCameraScreen(),
           VendorDashboardScreen(isManager: isManager),
         ],
       ),
