@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
+  static const motionDuration = Duration(milliseconds: 220);
+
   // ── Bay Wash customer palette ─────────────────────────────────────────────
   static const bayInk = Color(0xFF061E25);
   static const bayTeal = Color(0xFF00A88A);
@@ -16,41 +18,43 @@ abstract final class AppTheme {
     'Arial',
   ];
 
-  // ── User portal legacy colors ─────────────────────────────────────────────
-  static const googleBlue = Color(0xFF1A73E8);
-  static const nextbikeBlue = Color(0xFF005AA9);
-  static const nextbikeDarkBlue = Color(0xFF003F7D);
+  // ── Shared operational colors ─────────────────────────────────────────────
   static const statusFree = Color(0xFF34A853);
   static const statusBusy = Color(0xFFFBBC04);
-  static const statusFull = Color(0xFFEA4335);
+  static const danger = Color(0xFFEA4335);
   static const textPrimary = Color(0xFF202124);
   static const textSecondary = Color(0xFF5F6368);
   static const divider = Color(0xFFE8EAED);
 
-  // ── Bay Wash station portal (Teal / UAE) ────────────────────────────────────
-  static const vPrimary = Color(0xFF0A4D4A);
-  static const vPrimary600 = Color(0xFF0E5F5B);
+  // ── Bay Wash station portal ────────────────────────────────────────────────
+  static const vPrimary = bayTeal;
+  static const vPrimary600 = Color(0xFF008C76);
   static const vPrimary700 = Color(0xFF073D3B);
-  static const vPrimaryTint = Color(0xFFE2EEEB);
-  static const vGold = Color(0xFFC9A961);
-  static const vInk = Color(0xFF0D1F2D);
-  static const vInk2 = Color(0xFF29384A);
-  static const vInk3 = Color(0xFF5B6B7C);
+  static const vPrimaryTint = bayMist;
+  static const vGold = baySand;
+  static const vInk = bayInk;
+  static const vInk2 = Color(0xFF1D3A40);
+  static const vInk3 = textSecondary;
   static const vInk4 = Color(0xFF8895A4);
-  static const vLine = Color(0xFFE6E2D7);
-  static const vLine2 = Color(0xFFEFECE3);
+  static const vLine = divider;
+  static const vLine2 = Color(0xFFF1F3F4);
   static const vSurface = Color(0xFFFFFFFF);
-  static const vSurface2 = Color(0xFFFBF8F1);
-  static const vSurface3 = Color(0xFFF4EFE2);
-  static const vStatusFree = Color(0xFF1F8A56);
-  static const vStatusFreeBg = Color(0xFFE2F2E9);
-  static const vStatusBusy = Color(0xFFC28A12);
-  static const vStatusBusyBg = Color(0xFFF8EDD0);
-  static const vStatusFull = Color(0xFFB23A2A);
-  static const vStatusFullBg = Color(0xFFF6E1DC);
+  static const vSurface2 = Color(0xFFF8FAFA);
+  static const vSurface3 = bayMist;
+  static const vStatusFree = statusFree;
+  static const vStatusFreeBg = Color(0xFFE6F4EA);
+  static const vStatusBusy = Color(0xFFD99A00);
+  static const vStatusBusyBg = Color(0xFFFFF5D6);
+  static const vDanger = danger;
+  static const vDangerBg = Color(0xFFFCE8E6);
 
   static final light = ThemeData(
     useMaterial3: true,
+    splashFactory: InkRipple.splashFactory,
+    splashColor: bayTeal.withValues(alpha: 0.12),
+    highlightColor: bayTeal.withValues(alpha: 0.07),
+    hoverColor: bayTeal.withValues(alpha: 0.05),
+    focusColor: bayTeal.withValues(alpha: 0.09),
     colorScheme: ColorScheme.fromSeed(
       seedColor: bayTeal,
       brightness: Brightness.light,
@@ -66,6 +70,25 @@ abstract final class AppTheme {
       backgroundColor: Colors.white,
       foregroundColor: bayInk,
       elevation: 4,
+      splashColor: Color(0x1F00A88A),
+    ),
+    filledButtonTheme: const FilledButtonThemeData(
+      style: ButtonStyle(animationDuration: motionDuration),
+    ),
+    elevatedButtonTheme: const ElevatedButtonThemeData(
+      style: ButtonStyle(animationDuration: motionDuration),
+    ),
+    outlinedButtonTheme: const OutlinedButtonThemeData(
+      style: ButtonStyle(animationDuration: motionDuration),
+    ),
+    textButtonTheme: const TextButtonThemeData(
+      style: ButtonStyle(animationDuration: motionDuration),
+    ),
+    iconButtonTheme: const IconButtonThemeData(
+      style: ButtonStyle(animationDuration: motionDuration),
+    ),
+    segmentedButtonTheme: const SegmentedButtonThemeData(
+      style: ButtonStyle(animationDuration: motionDuration),
     ),
     cardTheme: CardThemeData(
       color: Colors.white,

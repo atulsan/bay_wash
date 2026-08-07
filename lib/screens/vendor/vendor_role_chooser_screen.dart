@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/page_routes.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
 import 'vendor_login_screen.dart';
 
@@ -111,7 +112,7 @@ class _VendorRoleChooserScreenState extends State<VendorRoleChooserScreen>
                         ),
                         const Spacer(),
                         Center(
-                          child: GestureDetector(
+                          child: SmoothPress(
                             onTap: () => _go('manager'),
                             child: RichText(
                               text: const TextSpan(
@@ -167,7 +168,7 @@ class _RoleCard extends StatelessWidget {
     final bg = primary ? AppTheme.vPrimary : AppTheme.vSurface;
     final fg = primary ? Colors.white : AppTheme.vInk;
     final sub = primary ? Colors.white.withValues(alpha: 0.85) : AppTheme.vInk3;
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),

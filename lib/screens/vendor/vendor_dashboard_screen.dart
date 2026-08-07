@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../services/payment_commission_store.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/session_navigation.dart';
 import '../../utils/vendor_state.dart';
+import '../../widgets/app_settings_sheet.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
 import 'vendor_staff_screen.dart';
+import 'vendor_settlement_screen.dart';
 
 class VendorDashboardScreen extends StatelessWidget {
   final bool isManager;
@@ -21,7 +26,10 @@ class _ManagerDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: VendorState.instance,
+      listenable: Listenable.merge([
+        VendorState.instance,
+        PaymentCommissionStore.instance,
+      ]),
       builder: (context, _) {
         final vs = VendorState.instance;
         final todaySlots = vs
@@ -40,21 +48,9 @@ class _ManagerDashboard extends StatelessWidget {
             child: VTopBar(
               title: 'Dashboard',
               subtitle: 'Bay Wash Station - Sheikh Zayed Road',
-              rightSlot: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.vInk,
-                  side: const BorderSide(color: AppTheme.vLine),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  minimumSize: Size.zero,
-                ),
-                onPressed: () {},
-                icon: const Icon(Icons.share_rounded, size: 14),
-                label: const Text('Export',
-                    style:
-                        TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+              rightSlot: _AccountActions(
+                onSettings: () => showBayWashAppSettings(context),
+                onLogout: () => logoutToPortalSelection(context),
               ),
             ),
           ),
@@ -65,6 +61,13 @@ class _ManagerDashboard extends StatelessWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               // Revenue hero card
               _RevenueHero(revenue: vs.revenueToday),
+              const SizedBox(height: 14),
+              _CommissionStrip(
+                pending:
+                    PaymentCommissionStore.instance.summary.commissionPending,
+                secured:
+                    PaymentCommissionStore.instance.summary.commissionCollected,
+              ),
               const SizedBox(height: 14),
 
               // KPI grid — live values
@@ -147,7 +150,7 @@ class _ManagerDashboard extends StatelessWidget {
                   else
                     ...onlineStaff.map((s) => _LiveStaffRow(member: s)),
                   const SizedBox(height: 4),
-                  GestureDetector(
+                  SmoothPress(
                     onTap: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => const VendorStaffScreen())),
                     child: const Row(
@@ -182,31 +185,69 @@ class _ManagerDashboard extends StatelessWidget {
               // Settings
               VSectionHeader(title: 'Station', topPadding: 4),
               _SettingsTile(
-                  icon: Icons.storefront_rounded,
-                  label: 'Station profile & hours',
-                  onTap: () {}),
+                  icon: Icons.account_balance_wallet_rounded,
+                  label: 'Payments & settlement',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const VendorSettlementScreen()))),
               _SettingsTile(
-                  icon: Icons.payments_rounded,
-                  label: 'Payouts & banking',
-                  onTap: () {}),
+                  icon: Icons.settings_rounded,
+                  label: 'App settings',
+                  onTap: () => showBayWashAppSettings(context)),
               _SettingsTile(
-                  icon: Icons.tune_rounded,
-                  label: 'Services & pricing',
-                  onTap: () {}),
-              _SettingsTile(
-                  icon: Icons.notifications_rounded,
-                  label: 'Notification preferences',
-                  onTap: () {}),
+                  icon: Icons.groups_rounded,
+                  label: 'Manage staff',
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const VendorStaffScreen()))),
               const SizedBox(height: 8),
               _SettingsTile(
                   icon: Icons.logout_rounded,
                   label: 'Sign out',
                   destructive: true,
-                  onTap: () {}),
+                  onTap: () => logoutToPortalSelection(context)),
             ]),
           )),
         ]);
       },
+    );
+  }
+}
+
+class _CommissionStrip extends StatelessWidget {
+  final double pending;
+  final double secured;
+
+  const _CommissionStrip({required this.pending, required this.secured});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.vSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.vLine),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.receipt_long_rounded, color: AppTheme.vPrimary),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'App commission ledger',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                ),
+                Text(
+                  'AED ${secured.toStringAsFixed(2)} secured · AED ${pending.toStringAsFixed(2)} due',
+                  style: const TextStyle(fontSize: 11.5, color: AppTheme.vInk3),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -502,8 +543,8 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = destructive ? AppTheme.vStatusFull : AppTheme.vInk;
-    return GestureDetector(
+    final color = destructive ? AppTheme.vDanger : AppTheme.vInk;
+    return SmoothPress(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 6),
@@ -540,7 +581,13 @@ class _OperatorAccount extends StatelessWidget {
       SafeArea(
         bottom: false,
         child: VTopBar(
-            title: 'Account', subtitle: 'Bay Wash Station - Sheikh Zayed Road'),
+          title: 'Account',
+          subtitle: 'Bay Wash Station - Sheikh Zayed Road',
+          rightSlot: _AccountActions(
+            onSettings: () => showBayWashAppSettings(context),
+            onLogout: () => logoutToPortalSelection(context),
+          ),
+        ),
       ),
       Expanded(
           child: SingleChildScrollView(
@@ -616,21 +663,47 @@ class _OperatorAccount extends StatelessWidget {
 
           // Actions
           _SettingsTile(
-              icon: Icons.person_rounded, label: 'Edit profile', onTap: () {}),
-          _SettingsTile(
-              icon: Icons.notifications_rounded,
-              label: 'Notification preferences',
-              onTap: () {}),
-          _SettingsTile(
-              icon: Icons.help_rounded, label: 'Help & support', onTap: () {}),
+              icon: Icons.settings_rounded,
+              label: 'App settings',
+              onTap: () => showBayWashAppSettings(context)),
           const SizedBox(height: 8),
           _SettingsTile(
               icon: Icons.logout_rounded,
               label: 'Sign out',
               destructive: true,
-              onTap: () {}),
+              onTap: () => logoutToPortalSelection(context)),
         ]),
       )),
     ]);
+  }
+}
+
+class _AccountActions extends StatelessWidget {
+  final VoidCallback onSettings;
+  final VoidCallback onLogout;
+
+  const _AccountActions({
+    required this.onSettings,
+    required this.onLogout,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: 'App settings',
+          onPressed: onSettings,
+          icon: const Icon(Icons.settings_rounded, size: 20),
+        ),
+        IconButton(
+          tooltip: 'Log out',
+          onPressed: onLogout,
+          color: AppTheme.vDanger,
+          icon: const Icon(Icons.logout_rounded, size: 20),
+        ),
+      ],
+    );
   }
 }

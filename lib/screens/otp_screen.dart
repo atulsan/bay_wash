@@ -4,11 +4,19 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../utils/page_routes.dart';
+import '../utils/portal_type.dart';
+import 'admin_commission_dashboard_screen.dart';
 import 'home_screen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
-  const OtpScreen({super.key, required this.phoneNumber});
+  final PortalType portalType;
+
+  const OtpScreen({
+    super.key,
+    required this.phoneNumber,
+    this.portalType = PortalType.user,
+  });
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -111,7 +119,13 @@ class _OtpScreenState extends State<OtpScreen>
     // Simulate verification delay — accept any 6-digit code for demo
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(fadeRoute(const HomeScreen()));
+    Navigator.of(context).pushReplacement(
+      fadeRoute(
+        widget.portalType == PortalType.corporate
+            ? const AdminCommissionDashboardScreen()
+            : const HomeScreen(),
+      ),
+    );
   }
 
   void _skipDemo() =>
@@ -239,21 +253,23 @@ class _OtpScreenState extends State<OtpScreen>
                           ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Skip demo
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: _skipDemo,
-                    child: Text(
-                      l10n.t('skip_demo'),
-                      style: const TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 13,
+                if (widget.portalType == PortalType.user) ...[
+                  const SizedBox(height: 12),
+                  // Skip demo
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: _skipDemo,
+                      child: Text(
+                        l10n.t('skip_demo'),
+                        style: const TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 12),
               ],
             ),

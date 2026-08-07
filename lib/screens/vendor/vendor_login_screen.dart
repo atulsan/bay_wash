@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/page_routes.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
 import 'vendor_otp_screen.dart';
 import 'vendor_signup_manager_screen.dart';
@@ -143,7 +144,7 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
 
               const SizedBox(height: 18),
               Center(
-                child: GestureDetector(
+                child: SmoothPress(
                   onTap: _goSignup,
                   child: RichText(
                     text: TextSpan(
@@ -197,7 +198,7 @@ class _RoleTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
+      child: SmoothPress(
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),

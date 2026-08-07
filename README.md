@@ -11,13 +11,16 @@ Customer and station-operations demo for Bay Wash bays in Abu Dhabi and Dubai.
 
 ## Main Flows
 
-- Splash screen -> customer/station portal selector.
+- Splash screen -> customer/station/corporate portal selector.
 - Customer login/OTP or guest access -> Bay Wash bay map.
 - Map/list filtering by queue status, service, distance, wait time, and rating.
 - Station detail sheet with wait time, bay services, station address, queue source, reserve/pay, and join walk-in queue.
-- Mock reserve/pay flow with card or Apple Pay style selection.
-- Booking workflow tracker for queue, bay dispatch, washing, payment close, and commission state.
+- Mock reserve/pay flow with full online, 20% deposit, and pay-at-station options.
+- Customer tracker with app token, arrival status, queue ETA, live service state,
+  cancellation/refund handling, and payment receipt.
 - Bay Wash station portal for queue, bay, booking, dashboard, and staff operations.
+- Corporate payment dashboard for app transactions, commission, vendor settlement,
+  and leakage review.
 
 ## Tech
 
@@ -35,7 +38,9 @@ Customer and station-operations demo for Bay Wash bays in Abu Dhabi and Dubai.
 lib/data/dummy_data.dart                 Bay Wash Abu Dhabi/Dubai station data
 lib/services/route_eta_service.dart      OpenRouteService route ETA integration
 lib/screens/home_screen.dart             Customer map/list/filter UI
-lib/screens/portal_selection_screen.dart Customer vs station portal selector
+lib/screens/portal_selection_screen.dart Customer/station/corporate portal selector
+lib/services/payment_commission_store.dart Payment, commission, settlement, and leakage engine
+lib/screens/admin_commission_dashboard_screen.dart Corporate commission dashboard
 lib/screens/vendor/                      Bay Wash station operations portal
 lib/utils/vendor_state.dart              In-memory station queue/bay/bookings state
 lib/l10n/app_localizations.dart          English/Arabic labels
@@ -56,6 +61,44 @@ flutter run --dart-define=OPENROUTESERVICE_API_KEY=your_ors_key
 ```
 
 If no key is supplied, the map still shows a local route estimate so the demo remains usable.
+
+## Payment and Commission Demo
+
+The payment gateway is visually simulated for the prototype. The operational
+payment and commission lifecycle is connected to the customer, station, and
+corporate interfaces through one in-memory transaction ledger.
+
+1. Open **Customer App**, select a station, then choose **Reserve & pay** or
+   **Join app walk-in queue**.
+2. Select a service and choose **Pay full online**, **Pay deposit**, or
+   **Pay at station**. Card and Apple Pay actions are simulated.
+3. Confirm checkout and open **Track booking**. Keep the displayed app token.
+4. Return to portal selection from customer **Settings > Sign out**.
+5. Open **Bay Wash Station Portal**, sign in as a manager, and open **Queue**.
+6. Find the app customer under **Arriving soon**, select **Verify arrival**, and
+   choose QR, OTP, plate, ANPR, geofence, or vendor confirmation.
+7. Assign the verified customer to an idle bay. This starts the central service
+   record; unverified app customers cannot be assigned.
+8. Select **Mark complete** from the queue or **Done** from the bay. Enter the
+   final service amount, approved discount, and station payment mode where a
+   balance is due. Vendor confirmation is mandatory.
+9. Open **Dashboard > Payments & settlement** to see online/offline jobs,
+   commission secured, vendor commission due, wallet demo balance, and the
+   transaction ledger. Pending offline commission can be marked settled.
+10. Sign out and open **ADNOC Corporate Dashboard**. Corporate OTP sign-in is
+    required; guest access is not offered. Review network totals, vendor
+    outstanding balances, transaction details, and leakage flags.
+
+Commission defaults to 10% of final payable value with an AED 3 minimum. Full
+online payment secures commission in-app. Deposit payments secure commission
+from the prepaid amount when sufficient. Pay-at-station jobs create vendor
+settlement due after mandatory transaction closure. Manual vendor walk-ins are
+recorded but are non-commissionable by default.
+
+For cancellation testing, cancel from the customer tracker before service starts,
+or use **Close outcome** on an arriving app job. Verified arrivals closed as
+no-show/vendor-cancelled are flagged for corporate leakage review. Demo data is
+in-memory and resets when the app process restarts.
 
 ## AI Camera Demo
 
@@ -81,11 +124,16 @@ curl http://localhost:8090/zones
 open http://localhost:8090/stream.mjpg
 ```
 
-In the vendor portal, open the **Camera** tab to see the processed video, live
+The included `demo_videos/adnoc_demo.mp4` runs continuously in a loop. In the
+vendor portal, open the **Camera** tab to see the processed video, live
 queue/bay counts, detector FPS, and each zone count. Select a zone and tap
 **Edit polygon** to move its points, redraw it, or add another bay. Saving updates
 `services/vehicle_counter/config/zones.example.json` and applies the polygons
 without restarting Docker.
+
+Polygon movement is also applied to the running counter as a live preview, so
+zone counts respond during calibration. Save persists the final points; Cancel
+rolls the counter back to the last saved polygon.
 
 When Flutter runs on an Android emulator, the Camera tab defaults to
 `http://10.0.2.2:8090`. iOS Simulator and desktop default to
@@ -93,8 +141,8 @@ When Flutter runs on an Android emulator, the Camera tab defaults to
 Camera tab and enter the computer's LAN address, for example
 `http://192.168.1.20:8090`.
 
-The supplied short phone video pans across the forecourt. It is suitable for the
-dashboard/calibration demo, but stable per-bay counts require a fixed camera view.
+The supplied video uses a fixed CCTV view, so bay polygons stay aligned while the
+clip loops.
 
 The current demo mapping is:
 

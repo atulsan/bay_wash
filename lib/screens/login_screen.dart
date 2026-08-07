@@ -5,6 +5,7 @@ import '../main.dart';
 import '../theme/app_theme.dart';
 import '../utils/page_routes.dart';
 import '../utils/portal_type.dart';
+import '../widgets/smooth_press.dart';
 import 'home_screen.dart';
 import 'otp_screen.dart';
 
@@ -54,7 +55,11 @@ class _LoginScreenState extends State<LoginScreen>
   void _sendOtp() {
     if (!_canSend) return;
     final phone = '+971 ${_phoneCtrl.text.trim()}';
-    Navigator.of(context).push(slideUpRoute(OtpScreen(phoneNumber: phone)));
+    Navigator.of(context).push(
+      slideUpRoute(
+        OtpScreen(phoneNumber: phone, portalType: widget.portalType),
+      ),
+    );
   }
 
   void _continueAsGuest() {
@@ -67,15 +72,28 @@ class _LoginScreenState extends State<LoginScreen>
     final isAr = l10n.isArabic;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     final isVendor = widget.portalType == PortalType.vendor;
+    final isCorporate = widget.portalType == PortalType.corporate;
 
-    final portalColor = isVendor ? AppTheme.statusFree : AppTheme.bayTeal;
-    final portalIcon =
-        isVendor ? Icons.storefront_rounded : Icons.local_car_wash_rounded;
-    final portalHeading =
-        isVendor ? 'Bay Wash Station Sign In' : l10n.t('login_heading');
-    final portalSub = isVendor
-        ? 'Enter the mobile registered to your Bay Wash station'
-        : l10n.t('login_sub');
+    final portalColor = isCorporate
+        ? AppTheme.bayInk
+        : isVendor
+            ? AppTheme.statusFree
+            : AppTheme.bayTeal;
+    final portalIcon = isCorporate
+        ? Icons.corporate_fare_rounded
+        : isVendor
+            ? Icons.storefront_rounded
+            : Icons.local_car_wash_rounded;
+    final portalHeading = isCorporate
+        ? 'ADNOC Corporate Sign In'
+        : isVendor
+            ? 'Bay Wash Station Sign In'
+            : l10n.t('login_heading');
+    final portalSub = isCorporate
+        ? 'Use your authorised corporate mobile to continue'
+        : isVendor
+            ? 'Enter the mobile registered to your Bay Wash station'
+            : l10n.t('login_sub');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -137,26 +155,32 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                             const SizedBox(width: 14),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: portalColor.withValues(alpha: 0.10),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: portalColor.withValues(alpha: 0.25),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 5,
                                 ),
-                              ),
-                              child: Text(
-                                isVendor
-                                    ? 'Bay Wash Station Portal'
-                                    : 'Customer App',
-                                style: TextStyle(
-                                  color: portalColor,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
+                                decoration: BoxDecoration(
+                                  color: portalColor.withValues(alpha: 0.10),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: portalColor.withValues(alpha: 0.25),
+                                  ),
+                                ),
+                                child: Text(
+                                  isCorporate
+                                      ? 'ADNOC Corporate Dashboard'
+                                      : isVendor
+                                          ? 'Bay Wash Station Portal'
+                                          : 'Customer App',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: portalColor,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ),
@@ -219,52 +243,55 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                         ),
-                        const SizedBox(height: 22),
-                        // Divider
-                        Row(
-                          children: [
-                            const Expanded(child: Divider()),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
+                        if (!isCorporate) ...[
+                          const SizedBox(height: 22),
+                          // Divider
+                          Row(
+                            children: [
+                              const Expanded(child: Divider()),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                ),
+                                child: Text(
+                                  l10n.t('or'),
+                                  style: const TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
+                              const Expanded(child: Divider()),
+                            ],
+                          ),
+                          const SizedBox(height: 22),
+                          // Continue as guest
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                side: const BorderSide(
+                                  color: AppTheme.divider,
+                                  width: 1.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                foregroundColor: AppTheme.textPrimary,
+                              ),
+                              onPressed: _continueAsGuest,
                               child: Text(
-                                l10n.t('or'),
+                                l10n.t('continue_guest'),
                                 style: const TextStyle(
-                                  color: AppTheme.textSecondary,
-                                  fontSize: 13,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
-                            const Expanded(child: Divider()),
-                          ],
-                        ),
-                        const SizedBox(height: 22),
-                        // Continue as guest
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              side: const BorderSide(
-                                color: AppTheme.divider,
-                                width: 1.5,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              foregroundColor: AppTheme.textPrimary,
-                            ),
-                            onPressed: _continueAsGuest,
-                            child: Text(
-                              l10n.t('continue_guest'),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                           ),
-                        ),
+                        ],
                         const Spacer(flex: 3),
                         Center(
                           child: Text(
@@ -389,7 +416,7 @@ class _LangButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: () =>
           BayWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
       child: Container(

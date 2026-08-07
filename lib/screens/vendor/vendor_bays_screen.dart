@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
+import 'vendor_job_closure_sheet.dart';
 import '../../utils/vendor_state.dart';
 
 class VendorBaysScreen extends StatelessWidget {
@@ -295,7 +297,16 @@ class _AiSuggestionBanner extends StatelessWidget {
               minimumSize: Size.zero,
             ),
             onPressed: () {
-              VendorState.instance.assignCarToBay(car.id, bay.id);
+              final assigned =
+                  VendorState.instance.assignCarToBay(car.id, bay.id);
+              if (!assigned) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Verify the app arrival before assignment.'),
+                    backgroundColor: AppTheme.vDanger,
+                  ),
+                );
+              }
             },
             child: const Text('Assign',
                 style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
@@ -430,7 +441,7 @@ class _ActiveBayCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: isPaused ? const Color(0xFFF8EDD0) : AppTheme.vPrimary,
+                  color: isPaused ? AppTheme.vStatusBusyBg : AppTheme.vPrimary,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
@@ -570,14 +581,20 @@ class _ActiveBayCard extends StatelessWidget {
                   ),
                   onPressed: () {
                     final bayId = bay.id;
-                    VendorState.instance.markBayDone(bayId);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Bay $bayId freed'),
-                        duration: const Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                    final car = VendorState.instance.carInBay(bayId);
+                    if (car != null) {
+                      showVendorJobClosure(context, car);
+                      return;
+                    }
+                    if (VendorState.instance.markBayDone(bayId)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Bay $bayId freed'),
+                          duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.check_rounded, size: 13),
                   label: const Text('Done',
@@ -760,9 +777,20 @@ class _AssignBaySheet extends StatelessWidget {
                                 minimumSize: Size.zero,
                               ),
                               onPressed: () {
-                                VendorState.instance
+                                final assigned = VendorState.instance
                                     .assignCarToBay(car.id, bay.id);
-                                Navigator.pop(ctx);
+                                if (assigned) {
+                                  Navigator.pop(ctx);
+                                } else {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Verify the app arrival before assignment.',
+                                      ),
+                                      backgroundColor: AppTheme.vDanger,
+                                    ),
+                                  );
+                                }
                               },
                               child: const Text('Assign',
                                   style: TextStyle(
@@ -993,7 +1021,7 @@ class _StepBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onTap != null;
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: Container(
         width: 32,

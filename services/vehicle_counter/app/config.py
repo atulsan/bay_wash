@@ -14,6 +14,11 @@ class Settings:
     ).lower() in {"1", "true", "yes"}
     device: str = os.getenv("DEVICE", "CPU")
     target_fps: float = float(os.getenv("TARGET_FPS", "5"))
+    loop_video: bool = os.getenv("LOOP_VIDEO", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
     zone_config: str = os.getenv("ZONE_CONFIG", "/app/config/zones.example.json")
     confidence_threshold: float = float(os.getenv("CONFIDENCE_THRESHOLD", "0.35"))
     iou_threshold: float = float(os.getenv("IOU_THRESHOLD", "0.45"))

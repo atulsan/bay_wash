@@ -15,7 +15,6 @@ class StatusBadge extends StatelessWidget {
     final (color, label) = switch (status) {
       WashStatus.free => (AppTheme.statusFree, l10n.t('status_free')),
       WashStatus.busy => (AppTheme.statusBusy, l10n.t('status_busy')),
-      WashStatus.full => (AppTheme.statusFull, l10n.t('status_full')),
     };
 
     if (compact) {

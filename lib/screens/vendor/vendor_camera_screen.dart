@@ -18,6 +18,7 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
   late final TextEditingController _baseUrlController;
   Timer? _countsTimer;
   Timer? _frameTimer;
+  Timer? _previewTimer;
   VehicleCounterCounts? _counts;
   VehicleCounterZoneConfig? _zoneConfig;
   String? _selectedZoneId;
@@ -28,6 +29,8 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
   bool _editing = false;
   bool _fetching = false;
   bool _saving = false;
+  bool _previewInFlight = false;
+  bool _previewPending = false;
 
   @override
   void initState() {
@@ -53,6 +56,7 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
   void dispose() {
     _countsTimer?.cancel();
     _frameTimer?.cancel();
+    _previewTimer?.cancel();
     _baseUrlController.dispose();
     _api.close();
     super.dispose();
@@ -120,12 +124,22 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
     });
   }
 
-  void _cancelEditing() {
+  Future<void> _cancelEditing() async {
+    _previewTimer?.cancel();
+    _previewPending = false;
+    await _waitForPreviewIdle();
+    final savedConfig = _zoneConfig;
     setState(() {
       _editing = false;
       _draftPoints = const [];
       _dragPointIndex = null;
     });
+    if (savedConfig == null) return;
+    try {
+      await _api.previewZones(savedConfig);
+    } catch (error) {
+      if (mounted) setState(() => _error = '$error');
+    }
   }
 
   void _addPoint(Offset localPosition, Size size) {
@@ -140,6 +154,7 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
         ),
       ];
     });
+    _scheduleLivePreview();
   }
 
   void _startDragging(Offset localPosition, Size size) {
@@ -156,6 +171,74 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
       (localPosition.dy / size.height).clamp(0.0, 1.0).toDouble(),
     );
     setState(() => _draftPoints = points);
+    _scheduleLivePreview();
+  }
+
+  void _finishDragging() {
+    setState(() => _dragPointIndex = null);
+    _scheduleLivePreview(immediate: true);
+  }
+
+  void _undoPoint() {
+    if (_draftPoints.isEmpty) return;
+    setState(() {
+      _draftPoints = _draftPoints.sublist(0, _draftPoints.length - 1);
+    });
+    _scheduleLivePreview();
+  }
+
+  VehicleCounterZoneConfig? _draftZoneConfig() {
+    final config = _zoneConfig;
+    final selected = _selectedZone;
+    if (config == null || selected == null || _draftPoints.length < 3) {
+      return null;
+    }
+    return config.copyWith(
+      zones: config.zones
+          .map(
+            (zone) => zone.id == selected.id
+                ? zone.copyWith(points: List.of(_draftPoints))
+                : zone,
+          )
+          .toList(growable: false),
+    );
+  }
+
+  void _scheduleLivePreview({bool immediate = false}) {
+    _previewTimer?.cancel();
+    if (_draftPoints.length < 3) return;
+    _previewTimer = Timer(
+      immediate ? Duration.zero : const Duration(milliseconds: 180),
+      () => unawaited(_applyLivePreview()),
+    );
+  }
+
+  Future<void> _applyLivePreview() async {
+    final config = _draftZoneConfig();
+    if (config == null) return;
+    if (_previewInFlight) {
+      _previewPending = true;
+      return;
+    }
+    _previewInFlight = true;
+    try {
+      await _api.previewZones(config);
+      if (mounted) setState(() => _error = null);
+    } catch (error) {
+      if (mounted) setState(() => _error = '$error');
+    } finally {
+      _previewInFlight = false;
+      if (_previewPending) {
+        _previewPending = false;
+        _scheduleLivePreview(immediate: true);
+      }
+    }
+  }
+
+  Future<void> _waitForPreviewIdle() async {
+    while (_previewInFlight) {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
   }
 
   int? _nearestPointIndex(Offset position, Size size) {
@@ -175,15 +258,12 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
   }
 
   Future<void> _savePolygon() async {
-    final config = _zoneConfig;
-    final selected = _selectedZone;
-    if (config == null || selected == null || _draftPoints.length < 3) return;
-    final updatedZones = config.zones
-        .map((zone) => zone.id == selected.id
-            ? zone.copyWith(points: List.of(_draftPoints))
-            : zone)
-        .toList(growable: false);
-    await _persistConfig(config.copyWith(zones: updatedZones));
+    _previewTimer?.cancel();
+    _previewPending = false;
+    await _waitForPreviewIdle();
+    final config = _draftZoneConfig();
+    if (config == null) return;
+    await _persistConfig(config);
   }
 
   Future<void> _persistConfig(
@@ -285,7 +365,7 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.vStatusFull,
+              backgroundColor: AppTheme.vDanger,
             ),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Delete'),
@@ -467,9 +547,7 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
                 onPanUpdate: _editing
                     ? (details) => _dragPoint(details.localPosition, size)
                     : null,
-                onPanEnd: _editing
-                    ? (_) => setState(() => _dragPointIndex = null)
-                    : null,
+                onPanEnd: _editing ? (_) => _finishDragging() : null,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -522,7 +600,11 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              _editing ? 'CALIBRATION' : 'LIVE',
+                              _editing
+                                  ? 'LIVE CALIBRATION'
+                                  : _counts?.loopVideo == true
+                                      ? 'LIVE · LOOP ${(_counts?.loopCount ?? 0) + 1}'
+                                      : 'LIVE',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
@@ -678,7 +760,7 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
                         ),
                       )
                       .toList(growable: false),
-                  onChanged: _saving
+                  onChanged: _saving || _editing
                       ? null
                       : (value) {
                           if (value == null) return;
@@ -693,12 +775,12 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
               const SizedBox(width: 8),
               IconButton.filledTonal(
                 tooltip: 'Add bay zone',
-                onPressed: _saving ? null : _addBay,
+                onPressed: _saving || _editing ? null : _addBay,
                 icon: const Icon(Icons.add_rounded),
               ),
               IconButton(
                 tooltip: 'Delete zone',
-                onPressed: _saving || config.zones.length <= 1
+                onPressed: _saving || _editing || config.zones.length <= 1
                     ? null
                     : _deleteSelectedZone,
                 icon: const Icon(Icons.delete_outline_rounded),
@@ -750,14 +832,7 @@ class _VendorCameraScreenState extends State<VendorCameraScreen> {
                   ),
                   IconButton(
                     tooltip: 'Undo point',
-                    onPressed: _draftPoints.isEmpty
-                        ? null
-                        : () => setState(
-                              () => _draftPoints = _draftPoints.sublist(
-                                0,
-                                _draftPoints.length - 1,
-                              ),
-                            ),
+                    onPressed: _draftPoints.isEmpty ? null : _undoPoint,
                     icon: const Icon(Icons.undo_rounded),
                   ),
                   TextButton(

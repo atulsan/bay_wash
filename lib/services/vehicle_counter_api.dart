@@ -121,6 +121,8 @@ class VehicleCounterCounts {
   final int detections;
   final int frameWidth;
   final int frameHeight;
+  final int loopCount;
+  final bool loopVideo;
   final double fpsMeasured;
   final List<VehicleCounterZoneCount> zones;
   final DateTime? updatedAt;
@@ -133,6 +135,8 @@ class VehicleCounterCounts {
     required this.detections,
     required this.frameWidth,
     required this.frameHeight,
+    required this.loopCount,
+    required this.loopVideo,
     required this.fpsMeasured,
     required this.zones,
     required this.updatedAt,
@@ -147,6 +151,8 @@ class VehicleCounterCounts {
       detections: (json['detections'] as num?)?.toInt() ?? 0,
       frameWidth: (json['frameWidth'] as num?)?.toInt() ?? 0,
       frameHeight: (json['frameHeight'] as num?)?.toInt() ?? 0,
+      loopCount: (json['loopCount'] as num?)?.toInt() ?? 0,
+      loopVideo: json['loopVideo'] as bool? ?? false,
       fpsMeasured: (json['fpsMeasured'] as num?)?.toDouble() ?? 0,
       zones: (json['zones'] as List<dynamic>? ?? const [])
           .map((zone) =>
@@ -212,6 +218,17 @@ class VehicleCounterApi {
     return VehicleCounterZoneConfig.fromJson(
       jsonDecode(response.body) as Map<String, dynamic>,
     );
+  }
+
+  Future<void> previewZones(VehicleCounterZoneConfig config) async {
+    final response = await _client
+        .put(
+          Uri.parse('$baseUrl/zones/preview'),
+          headers: const {'Content-Type': 'application/json'},
+          body: jsonEncode(config.toJson()),
+        )
+        .timeout(const Duration(seconds: 3));
+    _ensureSuccess(response);
   }
 
   void close() => _client.close();

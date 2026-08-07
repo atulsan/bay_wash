@@ -13,6 +13,7 @@ services:
       ALLOW_RUNTIME_INT8_QUANTIZATION: "false"
       DEVICE: CPU
       TARGET_FPS: "5"
+      LOOP_VIDEO: "true"
       ZONE_CONFIG: /app/config/zones.example.json
       CONFIDENCE_THRESHOLD: "0.35"
       IOU_THRESHOLD: "0.45"

@@ -1,7 +1,11 @@
 // vendor_queue_screen.dart — Live queue management for Bay Wash station console
 import 'package:flutter/material.dart';
+import '../../models/payment_commission.dart';
+import '../../services/payment_commission_store.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
+import 'vendor_job_closure_sheet.dart';
 import '../../utils/vendor_state.dart';
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
@@ -69,7 +73,7 @@ class _QueueTopBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'MARINA QUICK WASH',
+                  'ADNOC BAY WASH',
                   style: TextStyle(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w700,
@@ -218,10 +222,10 @@ class _KpiStrip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: VKpiTile(
               label: 'Avg wait',
-              value: '14',
+              value: vs.queue.isEmpty ? '0' : '14',
               suffix: 'min',
             ),
           ),
@@ -233,10 +237,10 @@ class _KpiStrip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: VKpiTile(
               label: 'Served today',
-              value: '38',
+              value: '${vs.completedToday}',
             ),
           ),
         ],
@@ -272,17 +276,6 @@ class _AiBanner extends StatelessWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF6D4C41),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {},
-            child: const Text(
-              'Override →',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFF57F17),
               ),
             ),
           ),
@@ -476,6 +469,10 @@ class _QueueCard extends StatelessWidget {
               VServiceBadge(service: car.svc),
             ],
           ),
+          if (car.jobId != null) ...[
+            const SizedBox(height: 10),
+            _PaymentLifecycleRow(car: car),
+          ],
           const SizedBox(height: 12),
           if (car.state == 'washing') _WashingExtras(car: car),
           if (car.state == 'queued') _QueuedExtras(car: car),
@@ -499,21 +496,26 @@ class _WashingExtras extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.vPrimaryTint,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                'Bay ${car.bay} · in progress',
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.vPrimary700,
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.vPrimaryTint,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'Bay ${car.bay} · in progress',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.vPrimary700,
+                  ),
                 ),
               ),
             ),
+            const SizedBox(width: 8),
             const Spacer(),
             Text(
               car.countdownLabel,
@@ -551,7 +553,12 @@ class _WashingExtras extends StatelessWidget {
                 textStyle: const TextStyle(
                     fontSize: 12.5, fontWeight: FontWeight.w600),
               ),
-              onPressed: () {},
+              onPressed: () {
+                VendorState.instance.addBayTime(car.bay, 300);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added 5 minutes to Bay ${car.bay}')),
+                );
+              },
               child: const Text('+5 min'),
             ),
             const SizedBox(width: 10),
@@ -576,14 +583,7 @@ class _WashingExtras extends StatelessWidget {
   }
 
   void _confirmComplete(BuildContext context) {
-    final plate = car.plate;
-    VendorState.instance.markCarComplete(car.id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$plate marked as complete'),
-        backgroundColor: AppTheme.vStatusFree,
-      ),
-    );
+    showVendorJobClosure(context, car);
   }
 }
 
@@ -643,42 +643,223 @@ class _ArrivingExtras extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppTheme.vPrimaryTint,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: const Text(
-            'ETA 4 min · Booked',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.vPrimary700,
-            ),
+        const Text(
+          'ETA 4 min · App token pending verification',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.vPrimary700,
           ),
         ),
-        const Spacer(),
-        OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppTheme.vPrimary,
-            side: const BorderSide(color: AppTheme.vPrimary, width: 1.5),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            textStyle:
-                const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
-          ),
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Notification sent')),
-            );
-          },
-          child: const Text('Notify driver'),
+        const SizedBox(height: 9),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => showVendorNonServiceClosure(context, car),
+                child: const Text('Close outcome'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: () => showModalBottomSheet<void>(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => _ArrivalVerificationSheet(car: car),
+                ),
+                icon: const Icon(Icons.qr_code_scanner_rounded, size: 16),
+                label: const Text('Verify arrival'),
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+}
+
+class _PaymentLifecycleRow extends StatelessWidget {
+  final QueueCar car;
+
+  const _PaymentLifecycleRow({required this.car});
+
+  @override
+  Widget build(BuildContext context) {
+    final job = PaymentCommissionStore.instance.jobById(car.jobId!);
+    if (job == null) return const SizedBox.shrink();
+    final color = job.paymentStatus == TransactionPaymentStatus.paidOnline
+        ? AppTheme.vStatusFree
+        : AppTheme.vStatusBusy;
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        _LifecycleChip(
+          icon: Icons.phone_iphone_rounded,
+          label: job.origin.label,
+          color: AppTheme.vPrimary,
+        ),
+        _LifecycleChip(
+          icon: Icons.payments_outlined,
+          label: job.paymentStatus.label,
+          color: color,
+        ),
+        _LifecycleChip(
+          icon: car.arrivalVerified
+              ? Icons.verified_rounded
+              : Icons.pending_actions_rounded,
+          label: car.arrivalVerified ? 'Arrival verified' : 'Verify token',
+          color: car.arrivalVerified ? AppTheme.vStatusFree : AppTheme.vInk3,
+        ),
+      ],
+    );
+  }
+}
+
+class _LifecycleChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _LifecycleChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.09),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ArrivalVerificationSheet extends StatelessWidget {
+  final QueueCar car;
+
+  const _ArrivalVerificationSheet({required this.car});
+
+  @override
+  Widget build(BuildContext context) {
+    const methods = [
+      (
+        ArrivalVerificationMethod.qrCode,
+        Icons.qr_code_scanner_rounded,
+        'QR code'
+      ),
+      (ArrivalVerificationMethod.otp, Icons.password_rounded, 'OTP'),
+      (ArrivalVerificationMethod.plateMatch, Icons.pin_outlined, 'Plate'),
+      (ArrivalVerificationMethod.anpr, Icons.camera_alt_outlined, 'ANPR'),
+      (
+        ArrivalVerificationMethod.vendorManual,
+        Icons.touch_app_outlined,
+        'Vendor'
+      ),
+      (
+        ArrivalVerificationMethod.geofence,
+        Icons.location_on_outlined,
+        'Geofence'
+      ),
+    ];
+    final token = car.jobId == null
+        ? '—'
+        : PaymentCommissionStore.instance.jobById(car.jobId!)?.token ??
+            car.jobId!;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      decoration: BoxDecoration(
+        color: AppTheme.vSurface,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.vLine,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const Text(
+            'Verify app arrival',
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.vInk,
+            ),
+          ),
+          const SizedBox(height: 6),
+          SelectableText(
+            'Token $token',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.vPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          GridView.count(
+            crossAxisCount: 2,
+            childAspectRatio: 2.8,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: methods
+                .map(
+                  (entry) => OutlinedButton.icon(
+                    onPressed: () {
+                      VendorState.instance.verifyArrival(car.id, entry.$1);
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Arrival verified with ${entry.$1.label}. Job is ready for a bay.',
+                          ),
+                          backgroundColor: AppTheme.vStatusFree,
+                        ),
+                      );
+                    },
+                    icon: Icon(entry.$2, size: 17),
+                    label: Text(entry.$3),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -781,7 +962,7 @@ class _WalkInSheetState extends State<_WalkInSheet> {
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.vInk),
-            decoration: vInputDecoration(hint: 'e.g. F 93471'),
+            decoration: vInputDecoration(hint: 'Enter plate number'),
           ),
           const SizedBox(height: 18),
           // Emirate chips
@@ -800,7 +981,7 @@ class _WalkInSheetState extends State<_WalkInSheet> {
               final selected = e == _emirate;
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
+                child: SmoothPress(
                   onTap: () => setState(() => _emirate = e),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 160),
@@ -847,7 +1028,7 @@ class _WalkInSheetState extends State<_WalkInSheet> {
               return Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(right: isLast ? 0 : 8),
-                  child: GestureDetector(
+                  child: SmoothPress(
                     onTap: () => setState(() => _svc = name),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
@@ -964,10 +1145,7 @@ class _MarkCompleteSheet extends StatelessWidget {
               listenable: VendorState.instance,
               builder: (context, _) {
                 final vs = VendorState.instance;
-                final cars = [
-                  ...vs.washingCars,
-                  ...vs.queuedCars,
-                ];
+                final cars = vs.washingCars;
                 if (cars.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -1019,13 +1197,15 @@ class _MarkCompleteSheet extends StatelessWidget {
                                   fontSize: 12.5, fontWeight: FontWeight.w700),
                             ),
                             onPressed: () {
-                              final plate = car.plate;
-                              VendorState.instance.markCarComplete(car.id);
+                              final navigatorContext = Navigator.of(
+                                context,
+                                rootNavigator: true,
+                              ).context;
                               Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('$plate marked as complete'),
-                                  backgroundColor: AppTheme.vStatusFree,
+                              WidgetsBinding.instance.addPostFrameCallback(
+                                (_) => showVendorJobClosure(
+                                  navigatorContext,
+                                  car,
                                 ),
                               );
                             },
@@ -1171,7 +1351,19 @@ class _AssignBaySheet extends StatelessWidget {
                             ),
                             onPressed: () {
                               final bayId = bay.id;
-                              VendorState.instance.assignCarToBay(carId, bayId);
+                              final assigned = VendorState.instance
+                                  .assignCarToBay(carId, bayId);
+                              if (!assigned) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Verify the app token before starting service.',
+                                    ),
+                                    backgroundColor: AppTheme.vDanger,
+                                  ),
+                                );
+                                return;
+                              }
                               Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -1289,7 +1481,7 @@ class _NotificationsSheet extends StatelessWidget {
                       const Divider(color: AppTheme.vLine2, height: 1),
                   itemBuilder: (context, i) {
                     final notif = notifications[i];
-                    return GestureDetector(
+                    return SmoothPress(
                       onTap: () {
                         VendorState.instance.markNotificationRead(notif);
                       },

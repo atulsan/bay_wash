@@ -1,237 +1,191 @@
 import 'package:flutter/material.dart';
 
 import '../models/app_booking.dart';
+import '../models/payment_commission.dart';
+import '../services/payment_commission_store.dart';
 import '../theme/app_theme.dart';
+import '../utils/vendor_state.dart';
 
-class BookingStatusScreen extends StatefulWidget {
+class BookingStatusScreen extends StatelessWidget {
   final AppBooking booking;
 
   const BookingStatusScreen({super.key, required this.booking});
 
   @override
-  State<BookingStatusScreen> createState() => _BookingStatusScreenState();
-}
-
-class _BookingStatusScreenState extends State<BookingStatusScreen> {
-  late AppBookingStage _stage;
-  BookingEdgeCase? _edgeCase;
-  late QueueLaneType _laneType;
-  late PaymentMethod _paymentMethod;
-  CommissionStatus _commissionStatus = CommissionStatus.pending;
-  bool _vendorRedeemed = false;
-  bool _bayAssigned = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _stage = widget.booking.type == AppBookingType.walkIn
-        ? AppBookingStage.queued
-        : AppBookingStage.booked;
-    _laneType = widget.booking.laneType;
-    _paymentMethod = widget.booking.paymentMethod;
-    _commissionStatus = widget.booking.commissionStatus;
-    _vendorRedeemed = _stage.index >= AppBookingStage.checkedIn.index;
-  }
-
-  bool get _isComplete => _stage == AppBookingStage.commissionSettled;
-
-  int get _currentQueuePosition =>
-      _stage.index <= AppBookingStage.readyForWash.index
-          ? widget.booking.queuePosition
-          : 0;
-
-  int get _currentEta => _stage.index <= AppBookingStage.readyForWash.index
-      ? widget.booking.etaMinutes
-      : 0;
-
-  List<AppBookingStage> get _visibleStages => AppBookingStage.values
-      .where(
-        (stage) =>
-            widget.booking.interiorCleaningNeeded ||
-            (stage != AppBookingStage.interiorQueued &&
-                stage != AppBookingStage.interiorCleaning),
-      )
-      .toList();
-
-  void _advance() {
-    setState(() {
-      _stage = switch (_stage) {
-        AppBookingStage.booked => AppBookingStage.arrived,
-        AppBookingStage.arrived => AppBookingStage.checkedIn,
-        AppBookingStage.checkedIn => AppBookingStage.queued,
-        AppBookingStage.queued => AppBookingStage.serviceSelected,
-        AppBookingStage.serviceSelected => AppBookingStage.readyForWash,
-        AppBookingStage.readyForWash => AppBookingStage.bayAssigned,
-        AppBookingStage.bayAssigned => AppBookingStage.washing,
-        AppBookingStage.washing => AppBookingStage.washEnded,
-        AppBookingStage.washEnded => widget.booking.interiorCleaningNeeded
-            ? AppBookingStage.interiorQueued
-            : AppBookingStage.jobCompleted,
-        AppBookingStage.interiorQueued => AppBookingStage.interiorCleaning,
-        AppBookingStage.interiorCleaning => AppBookingStage.jobCompleted,
-        AppBookingStage.jobCompleted => AppBookingStage.paymentClosed,
-        AppBookingStage.paymentClosed => AppBookingStage.commissionSettled,
-        AppBookingStage.commissionSettled => AppBookingStage.commissionSettled,
-      };
-
-      if (_stage.index >= AppBookingStage.checkedIn.index) {
-        _vendorRedeemed = true;
-      }
-      if (_stage.index >= AppBookingStage.bayAssigned.index) {
-        _bayAssigned = true;
-      }
-      if (_stage == AppBookingStage.paymentClosed) {
-        _commissionStatus = _paymentMethod == PaymentMethod.inApp
-            ? CommissionStatus.earned
-            : CommissionStatus.notApplicable;
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final booking = widget.booking;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Booking Workflow',
+          'Your wash',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          10,
-          20,
-          MediaQuery.of(context).padding.bottom + 20,
-        ),
-        children: [
-          _HeaderCard(booking: booking, stage: _stage),
-          const SizedBox(height: 14),
-          _MetricsRow(position: _currentQueuePosition, etaMinutes: _currentEta),
-          const SizedBox(height: 14),
-          _WorkflowCard(
-            booking: booking,
-            laneType: _laneType,
-            paymentMethod: _paymentMethod,
-            commissionStatus: _commissionStatus,
-            vendorRedeemed: _vendorRedeemed,
-            bayAssigned: _bayAssigned,
-          ),
-          const SizedBox(height: 14),
-          _OperatorControls(
-            laneType: _laneType,
-            paymentMethod: _paymentMethod,
-            edgeCase: _edgeCase,
-            onLaneChanged: (value) => setState(() => _laneType = value),
-            onPaymentChanged: (value) => setState(() {
-              _paymentMethod = value;
-              if (value == PaymentMethod.vendorDirect) {
-                _commissionStatus = CommissionStatus.notApplicable;
-              } else {
-                _commissionStatus =
-                    _stage.index >= AppBookingStage.paymentClosed.index
-                        ? CommissionStatus.earned
-                        : CommissionStatus.pending;
-              }
-            }),
-            onEdgeCaseChanged: (value) => setState(() => _edgeCase = value),
-          ),
-          const SizedBox(height: 14),
-          _ProgressList(stages: _visibleStages, currentStage: _stage),
-          const SizedBox(height: 20),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              backgroundColor:
-                  _isComplete ? AppTheme.statusFree : AppTheme.bayTeal,
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
+      body: ListenableBuilder(
+        listenable: PaymentCommissionStore.instance,
+        builder: (context, _) {
+          final job =
+              PaymentCommissionStore.instance.jobById(booking.reference);
+          return ListView(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              10,
+              20,
+              MediaQuery.of(context).padding.bottom + 24,
             ),
-            onPressed: _isComplete ? null : _advance,
-            icon: Icon(_isComplete ? Icons.check_rounded : Icons.arrow_forward),
-            label: Text(
-              _isComplete ? 'Workflow complete' : _nextActionLabel(),
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-            ),
-          ),
-        ],
+            children: [
+              _TokenCard(booking: booking, job: job),
+              const SizedBox(height: 14),
+              _EtaRow(booking: booking, job: job),
+              const SizedBox(height: 14),
+              _LiveStatusCard(job: job),
+              const SizedBox(height: 14),
+              _PaymentReceipt(booking: booking, job: job),
+              const SizedBox(height: 14),
+              _ProgressCard(job: job),
+              if (job != null && !job.isClosed && !job.serviceStarted) ...[
+                const SizedBox(height: 18),
+                OutlinedButton.icon(
+                  onPressed: () => _confirmCancellation(context, job),
+                  icon: const Icon(Icons.close_rounded),
+                  label: const Text('Cancel booking'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.danger,
+                    side: const BorderSide(color: AppTheme.danger),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
       ),
     );
   }
 
-  String _nextActionLabel() {
-    return switch (_stage) {
-      AppBookingStage.booked => 'Customer arrives',
-      AppBookingStage.arrived => 'Redeem QR / enter code',
-      AppBookingStage.checkedIn => 'Create job and queue',
-      AppBookingStage.queued => 'Confirm service selection',
-      AppBookingStage.serviceSelected => 'Ready for wash dispatch',
-      AppBookingStage.readyForWash => 'Assign bay and start time',
-      AppBookingStage.bayAssigned => 'Send WASH_START event',
-      AppBookingStage.washing => 'Send WASH_END event',
-      AppBookingStage.washEnded => widget.booking.interiorCleaningNeeded
-          ? 'Queue interior cleaning'
-          : 'Complete job',
-      AppBookingStage.interiorQueued => 'Start interior cleaning',
-      AppBookingStage.interiorCleaning => 'End interior cleaning',
-      AppBookingStage.jobCompleted => 'Close payment',
-      AppBookingStage.paymentClosed => 'Settle commission',
-      AppBookingStage.commissionSettled => 'Workflow complete',
-    };
+  Future<void> _confirmCancellation(
+    BuildContext context,
+    CommissionJob job,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cancel this wash?'),
+        content: Text(
+          job.amountPaid > 0
+              ? 'This demo will mark the online amount as refunded.'
+              : 'Your queue position or reserved slot will be released.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Keep booking'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.danger),
+            child: const Text('Cancel booking'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final car = VendorState.instance.carByJobId(job.jobId);
+    if (car != null) {
+      VendorState.instance.closeCarWithoutService(
+        carId: car.id,
+        outcome: JobOutcome.customerCancelled,
+        reason: 'Cancelled by customer in app',
+      );
+    } else {
+      PaymentCommissionStore.instance.closeWithoutService(
+        jobId: job.jobId,
+        outcome: JobOutcome.customerCancelled,
+        reason: 'Cancelled by customer in app',
+      );
+    }
   }
 }
 
-class _HeaderCard extends StatelessWidget {
+class _TokenCard extends StatelessWidget {
   final AppBooking booking;
-  final AppBookingStage stage;
+  final CommissionJob? job;
 
-  const _HeaderCard({required this.booking, required this.stage});
+  const _TokenCard({required this.booking, required this.job});
 
   @override
   Widget build(BuildContext context) {
+    final active = job?.outcome == JobOutcome.active;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppTheme.bayTeal,
-        borderRadius: BorderRadius.circular(14),
+        color: AppTheme.bayInk,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  booking.wash.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.qr_code_2_rounded,
+                  color: Colors.white,
+                  size: 28,
                 ),
               ),
-              _Pill(label: stage.label),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      booking.type == AppBookingType.advance
+                          ? 'BOOKING TOKEN'
+                          : 'LIVE QUEUE TOKEN',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white60,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    SelectableText(
+                      job?.token ?? booking.reference,
+                      style: const TextStyle(
+                        fontSize: 21,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _StatusPill(
+                text: active ? 'LIVE' : (job?.outcome.label ?? 'CREATED'),
+                color: active ? AppTheme.bayAqua : Colors.white70,
+              ),
             ],
           ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _ReferenceBox(label: 'Booking', value: booking.reference),
-              const SizedBox(width: 10),
-              _ReferenceBox(label: 'Slot', value: booking.slot),
-            ],
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
-            '${booking.entryMethod.label} is the source of truth for arrival and queue staging.',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.78),
-              fontSize: 12,
-              height: 1.35,
+            booking.wash.name,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
             ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            '${booking.packageName} · ${booking.slot}',
+            style: const TextStyle(fontSize: 12.5, color: Colors.white70),
           ),
         ],
       ),
@@ -239,72 +193,35 @@ class _HeaderCard extends StatelessWidget {
   }
 }
 
-class _ReferenceBox extends StatelessWidget {
-  final String label;
-  final String value;
+class _EtaRow extends StatelessWidget {
+  final AppBooking booking;
+  final CommissionJob? job;
 
-  const _ReferenceBox({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.72),
-                fontSize: 11,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MetricsRow extends StatelessWidget {
-  final int position;
-  final int etaMinutes;
-
-  const _MetricsRow({required this.position, required this.etaMinutes});
+  const _EtaRow({required this.booking, required this.job});
 
   @override
   Widget build(BuildContext context) {
+    final position = job?.serviceStarted == true || job?.isClosed == true
+        ? '—'
+        : '#${booking.queuePosition}';
+    final eta = job?.serviceStarted == true || job?.isClosed == true
+        ? '—'
+        : '${booking.etaMinutes} min';
     return Row(
       children: [
         Expanded(
-          child: _MetricCard(
+          child: _Metric(
             icon: Icons.format_list_numbered_rounded,
-            value: position > 0 ? '#$position' : '-',
-            label: 'Present queue',
+            label: 'Queue position',
+            value: position,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
-          child: _MetricCard(
+          child: _Metric(
             icon: Icons.schedule_rounded,
-            value: etaMinutes > 0 ? '$etaMinutes min' : 'Now',
-            label: 'Dispatch ETA',
+            label: 'ETA to wash',
+            value: eta,
           ),
         ),
       ],
@@ -312,15 +229,15 @@ class _MetricsRow extends StatelessWidget {
   }
 }
 
-class _MetricCard extends StatelessWidget {
+class _Metric extends StatelessWidget {
   final IconData icon;
-  final String value;
   final String label;
+  final String value;
 
-  const _MetricCard({
+  const _Metric({
     required this.icon,
-    required this.value,
     required this.label,
+    required this.value,
   });
 
   @override
@@ -328,223 +245,229 @@ class _MetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.divider),
+        color: AppTheme.bayMist,
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
           Icon(icon, size: 19, color: AppTheme.bayTeal),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _WorkflowCard extends StatelessWidget {
-  final AppBooking booking;
-  final QueueLaneType laneType;
-  final PaymentMethod paymentMethod;
-  final CommissionStatus commissionStatus;
-  final bool vendorRedeemed;
-  final bool bayAssigned;
-
-  const _WorkflowCard({
-    required this.booking,
-    required this.laneType,
-    required this.paymentMethod,
-    required this.commissionStatus,
-    required this.vendorRedeemed,
-    required this.bayAssigned,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _SectionCard(
-      title: 'Workflow state',
-      child: Column(
-        children: [
-          _FactRow(label: 'Entry capture', value: booking.entryMethod.label),
-          _FactRow(label: 'Queue lane', value: laneType.label),
-          _FactRow(label: 'Service', value: booking.packageName),
-          _FactRow(
-            label: 'Interior stage',
-            value: booking.interiorCleaningNeeded ? 'Required' : 'Skipped',
-          ),
-          _FactRow(label: 'Payment', value: paymentMethod.label),
-          _FactRow(label: 'Commission', value: commissionStatus.label),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _StatusChip(label: 'QR/code redeemed', active: vendorRedeemed),
-              _StatusChip(label: 'Bay assigned', active: bayAssigned),
-              _StatusChip(
-                label: 'Commission trigger',
-                active: commissionStatus == CommissionStatus.earned,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OperatorControls extends StatelessWidget {
-  final QueueLaneType laneType;
-  final PaymentMethod paymentMethod;
-  final BookingEdgeCase? edgeCase;
-  final ValueChanged<QueueLaneType> onLaneChanged;
-  final ValueChanged<PaymentMethod> onPaymentChanged;
-  final ValueChanged<BookingEdgeCase?> onEdgeCaseChanged;
-
-  const _OperatorControls({
-    required this.laneType,
-    required this.paymentMethod,
-    required this.edgeCase,
-    required this.onLaneChanged,
-    required this.onPaymentChanged,
-    required this.onEdgeCaseChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _SectionCard(
-      title: 'Operator controls',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Route the job through AUTO or MANUAL staging, then close payment through app commission or direct vendor payment.',
-            style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-          ),
-          const SizedBox(height: 12),
-          _ChoiceRow<QueueLaneType>(
-            values: QueueLaneType.values,
-            selected: laneType,
-            labelBuilder: (value) =>
-                value == QueueLaneType.auto ? 'Auto lane' : 'Manual lane',
-            onSelected: onLaneChanged,
-          ),
-          const SizedBox(height: 8),
-          _ChoiceRow<PaymentMethod>(
-            values: PaymentMethod.values,
-            selected: paymentMethod,
-            labelBuilder: (value) =>
-                value == PaymentMethod.inApp ? 'In-app' : 'At site',
-            onSelected: onPaymentChanged,
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<BookingEdgeCase?>(
-            initialValue: edgeCase,
-            decoration: InputDecoration(
-              labelText: 'Edge-case enforcement',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-            ),
-            items: [
-              const DropdownMenuItem<BookingEdgeCase?>(
-                value: null,
-                child: Text('No exception'),
-              ),
-              ...BookingEdgeCase.values.map(
-                (value) => DropdownMenuItem<BookingEdgeCase?>(
-                  value: value,
-                  child: Text(value.label),
-                ),
-              ),
-            ],
-            onChanged: onEdgeCaseChanged,
-          ),
-          if (edgeCase != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              edgeCase!.action,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ProgressList extends StatelessWidget {
-  final List<AppBookingStage> stages;
-  final AppBookingStage currentStage;
-
-  const _ProgressList({required this.stages, required this.currentStage});
-
-  @override
-  Widget build(BuildContext context) {
-    return _SectionCard(
-      title: 'End-to-end progress',
-      child: Column(
-        children: stages.map((stage) {
-          final reached = currentStage.index >= stage.index;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Row(
+          const SizedBox(width: 9),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: reached ? AppTheme.bayTeal : Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: reached ? AppTheme.bayTeal : AppTheme.divider,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Icon(
-                    reached ? Icons.check_rounded : Icons.circle,
-                    size: reached ? 15 : 6,
-                    color: reached ? Colors.white : AppTheme.divider,
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    stage.label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: reached ? FontWeight.w800 : FontWeight.w600,
-                      color: reached
-                          ? AppTheme.textPrimary
-                          : AppTheme.textSecondary,
-                    ),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.bayInk,
                   ),
                 ),
               ],
             ),
-          );
-        }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LiveStatusCard extends StatelessWidget {
+  final CommissionJob? job;
+
+  const _LiveStatusCard({required this.job});
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, title, detail, color) = switch (job) {
+      null => (
+          Icons.sync_rounded,
+          'Creating transaction',
+          'Your booking is being linked to the station.',
+          AppTheme.bayTeal,
+        ),
+      CommissionJob(outcome: final outcome) when outcome != JobOutcome.active =>
+        (
+          outcome == JobOutcome.completed
+              ? Icons.check_circle_rounded
+              : Icons.event_busy_rounded,
+          outcome.label,
+          job!.closureReason ?? job!.paymentStatus.label,
+          outcome == JobOutcome.completed
+              ? AppTheme.statusFree
+              : AppTheme.danger,
+        ),
+      CommissionJob(serviceStarted: true) => (
+          Icons.local_car_wash_rounded,
+          'Wash in progress',
+          'The station has started your service.',
+          AppTheme.bayTeal,
+        ),
+      CommissionJob(arrivalVerified: true) => (
+          Icons.verified_rounded,
+          'Arrival verified',
+          'Your token is checked in and ready for bay assignment.',
+          AppTheme.statusFree,
+        ),
+      _ => (
+          Icons.directions_car_rounded,
+          'On the way',
+          'Show your token to station staff when you arrive.',
+          AppTheme.bayTeal,
+        ),
+    };
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  detail,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentReceipt extends StatelessWidget {
+  final AppBooking booking;
+  final CommissionJob? job;
+
+  const _PaymentReceipt({required this.booking, required this.job});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SectionCard(
+      title: 'Payment receipt',
+      child: Column(
+        children: [
+          _ReceiptRow(label: 'Plan', value: booking.paymentPlan.label),
+          _ReceiptRow(
+            label: 'Status',
+            value: job?.paymentStatus.label ?? booking.paymentStatus.label,
+          ),
+          _ReceiptRow(
+            label: job?.paymentStatus == TransactionPaymentStatus.refunded
+                ? 'Refunded online'
+                : 'Paid online',
+            value:
+                'AED ${(job?.onlineAmountPaid ?? booking.amountPaid).toStringAsFixed(2)}',
+          ),
+          if ((job?.offlineAmountPaid ?? 0) > 0)
+            _ReceiptRow(
+              label: 'Paid at station',
+              value: 'AED ${job!.offlineAmountPaid.toStringAsFixed(2)}',
+            ),
+          if ((job?.refundAmount ?? 0) > 0)
+            _ReceiptRow(
+              label: 'Refund',
+              value: 'AED ${job!.refundAmount.toStringAsFixed(2)}',
+            ),
+          _ReceiptRow(
+            label: 'Balance at station',
+            value:
+                'AED ${(job?.balanceDue ?? booking.balanceDue).toStringAsFixed(2)}',
+          ),
+          const Divider(height: 18),
+          _ReceiptRow(
+            label: 'Service total',
+            value: 'AED ${booking.price.toStringAsFixed(2)}',
+            bold: true,
+          ),
+          if (job?.transactionId != null)
+            _ReceiptRow(label: 'Transaction', value: job!.transactionId),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgressCard extends StatelessWidget {
+  final CommissionJob? job;
+
+  const _ProgressCard({required this.job});
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = [
+      ('Token created', true),
+      ('Arrival verified', job?.arrivalVerified == true),
+      ('Service started', job?.serviceStarted == true),
+      ('Transaction closed', job?.isClosed == true),
+      (
+        'Payment and settlement recorded',
+        job?.commissionStage == CommissionStage.collected ||
+            job?.commissionStage == CommissionStage.pendingFromVendor ||
+            job?.commissionStage == CommissionStage.settled ||
+            job?.commissionStage == CommissionStage.waived,
+      ),
+    ];
+    return _SectionCard(
+      title: 'Live progress',
+      child: Column(
+        children: steps
+            .map(
+              (step) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(
+                      step.$2
+                          ? Icons.check_circle_rounded
+                          : Icons.radio_button_unchecked_rounded,
+                      size: 19,
+                      color: step.$2 ? AppTheme.statusFree : AppTheme.divider,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      step.$1,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: step.$2 ? FontWeight.w700 : FontWeight.w500,
+                        color: step.$2
+                            ? AppTheme.textPrimary
+                            : AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -559,10 +482,10 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.divider),
       ),
       child: Column(
@@ -570,13 +493,9 @@ class _SectionCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
-            ),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           child,
         ],
       ),
@@ -584,33 +503,36 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _FactRow extends StatelessWidget {
+class _ReceiptRow extends StatelessWidget {
   final String label;
   final String value;
+  final bool bold;
 
-  const _FactRow({required this.label, required this.value});
+  const _ReceiptRow({
+    required this.label,
+    required this.value,
+    this.bold = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 7),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondary,
-              ),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -619,101 +541,26 @@ class _FactRow extends StatelessWidget {
   }
 }
 
-class _ChoiceRow<T> extends StatelessWidget {
-  final List<T> values;
-  final T selected;
-  final String Function(T value) labelBuilder;
-  final ValueChanged<T> onSelected;
+class _StatusPill extends StatelessWidget {
+  final String text;
+  final Color color;
 
-  const _ChoiceRow({
-    required this.values,
-    required this.selected,
-    required this.labelBuilder,
-    required this.onSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: values.map((value) {
-        final active = value == selected;
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => onSelected(value),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(vertical: 9),
-                decoration: BoxDecoration(
-                  color: active ? AppTheme.bayTeal : const Color(0xFFF1F3F4),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  labelBuilder(value),
-                  style: TextStyle(
-                    color: active ? Colors.white : AppTheme.textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String label;
-  final bool active;
-
-  const _StatusChip({required this.label, required this.active});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = active ? AppTheme.statusFree : AppTheme.textSecondary;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  final String label;
-
-  const _Pill({required this.label});
+  const _StatusPill({required this.text, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(999),
+        color: color.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
+        text.toUpperCase(),
+        style: TextStyle(
+          fontSize: 9.5,
           fontWeight: FontWeight.w800,
+          color: color,
         ),
       ),
     );

@@ -35,7 +35,8 @@ macos/Flutter/GeneratedPluginRegistrant.swift
 .DS_Store
 
 # Local demo media
-demo_videos/
+demo_videos/*
+!demo_videos/adnoc_demo.mp4
 
 # Python
 __pycache__/

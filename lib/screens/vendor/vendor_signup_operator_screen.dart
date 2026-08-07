@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
 
 class VendorSignupOperatorScreen extends StatefulWidget {
@@ -129,7 +130,7 @@ class _Step1 extends StatelessWidget {
               children: List.generate(roles.length, (i) {
                 final on = i == selectedRole;
                 final (icon, name) = roles[i];
-                return GestureDetector(
+                return SmoothPress(
                   onTap: () => onRole(i),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
@@ -158,40 +159,6 @@ class _Step1 extends StatelessWidget {
                 );
               }),
             )),
-        const SizedBox(height: 16),
-        VField(
-            label: 'Profile photo',
-            hint: 'Helps customers see who washed their car',
-            child: Row(children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.vSurface2,
-                  border: Border.all(
-                      color: AppTheme.vLine, style: BorderStyle.solid),
-                ),
-                child: const Icon(Icons.camera_alt_rounded,
-                    size: 20, color: AppTheme.vInk4),
-              ),
-              const SizedBox(width: 12),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.vInk,
-                  side: const BorderSide(color: AppTheme.vLine),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: () {},
-                icon: const Icon(Icons.upload_rounded, size: 14),
-                label: const Text('Upload',
-                    style:
-                        TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-              ),
-            ])),
       ]),
     );
   }

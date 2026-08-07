@@ -9,13 +9,14 @@ import '../data/dummy_data.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../models/car_wash.dart';
-import '../services/app_icon_service.dart';
 import '../services/route_eta_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/distance.dart';
 import '../widgets/wash_detail_sheet.dart';
 import '../widgets/wash_list_card.dart';
 import '../widgets/wash_marker.dart';
+import '../widgets/app_settings_sheet.dart';
+import '../widgets/smooth_press.dart';
 
 enum SortBy { distance, waitTime, routeEta, rating }
 
@@ -42,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final _sheetController = DraggableScrollableController();
   final _searchCtrl = TextEditingController();
   final _routeEtaService = RouteEtaService();
-  final _appIconService = const AppIconService();
 
   static const _defaultCenter = LatLng(24.78, 54.96);
   static const _dubaiTestOrigin = LatLng(25.2048, 55.2708);
@@ -58,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
   SortBy _sortBy = SortBy.distance;
   final Set<String> _serviceFilter = {};
   bool _loadingLocation = false;
-  BayWashAppIcon _selectedAppIcon = BayWashAppIcon.light;
 
   List<CarWash> get _sortedWashes {
     final list = [...dummyCarWashes];
@@ -234,45 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _setAppIcon(BayWashAppIcon icon) async {
-    try {
-      final changed = await _appIconService.setIcon(icon);
-      if (!mounted) return;
-      if (changed) {
-        setState(() => _selectedAppIcon = icon);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${icon.name} app icon selected')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('App icon switching is available on phone builds.'),
-          ),
-        );
-      }
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not change app icon on this device.'),
-        ),
-      );
-    }
-  }
-
-  void _showAppSettings() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _AppSettingsSheet(
-        selectedIcon: _selectedAppIcon,
-        onIconSelected: (icon) {
-          Navigator.of(context).pop();
-          unawaited(_setAppIcon(icon));
-        },
-      ),
-    );
-  }
+  void _showAppSettings() => showBayWashAppSettings(context);
 
   @override
   Widget build(BuildContext context) {
@@ -303,6 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildTopBar(context, l10n),
           _buildOriginPill(),
           _buildRouteStatusPill(l10n),
+          _buildMapStatusFilter(l10n),
           _buildLocateFab(),
           _buildBottomSheet(context, l10n, filtered),
         ],
@@ -459,6 +421,18 @@ class _HomeScreenState extends State<HomeScreen> {
     unawaited(_refreshRouteEtas(force: true));
   }
 
+  void _setStatusFilter(WashStatus? status) {
+    setState(() {
+      _statusFilter = status;
+      if (_selectedWash != null &&
+          status != null &&
+          _selectedWash!.status != status) {
+        _selectedWash = null;
+      }
+    });
+    unawaited(_refreshRouteEtas());
+  }
+
   Widget _buildOriginPill() {
     return Positioned(
       left: 14,
@@ -578,6 +552,51 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildMapStatusFilter(AppLocalizations l10n) {
+    return Positioned(
+      left: 14,
+      top: MediaQuery.of(context).padding.top + 172,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.97),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppTheme.divider),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _MapFilterSegment(
+              label: l10n.t('filter_all'),
+              selected: _statusFilter == null,
+              color: AppTheme.bayTeal,
+              onTap: () => _setStatusFilter(null),
+            ),
+            _MapFilterSegment(
+              label: l10n.t('status_free'),
+              selected: _statusFilter == WashStatus.free,
+              color: AppTheme.statusFree,
+              onTap: () => _setStatusFilter(WashStatus.free),
+            ),
+            _MapFilterSegment(
+              label: l10n.t('status_busy'),
+              selected: _statusFilter == WashStatus.busy,
+              color: AppTheme.statusBusy,
+              onTap: () => _setStatusFilter(WashStatus.busy),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTopBar(BuildContext context, AppLocalizations l10n) {
     return Positioned(
       top: 0,
@@ -602,12 +621,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: _showAppSettings,
-                  child: const Icon(
-                    Icons.menu_rounded,
+                IconButton(
+                  tooltip: 'App settings',
+                  onPressed: _showAppSettings,
+                  icon: const Icon(
+                    Icons.settings_rounded,
                     color: Colors.white,
-                    size: 27,
+                    size: 24,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -648,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildLocateFab() {
     return Positioned(
       right: 14,
-      top: MediaQuery.of(context).padding.top + 142,
+      top: MediaQuery.of(context).padding.top + 222,
       child: Column(
         children: [
           _RoundMapButton(
@@ -766,7 +786,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         filteredCount: washes.length,
                         mode: _sheetMode,
                         searchController: _searchCtrl,
-                        currentFilter: _statusFilter,
                         activeFilterCount: _activeFilterCount,
                         sortBy: _sortBy,
                         selectedServices: _serviceFilter,
@@ -774,10 +793,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             setState(() => _sheetMode = mode),
                         onSearchChanged: (_) {
                           setState(() {});
-                          unawaited(_refreshRouteEtas());
-                        },
-                        onFilterChanged: (f) {
-                          setState(() => _statusFilter = f);
                           unawaited(_refreshRouteEtas());
                         },
                         onSortChanged: (sort) {
@@ -879,13 +894,11 @@ class _SheetHeader extends StatelessWidget {
   final int filteredCount;
   final HomeSheetMode mode;
   final TextEditingController searchController;
-  final WashStatus? currentFilter;
   final int activeFilterCount;
   final SortBy sortBy;
   final Set<String> selectedServices;
   final ValueChanged<HomeSheetMode> onModeChanged;
   final ValueChanged<String> onSearchChanged;
-  final ValueChanged<WashStatus?> onFilterChanged;
   final ValueChanged<SortBy> onSortChanged;
   final ValueChanged<String> onServiceToggled;
   final VoidCallback onClearAll;
@@ -895,13 +908,11 @@ class _SheetHeader extends StatelessWidget {
     required this.filteredCount,
     required this.mode,
     required this.searchController,
-    required this.currentFilter,
     required this.activeFilterCount,
     required this.sortBy,
     required this.selectedServices,
     required this.onModeChanged,
     required this.onSearchChanged,
-    required this.onFilterChanged,
     required this.onSortChanged,
     required this.onServiceToggled,
     required this.onClearAll,
@@ -963,7 +974,7 @@ class _SheetHeader extends StatelessWidget {
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 180),
                   child: activeFilterCount > 0
-                      ? GestureDetector(
+                      ? SmoothPress(
                           key: const ValueKey('clear-all'),
                           onTap: onClearAll,
                           child: Text(
@@ -1017,18 +1028,14 @@ class _SheetHeader extends StatelessWidget {
                 ? _FilterPanel(
                     key: const ValueKey('filter-panel'),
                     l10n: l10n,
-                    currentFilter: currentFilter,
                     sortBy: sortBy,
                     selectedServices: selectedServices,
-                    onFilterChanged: onFilterChanged,
                     onSortChanged: onSortChanged,
                     onServiceToggled: onServiceToggled,
                   )
-                : _QuickStatusRow(
-                    key: const ValueKey('list-panel'),
-                    l10n: l10n,
-                    currentFilter: currentFilter,
-                    onFilterChanged: onFilterChanged,
+                : const SizedBox(
+                    key: ValueKey('list-panel'),
+                    height: 12,
                   ),
           ),
         ],
@@ -1122,7 +1129,7 @@ class _ModeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
+      child: SmoothPress(
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -1209,47 +1216,18 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-class _QuickStatusRow extends StatelessWidget {
-  final AppLocalizations l10n;
-  final WashStatus? currentFilter;
-  final ValueChanged<WashStatus?> onFilterChanged;
-
-  const _QuickStatusRow({
-    super.key,
-    required this.l10n,
-    required this.currentFilter,
-    required this.onFilterChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 6),
-      child: _StatusFilterChips(
-        l10n: l10n,
-        currentFilter: currentFilter,
-        onFilterChanged: onFilterChanged,
-      ),
-    );
-  }
-}
-
 class _FilterPanel extends StatelessWidget {
   final AppLocalizations l10n;
-  final WashStatus? currentFilter;
   final SortBy sortBy;
   final Set<String> selectedServices;
-  final ValueChanged<WashStatus?> onFilterChanged;
   final ValueChanged<SortBy> onSortChanged;
   final ValueChanged<String> onServiceToggled;
 
   const _FilterPanel({
     super.key,
     required this.l10n,
-    required this.currentFilter,
     required this.sortBy,
     required this.selectedServices,
-    required this.onFilterChanged,
     required this.onSortChanged,
     required this.onServiceToggled,
   });
@@ -1298,14 +1276,6 @@ class _FilterPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          _SectionLabel(label: l10n.t('filter_status')),
-          const SizedBox(height: 10),
-          _StatusFilterChips(
-            l10n: l10n,
-            currentFilter: currentFilter,
-            onFilterChanged: onFilterChanged,
-          ),
-          const SizedBox(height: 18),
           _SectionLabel(label: l10n.t('filter_services')),
           const SizedBox(height: 10),
           Wrap(
@@ -1313,7 +1283,7 @@ class _FilterPanel extends StatelessWidget {
             runSpacing: 8,
             children: _allServices.map((service) {
               final selected = selectedServices.contains(service);
-              return GestureDetector(
+              return SmoothPress(
                 onTap: () => onServiceToggled(service),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
@@ -1363,68 +1333,13 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-class _StatusFilterChips extends StatelessWidget {
-  final AppLocalizations l10n;
-  final WashStatus? currentFilter;
-  final ValueChanged<WashStatus?> onFilterChanged;
-
-  const _StatusFilterChips({
-    required this.l10n,
-    required this.currentFilter,
-    required this.onFilterChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 34,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        children: [
-          _FilterChip(
-            label: l10n.t('filter_all'),
-            selected: currentFilter == null,
-            color: AppTheme.bayTeal,
-            onTap: () => onFilterChanged(null),
-          ),
-          _FilterChip(
-            label: l10n.t('status_free'),
-            selected: currentFilter == WashStatus.free,
-            color: AppTheme.statusFree,
-            onTap: () => onFilterChanged(
-              currentFilter == WashStatus.free ? null : WashStatus.free,
-            ),
-          ),
-          _FilterChip(
-            label: l10n.t('status_busy'),
-            selected: currentFilter == WashStatus.busy,
-            color: AppTheme.statusBusy,
-            onTap: () => onFilterChanged(
-              currentFilter == WashStatus.busy ? null : WashStatus.busy,
-            ),
-          ),
-          _FilterChip(
-            label: l10n.t('status_full'),
-            selected: currentFilter == WashStatus.full,
-            color: AppTheme.statusFull,
-            onTap: () => onFilterChanged(
-              currentFilter == WashStatus.full ? null : WashStatus.full,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
+class _MapFilterSegment extends StatelessWidget {
   final String label;
   final bool selected;
   final Color color;
   final VoidCallback onTap;
 
-  const _FilterChip({
+  const _MapFilterSegment({
     required this.label,
     required this.selected,
     required this.color,
@@ -1433,37 +1348,36 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        constraints: const BoxConstraints.tightFor(width: 82),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? color : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? color : AppTheme.divider,
-            width: selected ? 0 : 1.5,
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.25),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+          color: selected ? color.withValues(alpha: 0.14) : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : AppTheme.textSecondary,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                color: selected ? AppTheme.textPrimary : AppTheme.textSecondary,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1485,7 +1399,7 @@ class _SortChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
@@ -1531,7 +1445,7 @@ class _OriginQuickButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
@@ -1557,162 +1471,6 @@ class _OriginQuickButton extends StatelessWidget {
             fontSize: 12,
             fontWeight: FontWeight.w900,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AppSettingsSheet extends StatelessWidget {
-  final BayWashAppIcon selectedIcon;
-  final ValueChanged<BayWashAppIcon> onIconSelected;
-
-  const _AppSettingsSheet({
-    required this.selectedIcon,
-    required this.onIconSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
-              blurRadius: 22,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Text(
-                  'Bay Wash settings',
-                  style: TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'App icon',
-              style: TextStyle(
-                color: AppTheme.textSecondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _AppIconChoice(
-                    label: 'Light',
-                    assetPath: 'assets/brand/bay_wash_icon_light.jpeg',
-                    selected: selectedIcon == BayWashAppIcon.light,
-                    onTap: () => onIconSelected(BayWashAppIcon.light),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _AppIconChoice(
-                    label: 'Dark',
-                    assetPath: 'assets/brand/bay_wash_icon_dark.jpeg',
-                    selected: selectedIcon == BayWashAppIcon.dark,
-                    onTap: () => onIconSelected(BayWashAppIcon.dark),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AppIconChoice extends StatelessWidget {
-  final String label;
-  final String assetPath;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _AppIconChoice({
-    required this.label,
-    required this.assetPath,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: selected
-              ? AppTheme.bayTeal.withValues(alpha: 0.08)
-              : const Color(0xFFF6F8FA),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: selected ? AppTheme.bayTeal : AppTheme.divider,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.asset(
-                assetPath,
-                width: 72,
-                height: 72,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                if (selected) ...[
-                  const SizedBox(width: 5),
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: AppTheme.bayTeal,
-                    size: 16,
-                  ),
-                ],
-              ],
-            ),
-          ],
         ),
       ),
     );
@@ -1765,7 +1523,7 @@ class _LanguageToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: () =>
           BayWashApp.of(context).setLocale(Locale(isArabic ? 'en' : 'ar')),
       child: AnimatedContainer(

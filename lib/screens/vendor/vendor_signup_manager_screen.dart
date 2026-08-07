@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/vendor_data_store.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
 
 // ── Data models ───────────────────────────────────────────────────────────────
@@ -481,8 +482,8 @@ class _UploadTileState extends State<_UploadTile> {
   Widget build(BuildContext context) {
     final done = widget.uploaded;
 
-    return GestureDetector(
-      onTap: widget.onTap == null || _loading
+    return SmoothPress(
+      onTap: widget.onTap == null || _loading || done
           ? null
           : () {
               setState(() => _loading = true);
@@ -571,15 +572,6 @@ class _UploadTileState extends State<_UploadTile> {
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.vInk2)),
-            ),
-          if (done)
-            GestureDetector(
-              onTap: () {}, // re-upload: no-op for demo
-              child: const Text('Replace',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.vInk3)),
             ),
         ]),
       ),
@@ -738,7 +730,7 @@ class _Step3State extends State<_Step3> {
             Positioned(
               right: 12,
               bottom: 12,
-              child: GestureDetector(
+              child: SmoothPress(
                 onTap: _loadingGps ? null : _locateMe,
                 child: Container(
                   padding:
@@ -824,7 +816,7 @@ class _Step3State extends State<_Step3> {
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.8,
                           color: AppTheme.vInk3)),
-                  GestureDetector(
+                  SmoothPress(
                     onTap: () {
                       final mon = widget.schedule['Mon']!;
                       for (final d in widget.daysOrder) {
@@ -1122,7 +1114,7 @@ class _Step4State extends State<_Step4> {
               ...List.generate(widget.serviceItems.length, (i) {
                 final s = widget.serviceItems[i];
                 final on = s.selected;
-                return GestureDetector(
+                return SmoothPress(
                   onTap: () => widget.onServiceToggle(i),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
@@ -1150,7 +1142,7 @@ class _Step4State extends State<_Step4> {
                       // Delete button for custom services
                       if (s.isCustom) ...[
                         const SizedBox(width: 5),
-                        GestureDetector(
+                        SmoothPress(
                           onTap: () => widget.onRemoveCustom(i),
                           behavior: HitTestBehavior.opaque,
                           child: const Icon(Icons.close_rounded,
@@ -1163,7 +1155,7 @@ class _Step4State extends State<_Step4> {
               }),
 
               // "+ Add custom" chip
-              GestureDetector(
+              SmoothPress(
                 onTap: () => setState(() => _showAddForm = !_showAddForm),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
@@ -1510,7 +1502,7 @@ class _StepBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: Container(
         width: 32,

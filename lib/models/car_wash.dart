@@ -1,6 +1,6 @@
 import 'package:latlong2/latlong.dart';
 
-enum WashStatus { free, busy, full }
+enum WashStatus { free, busy }
 
 enum DetectionMethod { cameraAI, crowdSourced, selfReported }
 

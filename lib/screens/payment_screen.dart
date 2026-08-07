@@ -4,13 +4,22 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../models/app_booking.dart';
 import '../models/car_wash.dart';
+import '../models/payment_commission.dart';
 import '../screens/booking_status_screen.dart';
 import '../theme/app_theme.dart';
 import '../utils/page_routes.dart';
+import '../utils/vendor_state.dart';
+import '../widgets/smooth_press.dart';
 
 class PaymentScreen extends StatefulWidget {
   final CarWash wash;
-  const PaymentScreen({super.key, required this.wash});
+  final AppBookingType bookingType;
+
+  const PaymentScreen({
+    super.key,
+    required this.wash,
+    this.bookingType = AppBookingType.advance,
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -21,7 +30,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   int _selectedPackage = 1;
   String? _selectedSlot;
   bool _processing = false;
-  String _paymentMethod = 'card'; // 'card' | 'applePay'
+  PaymentPlan _paymentPlan = PaymentPlan.fullOnline;
+  PaymentChannel _onlineChannel = PaymentChannel.onlineCard;
+  AppBooking? _confirmedBooking;
   late final String _bookingRef;
 
   final _cardCtrl = TextEditingController();
@@ -34,6 +45,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void initState() {
     super.initState();
     _bookingRef = 'EW-${100000 + Random().nextInt(899999)}';
+    if (widget.bookingType == AppBookingType.walkIn) {
+      _selectedSlot = 'Now';
+    }
   }
 
   @override
@@ -67,9 +81,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _ => widget.wash.pricePremium,
       };
 
+  double get _amountDueNow => switch (_paymentPlan) {
+        PaymentPlan.fullOnline => _price,
+        PaymentPlan.deposit => min(_price, max(10, _price * 0.20)),
+        PaymentPlan.payAtStation => 0,
+      };
+
+  double get _balanceDue => (_price - _amountDueNow).clamp(0, double.infinity);
+
   void _proceed() {
     if (_step == 0) {
-      if (_selectedSlot == null) {
+      if (widget.bookingType == AppBookingType.advance &&
+          _selectedSlot == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please select a time slot')),
         );
@@ -77,19 +100,58 @@ class _PaymentScreenState extends State<PaymentScreen> {
       }
       setState(() => _step = 1);
     } else if (_step == 1) {
-      if (_paymentMethod == 'card' && !_formKey.currentState!.validate()) {
+      if (_paymentPlan != PaymentPlan.payAtStation &&
+          _onlineChannel == PaymentChannel.onlineCard &&
+          !_formKey.currentState!.validate()) {
         return;
       }
       setState(() => _processing = true);
-      Future.delayed(const Duration(milliseconds: 1600), () {
+      Future.delayed(
+          Duration(
+            milliseconds: _paymentPlan == PaymentPlan.payAtStation ? 500 : 1200,
+          ), () {
         if (mounted) {
+          final booking = _createBooking();
+          VendorState.instance.addAppBooking(booking);
           setState(() {
             _processing = false;
+            _confirmedBooking = booking;
             _step = 2;
           });
         }
       });
     }
+  }
+
+  AppBooking _createBooking() {
+    final packageName = AppLocalizations.of(context).t(
+      ['basic_wash', 'standard_wash', 'premium_wash'][_selectedPackage],
+    );
+    final paymentChannel = _paymentPlan == PaymentPlan.payAtStation
+        ? PaymentChannel.unrecorded
+        : _onlineChannel;
+    if (widget.bookingType == AppBookingType.walkIn) {
+      return AppBooking.walkIn(
+        wash: widget.wash,
+        packageName: packageName,
+        price: _price,
+        interiorCleaningNeeded: _selectedPackage > 0,
+        paymentPlan: _paymentPlan,
+        paymentChannel: paymentChannel,
+        amountPaid: _amountDueNow,
+      );
+    }
+    return AppBooking.fromPayment(
+      wash: widget.wash,
+      reference: _bookingRef,
+      packageName: packageName,
+      slot: _selectedSlot!,
+      price: _price,
+      interiorCleaningNeeded: _selectedPackage > 0,
+      paymentPlan: _paymentPlan,
+      paymentChannel: paymentChannel,
+      amountPaid: _amountDueNow,
+    );
   }
 
   @override
@@ -157,6 +219,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onSlot: (s) => setState(() => _selectedSlot = s),
               onNext: _proceed,
               l10n: l10n,
+              bookingType: widget.bookingType,
             ),
           1 => _CardStep(
               key: const ValueKey(1),
@@ -170,19 +233,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
               slot: _selectedSlot!,
               washName: washName,
               processing: _processing,
-              paymentMethod: _paymentMethod,
-              onPaymentMethod: (m) => setState(() => _paymentMethod = m),
+              paymentPlan: _paymentPlan,
+              onlineChannel: _onlineChannel,
+              amountDueNow: _amountDueNow,
+              balanceDue: _balanceDue,
+              onPaymentPlan: (plan) => setState(() => _paymentPlan = plan),
+              onOnlineChannel: (channel) =>
+                  setState(() => _onlineChannel = channel),
               onPay: _proceed,
               l10n: l10n,
             ),
           _ => _ConfirmStep(
               key: const ValueKey(2),
-              wash: widget.wash,
+              booking: _confirmedBooking!,
               washName: washName,
-              slot: _selectedSlot ?? '',
-              selectedPackage: _selectedPackage,
-              price: _price,
-              bookingRef: _bookingRef,
               l10n: l10n,
               onDone: () => Navigator.of(context).pop(),
             ),
@@ -233,6 +297,7 @@ class _BookingStep extends StatelessWidget {
   final ValueChanged<String> onSlot;
   final VoidCallback onNext;
   final AppLocalizations l10n;
+  final AppBookingType bookingType;
 
   const _BookingStep({
     super.key,
@@ -245,6 +310,7 @@ class _BookingStep extends StatelessWidget {
     required this.onSlot,
     required this.onNext,
     required this.l10n,
+    required this.bookingType,
   });
 
   @override
@@ -273,47 +339,50 @@ class _BookingStep extends StatelessWidget {
                     l10n: l10n,
                   ),
                 ),
-                const SizedBox(height: 24),
-                _sectionLabel(l10n.t('select_slot')),
-                const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    childAspectRatio: 2.2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemCount: slots.length,
-                  itemBuilder: (_, i) {
-                    final slot = slots[i];
-                    final selected = selectedSlot == slot;
-                    return GestureDetector(
-                      onTap: () => onSlot(slot),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? AppTheme.bayTeal
-                              : const Color(0xFFF1F3F4),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          slot,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                if (bookingType == AppBookingType.advance) ...[
+                  const SizedBox(height: 24),
+                  _sectionLabel(l10n.t('select_slot')),
+                  const SizedBox(height: 12),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
+                      childAspectRatio: 2.2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: slots.length,
+                    itemBuilder: (_, i) {
+                      final slot = slots[i];
+                      final selected = selectedSlot == slot;
+                      return SmoothPress(
+                        onTap: () => onSlot(slot),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          decoration: BoxDecoration(
                             color: selected
-                                ? Colors.white
-                                : AppTheme.textSecondary,
+                                ? AppTheme.bayTeal
+                                : const Color(0xFFF1F3F4),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            slot,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: selected
+                                  ? Colors.white
+                                  : AppTheme.textSecondary,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
+                ],
               ],
             ),
           ),
@@ -374,7 +443,7 @@ class _PackageCard extends StatelessWidget {
       'premium_includes',
     ][index];
 
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
@@ -448,8 +517,12 @@ class _CardStep extends StatelessWidget {
   final String slot;
   final String washName;
   final bool processing;
-  final String paymentMethod;
-  final ValueChanged<String> onPaymentMethod;
+  final PaymentPlan paymentPlan;
+  final PaymentChannel onlineChannel;
+  final double amountDueNow;
+  final double balanceDue;
+  final ValueChanged<PaymentPlan> onPaymentPlan;
+  final ValueChanged<PaymentChannel> onOnlineChannel;
   final VoidCallback onPay;
   final AppLocalizations l10n;
 
@@ -465,8 +538,12 @@ class _CardStep extends StatelessWidget {
     required this.slot,
     required this.washName,
     required this.processing,
-    required this.paymentMethod,
-    required this.onPaymentMethod,
+    required this.paymentPlan,
+    required this.onlineChannel,
+    required this.amountDueNow,
+    required this.balanceDue,
+    required this.onPaymentPlan,
+    required this.onOnlineChannel,
     required this.onPay,
     required this.l10n,
   });
@@ -476,7 +553,8 @@ class _CardStep extends StatelessWidget {
     final packageName = l10n.t(
       ['basic_wash', 'standard_wash', 'premium_wash'][selectedPackage],
     );
-    final isApplePay = paymentMethod == 'applePay';
+    final isApplePay = onlineChannel == PaymentChannel.applePay;
+    final isPayAtStation = paymentPlan == PaymentPlan.payAtStation;
 
     return Column(
       children: [
@@ -512,7 +590,7 @@ class _CardStep extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Payment Method',
+                  'How would you like to pay?',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -520,31 +598,52 @@ class _CardStep extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _PaymentMethodTile(
-                        label: 'Card',
-                        icon: Icons.credit_card_rounded,
-                        selected: !isApplePay,
-                        color: AppTheme.bayTeal,
-                        onTap: () => onPaymentMethod('card'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _PaymentMethodTile(
-                        label: 'Apple Pay',
-                        icon: Icons.apple_rounded,
-                        selected: isApplePay,
-                        color: Colors.black,
-                        onTap: () => onPaymentMethod('applePay'),
-                      ),
-                    ),
-                  ],
+                ...PaymentPlan.values.map(
+                  (plan) => _PaymentPlanTile(
+                    plan: plan,
+                    selected: paymentPlan == plan,
+                    serviceAmount: price,
+                    onTap: () => onPaymentPlan(plan),
+                  ),
                 ),
                 const SizedBox(height: 24),
-                if (!isApplePay) ...[
+                if (!isPayAtStation) ...[
+                  const Text(
+                    'Pay securely with',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _PaymentMethodTile(
+                          label: 'Card',
+                          icon: Icons.credit_card_rounded,
+                          selected: !isApplePay,
+                          color: AppTheme.bayTeal,
+                          onTap: () =>
+                              onOnlineChannel(PaymentChannel.onlineCard),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _PaymentMethodTile(
+                          label: 'Apple Pay',
+                          icon: Icons.apple_rounded,
+                          selected: isApplePay,
+                          color: Colors.black,
+                          onTap: () => onOnlineChannel(PaymentChannel.applePay),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                if (!isPayAtStation && !isApplePay) ...[
                   Text(
                     l10n.t('card_number'),
                     style: const TextStyle(
@@ -663,43 +762,51 @@ class _CardStep extends StatelessWidget {
                       ],
                     ),
                   ),
+                ] else if (!isPayAtStation) ...[
+                  _ApplePayPanel(price: amountDueNow),
                 ] else ...[
-                  _ApplePayPanel(price: price),
+                  _PayAtStationPanel(balanceDue: balanceDue),
                 ],
 
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.lock_outline_rounded,
-                      size: 13,
-                      color: AppTheme.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      l10n.t('payment_secure'),
-                      style: const TextStyle(
-                        fontSize: 11,
+                if (!isPayAtStation)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.lock_outline_rounded,
+                        size: 13,
                         color: AppTheme.textSecondary,
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 4),
+                      Text(
+                        l10n.t('payment_secure'),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
         ),
         _BottomBar(
-          price: price,
-          label: isApplePay
-              ? 'Pay with Apple Pay'
-              : '${l10n.t('pay_now')} AED ${price.toStringAsFixed(0)}',
+          price: amountDueNow,
+          label: switch (paymentPlan) {
+            PaymentPlan.payAtStation => 'Confirm pay at station',
+            PaymentPlan.deposit =>
+              'Pay deposit AED ${amountDueNow.toStringAsFixed(0)}',
+            PaymentPlan.fullOnline => isApplePay
+                ? 'Pay with Apple Pay'
+                : '${l10n.t('pay_now')} AED ${amountDueNow.toStringAsFixed(0)}',
+          },
           onTap: onPay,
           processing: processing,
           l10n: l10n,
           showPrice: false,
-          isApplePay: isApplePay,
+          isApplePay: !isPayAtStation && isApplePay,
         ),
       ],
     );
@@ -799,7 +906,7 @@ class _CardField extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppTheme.statusFull),
+          borderSide: const BorderSide(color: AppTheme.danger),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
@@ -813,23 +920,15 @@ class _CardField extends StatelessWidget {
 // ── Step 2: Confirmation ────────────────────────────────────────────────────
 
 class _ConfirmStep extends StatefulWidget {
-  final CarWash wash;
+  final AppBooking booking;
   final String washName;
-  final String slot;
-  final int selectedPackage;
-  final double price;
-  final String bookingRef;
   final AppLocalizations l10n;
   final VoidCallback onDone;
 
   const _ConfirmStep({
     super.key,
-    required this.wash,
+    required this.booking,
     required this.washName,
-    required this.slot,
-    required this.selectedPackage,
-    required this.price,
-    required this.bookingRef,
     required this.l10n,
     required this.onDone,
   });
@@ -863,17 +962,7 @@ class _ConfirmStepState extends State<_ConfirmStep>
   @override
   Widget build(BuildContext context) {
     final l10n = widget.l10n;
-    final packageName = l10n.t(
-      ['basic_wash', 'standard_wash', 'premium_wash'][widget.selectedPackage],
-    );
-    final booking = AppBooking.fromPayment(
-      wash: widget.wash,
-      reference: widget.bookingRef,
-      packageName: packageName,
-      slot: widget.slot,
-      price: widget.price,
-      interiorCleaningNeeded: widget.selectedPackage > 0,
-    );
+    final booking = widget.booking;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         24,
@@ -915,10 +1004,7 @@ class _ConfirmStepState extends State<_ConfirmStep>
           ),
           const SizedBox(height: 32),
           _ConfirmCard(
-            bookingRef: widget.bookingRef,
-            slot: widget.slot,
-            packageName: packageName,
-            price: widget.price,
+            booking: booking,
             l10n: l10n,
           ),
           const Spacer(),
@@ -951,15 +1037,11 @@ class _ConfirmStepState extends State<_ConfirmStep>
 }
 
 class _ConfirmCard extends StatelessWidget {
-  final String bookingRef, slot, packageName;
-  final double price;
+  final AppBooking booking;
   final AppLocalizations l10n;
 
   const _ConfirmCard({
-    required this.bookingRef,
-    required this.slot,
-    required this.packageName,
-    required this.price,
+    required this.booking,
     required this.l10n,
   });
 
@@ -974,18 +1056,35 @@ class _ConfirmCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _row(l10n.t('booking_ref'), bookingRef, bold: true),
+          _row(l10n.t('booking_ref'), booking.reference, bold: true),
           const Divider(height: 20, color: AppTheme.divider),
-          _row(l10n.t('your_slot'), slot),
+          _row(l10n.t('your_slot'), booking.slot),
           const SizedBox(height: 8),
-          _row(l10n.t('select_package'), packageName),
+          _row(l10n.t('select_package'), booking.packageName),
           const SizedBox(height: 8),
           _row(
             l10n.t('total'),
-            'AED ${price.toStringAsFixed(0)}',
+            'AED ${booking.price.toStringAsFixed(0)}',
             bold: true,
             color: AppTheme.bayTeal,
           ),
+          const SizedBox(height: 8),
+          _row('Payment plan', booking.paymentPlan.label),
+          const SizedBox(height: 8),
+          _row(
+            'Paid now',
+            'AED ${booking.amountPaid.toStringAsFixed(0)}',
+            bold: true,
+          ),
+          if (booking.balanceDue > 0) ...[
+            const SizedBox(height: 8),
+            _row(
+              'Balance at station',
+              'AED ${booking.balanceDue.toStringAsFixed(0)}',
+              bold: true,
+              color: AppTheme.vStatusBusy,
+            ),
+          ],
         ],
       ),
     );
@@ -1012,6 +1111,96 @@ class _ConfirmCard extends StatelessWidget {
   }
 }
 
+class _PaymentPlanTile extends StatelessWidget {
+  final PaymentPlan plan;
+  final bool selected;
+  final double serviceAmount;
+  final VoidCallback onTap;
+
+  const _PaymentPlanTile({
+    required this.plan,
+    required this.selected,
+    required this.serviceAmount,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final dueNow = switch (plan) {
+      PaymentPlan.fullOnline => serviceAmount,
+      PaymentPlan.deposit => min(serviceAmount, max(10, serviceAmount * 0.20)),
+      PaymentPlan.payAtStation => 0,
+    };
+    final icon = switch (plan) {
+      PaymentPlan.fullOnline => Icons.verified_user_rounded,
+      PaymentPlan.deposit => Icons.savings_outlined,
+      PaymentPlan.payAtStation => Icons.storefront_rounded,
+    };
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: SmoothPress(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: AppTheme.motionDuration,
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppTheme.bayTeal.withValues(alpha: 0.07)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected ? AppTheme.bayTeal : AppTheme.divider,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: selected ? AppTheme.bayTeal : AppTheme.textSecondary,
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      plan.label,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      plan.description,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                dueNow == 0 ? 'AED 0 now' : 'AED ${dueNow.toStringAsFixed(0)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: selected ? AppTheme.bayTeal : AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Payment method tile ─────────────────────────────────────────────────────
 
 class _PaymentMethodTile extends StatelessWidget {
@@ -1031,7 +1220,7 @@ class _PaymentMethodTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
@@ -1143,6 +1332,53 @@ class _ApplePayPanel extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: AppTheme.textSecondary)),
       ],
+    );
+  }
+}
+
+class _PayAtStationPanel extends StatelessWidget {
+  final double balanceDue;
+
+  const _PayAtStationPanel({required this.balanceDue});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.bayMist,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.bayTeal.withValues(alpha: 0.24)),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.point_of_sale_rounded,
+            color: AppTheme.bayTeal,
+            size: 28,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'AED ${balanceDue.toStringAsFixed(0)} due after service',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            'The station must record cash, card, or POS payment before closing this app job.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.4,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

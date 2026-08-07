@@ -1,6 +1,7 @@
 // vendor_atoms.dart — shared widgets for the Bay Wash station console
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/smooth_press.dart';
 
 // ── Logo ──────────────────────────────────────────────────────────────────────
 class EWVendorLogo extends StatelessWidget {
@@ -83,7 +84,7 @@ class VTopBar extends StatelessWidget {
       child: Row(
         children: [
           if (showBack) ...[
-            GestureDetector(
+            SmoothPress(
               onTap: onBack ?? () => Navigator.of(context).pop(),
               child: Container(
                 width: 36,
@@ -346,7 +347,7 @@ class VSegRow extends StatelessWidget {
         children: options.map((o) {
           final on = o.id == value;
           return Expanded(
-            child: GestureDetector(
+            child: SmoothPress(
               onTap: () => onChanged?.call(o.id),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
@@ -467,70 +468,45 @@ class VKpiTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 22,
-                  letterSpacing: -0.5,
-                  color: primary ? Colors.white : AppTheme.vInk,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 22,
+                    letterSpacing: -0.5,
+                    color: primary ? Colors.white : AppTheme.vInk,
+                  ),
                 ),
-              ),
-              if (suffix != null) ...[
-                const SizedBox(width: 3),
-                Text(suffix!,
-                    style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                        color: primary ? Colors.white60 : AppTheme.vInk3)),
+                if (suffix != null) ...[
+                  const SizedBox(width: 3),
+                  Text(suffix!,
+                      style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: primary ? Colors.white60 : AppTheme.vInk3)),
+                ],
               ],
-              if (sub != null) ...[
-                const Spacer(),
-                Text(sub!,
-                    style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                        color: primary ? Colors.white60 : AppTheme.vInk3)),
-              ],
-            ],
+            ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Status chip ───────────────────────────────────────────────────────────────
-class VStatusChip extends StatelessWidget {
-  final String status; // 'free' | 'busy' | 'full'
-  const VStatusChip({super.key, required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final (bg, fg, label) = switch (status) {
-      'free' => (AppTheme.vStatusFreeBg, AppTheme.vStatusFree, 'Open'),
-      'full' => (AppTheme.vStatusFullBg, AppTheme.vStatusFull, 'Full'),
-      _ => (AppTheme.vStatusBusyBg, AppTheme.vStatusBusy, 'Busy'),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-              width: 7,
-              height: 7,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: fg)),
-          const SizedBox(width: 5),
-          Text(label,
+          if (sub != null)
+            Text(
+              sub!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                  fontSize: 11.5, fontWeight: FontWeight.w600, color: fg)),
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                color: primary ? Colors.white60 : AppTheme.vInk3,
+              ),
+            ),
         ],
       ),
     );
@@ -635,7 +611,7 @@ class VCircleBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: Container(
         width: 36,
@@ -658,7 +634,7 @@ class VCircleBtn extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   decoration: BoxDecoration(
-                    color: AppTheme.vStatusFull,
+                    color: AppTheme.vDanger,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: Colors.white, width: 1.5),
                   ),
@@ -780,7 +756,7 @@ class VTabBar extends StatelessWidget {
           final (icon, label) = e.value;
           final on = i == active;
           return Expanded(
-            child: GestureDetector(
+            child: SmoothPress(
               onTap: () => onChanged(i),
               behavior: HitTestBehavior.opaque,
               child: Column(
@@ -817,75 +793,6 @@ class VTabBar extends StatelessWidget {
   }
 }
 
-// ── Small button helper ───────────────────────────────────────────────────────
-ButtonStyle vSmallBtn({bool primary = false}) => FilledButton.styleFrom(
-      backgroundColor: primary ? AppTheme.vPrimary : AppTheme.vSurface2,
-      foregroundColor: primary ? Colors.white : AppTheme.vInk,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 0,
-      side: primary ? null : const BorderSide(color: AppTheme.vLine, width: 1),
-    );
-
-// ── Upload row ────────────────────────────────────────────────────────────────
-class VUploadRow extends StatelessWidget {
-  final bool done;
-  final String label;
-  final String sub;
-  const VUploadRow(
-      {super.key, required this.done, required this.label, required this.sub});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: done ? AppTheme.vStatusFree : AppTheme.vLine,
-          width: 1.5,
-          style: BorderStyle.solid,
-        ),
-        color: done ? AppTheme.vStatusFreeBg : AppTheme.vSurface2,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppTheme.vSurface,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              done ? Icons.check_circle_rounded : Icons.upload_rounded,
-              color: done ? AppTheme.vStatusFree : AppTheme.vInk3,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: done ? AppTheme.vStatusFree : AppTheme.vInk)),
-                const SizedBox(height: 2),
-                Text(sub,
-                    style:
-                        const TextStyle(fontSize: 11.5, color: AppTheme.vInk3)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ── Toggle ─────────────────────────────────────────────────────────────────────
 class VToggle extends StatelessWidget {
   final bool on;
@@ -894,7 +801,7 @@ class VToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return SmoothPress(
       onTap: () => onChanged?.call(!on),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

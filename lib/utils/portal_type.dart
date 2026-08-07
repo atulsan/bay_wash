@@ -1,1 +1,1 @@
-enum PortalType { user, vendor }
+enum PortalType { user, vendor, corporate }

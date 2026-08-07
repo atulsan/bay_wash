@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
+import 'vendor_job_closure_sheet.dart';
 import '../../utils/vendor_state.dart';
 
 class VendorBookingsScreen extends StatefulWidget {
@@ -121,7 +123,7 @@ class _DayStrip extends StatelessWidget {
               .length;
 
           return Expanded(
-            child: GestureDetector(
+            child: SmoothPress(
               onTap: () => onDaySelected(i),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
@@ -280,7 +282,7 @@ class _BookingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDone = slot.status == 'done';
+    final isDone = _isBookingClosed(slot.status);
     final isOpen = slot.status == 'open';
     final isBlocked = slot.status == 'blocked';
 
@@ -343,8 +345,8 @@ class _BookingRow extends StatelessWidget {
           ),
           OutlinedButton(
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.vStatusFull,
-              side: const BorderSide(color: AppTheme.vStatusFull),
+              foregroundColor: AppTheme.vDanger,
+              side: const BorderSide(color: AppTheme.vDanger),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -381,7 +383,7 @@ class _BookingRow extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 6),
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.vStatusFull,
+                    color: AppTheme.vDanger,
                   ),
                 ),
                 const Text(
@@ -389,7 +391,7 @@ class _BookingRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.vStatusFull,
+                    color: AppTheme.vDanger,
                   ),
                 ),
               ],
@@ -469,8 +471,15 @@ class _BookingRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.check_circle_rounded,
-                  color: AppTheme.vStatusFree, size: 20),
+              Icon(
+                slot.status == 'done'
+                    ? Icons.check_circle_rounded
+                    : Icons.cancel_rounded,
+                color: slot.status == 'done'
+                    ? AppTheme.vStatusFree
+                    : AppTheme.vDanger,
+                size: 20,
+              ),
             ],
           ),
         ],
@@ -478,7 +487,7 @@ class _BookingRow extends StatelessWidget {
     }
 
     // 'arriving' | 'confirmed'
-    return GestureDetector(
+    return SmoothPress(
       onTap: () => _showDetail(context),
       behavior: HitTestBehavior.opaque,
       child: Row(
@@ -718,13 +727,13 @@ class _BookingDetailSheet extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   child: const Text(
-                    'Start wash',
+                    'Send to live queue',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                 ),
                 const SizedBox(height: 10),
               ],
-              if (slot.status != 'done') ...[
+              if (!_isBookingClosed(slot.status)) ...[
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.vStatusFree,
@@ -734,7 +743,19 @@ class _BookingDetailSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
-                    VendorState.instance.markBookingDone(dayIndex, slotIndex);
+                    final completed = VendorState.instance
+                        .markBookingDone(dayIndex, slotIndex);
+                    if (!completed) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'App jobs must be verified and closed from the live queue.',
+                          ),
+                          backgroundColor: AppTheme.vDanger,
+                        ),
+                      );
+                      return;
+                    }
                     Navigator.of(context).pop();
                   },
                   child: const Text(
@@ -746,21 +767,38 @@ class _BookingDetailSheet extends StatelessWidget {
               ],
               TextButton(
                 style: TextButton.styleFrom(
-                  foregroundColor: AppTheme.vStatusFull,
+                  foregroundColor: AppTheme.vDanger,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () {
+                  final car = slot.jobId == null
+                      ? null
+                      : VendorState.instance.carByJobId(slot.jobId!);
+                  if (car != null) {
+                    final navigatorContext = Navigator.of(
+                      context,
+                      rootNavigator: true,
+                    ).context;
+                    Navigator.of(context).pop();
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (_) => showVendorNonServiceClosure(
+                        navigatorContext,
+                        car,
+                      ),
+                    );
+                    return;
+                  }
                   VendorState.instance.blockSlot(dayIndex, slotIndex);
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Booking cancelled'),
-                      backgroundColor: AppTheme.vStatusFull,
+                      backgroundColor: AppTheme.vDanger,
                     ),
                   );
                 },
                 child: const Text(
-                  'Cancel booking',
+                  'Close outcome',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -771,6 +809,16 @@ class _BookingDetailSheet extends StatelessWidget {
     );
   }
 }
+
+bool _isBookingClosed(String status) => const {
+      'done',
+      'completed',
+      'customerCancelled',
+      'noShow',
+      'vendorCancelled',
+      'leftQueue',
+      'disputed',
+    }.contains(status);
 
 // ── Info row ──────────────────────────────────────────────────────────────────
 

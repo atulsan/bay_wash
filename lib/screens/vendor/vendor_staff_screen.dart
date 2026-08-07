@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/smooth_press.dart';
 import 'vendor_atoms.dart';
 import '../../utils/vendor_state.dart';
 
@@ -167,7 +168,7 @@ class _JoinCodeCard extends StatelessWidget {
                 );
               }),
               const Spacer(),
-              GestureDetector(
+              SmoothPress(
                 onTap: onToggle,
                 child: Container(
                   padding:
@@ -205,65 +206,7 @@ class _JoinCodeCard extends StatelessWidget {
             'Share this code with new team members to let them join.',
             style: TextStyle(fontSize: 12, color: Colors.white60, height: 1.4),
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _CodeAction(
-                  icon: Icons.share_rounded,
-                  label: 'Share',
-                  onTap: () {},
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _CodeAction(
-                  icon: Icons.refresh_rounded,
-                  label: 'Regenerate',
-                  onTap: () {},
-                ),
-              ),
-            ],
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class _CodeAction extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _CodeAction(
-      {required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 9),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 13, color: Colors.white),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -341,9 +284,9 @@ class _PendingCard extends StatelessWidget {
               Expanded(
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.vStatusFull,
+                    foregroundColor: AppTheme.vDanger,
                     side: BorderSide(
-                        color: AppTheme.vStatusFull.withValues(alpha: 0.4)),
+                        color: AppTheme.vDanger.withValues(alpha: 0.4)),
                     padding: const EdgeInsets.symmetric(vertical: 9),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -535,7 +478,7 @@ class _StaffRow extends StatelessWidget {
                   'Remove staff',
                   style: TextStyle(
                     fontSize: 13.5,
-                    color: AppTheme.vStatusFull,
+                    color: AppTheme.vDanger,
                   ),
                 ),
               ),
@@ -739,7 +682,7 @@ class _InviteSheetState extends State<_InviteSheet> {
             childAspectRatio: 3.8,
             children: _roles.map((role) {
               final selected = role == _selectedRole;
-              return GestureDetector(
+              return SmoothPress(
                 onTap: () => setState(() => _selectedRole = role),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 160),

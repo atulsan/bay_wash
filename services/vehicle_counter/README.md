@@ -4,7 +4,8 @@ Demo-only service for counting vehicles beside ADNOC wash bays from a video file
 or RTSP feed. Keep this outside the Flutter app; the app should consume counts
 from the API.
 
-The default is `yolo26n` + `FP16` at 5 FPS on CPU. The Intel Hugging Face repo
+The default is `yolo26n` + `FP16` at 5 FPS on CPU. The demo video loops until
+the service is stopped. The Intel Hugging Face repo
 does not ship prebuilt OpenVINO `.xml/.bin` files, so the service exports and
 caches the OpenVINO model on first startup. Use a prebuilt INT8 model later if
 the final demo machine needs more CPU headroom.
@@ -63,6 +64,11 @@ Open the vendor portal's **Camera** tab, choose a camera zone, then use
 **Edit polygon** or add a new bay zone. Saving writes the normalized points to
 `config/zones.example.json` and reloads the counter immediately.
 
+While a polygon is being dragged or redrawn, the app sends debounced updates to
+`PUT /zones/preview`. The running counter applies those points in memory so the
+zone count responds during calibration. **Save** persists the polygon through
+`PUT /zones`; **Cancel** restores the last saved configuration.
+
 The same file can still be edited directly. Zone points are normalized frame
 coordinates:
 
@@ -74,9 +80,8 @@ coordinates:
 For the demo, draw rough polygons around the visible entry queue and active wash
 bay. The counter uses the center point of each detected vehicle box.
 
-The supplied `adnoc_demo.mp4` is a moving phone video, so these polygons are for
-showing the calibration workflow. Use a fixed CCTV/RTSP view for stable per-bay
-counts because static polygons cannot follow a panning camera.
+The supplied `adnoc_demo.mp4` uses a fixed CCTV view, so saved polygons remain
+aligned while the clip loops.
 
 `GET /zones` returns the current polygons and `PUT /zones` validates, persists,
 and live-reloads a complete zone configuration. The Compose config mount must
@@ -93,6 +98,7 @@ remain writable for vendor-side calibration.
 | `MODEL_CACHE_DIR` | `/models` | Persistent OpenVINO model cache |
 | `DEVICE` | `CPU` | OpenVINO device |
 | `TARGET_FPS` | `5` | Processing FPS |
+| `LOOP_VIDEO` | `true` | Rewind file sources at end-of-file |
 | `ZONE_CONFIG` | `/app/config/zones.example.json` | Zone polygon file |
 | `CONFIDENCE_THRESHOLD` | `0.35` | Detection score threshold |
 | `IOU_THRESHOLD` | `0.45` | NMS threshold |

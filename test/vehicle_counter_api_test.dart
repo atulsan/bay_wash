@@ -39,6 +39,8 @@ void main() {
       'detections': 4,
       'frameWidth': 576,
       'frameHeight': 1024,
+      'loopCount': 2,
+      'loopVideo': true,
       'fpsMeasured': 4.9,
       'updatedAt': '2026-08-07T12:00:00Z',
       'zones': [
@@ -49,6 +51,8 @@ void main() {
     expect(counts.ready, isTrue);
     expect(counts.queueCount, 3);
     expect(counts.frameWidth / counts.frameHeight, closeTo(0.5625, 0.001));
+    expect(counts.loopVideo, isTrue);
+    expect(counts.loopCount, 2);
     expect(counts.zones.single.count, 3);
   });
 }

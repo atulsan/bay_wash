@@ -3,7 +3,6 @@ import 'package:latlong2/latlong.dart';
 import '../models/app_booking.dart';
 import '../models/car_wash.dart';
 import '../l10n/app_localizations.dart';
-import '../screens/booking_status_screen.dart';
 import '../screens/payment_screen.dart';
 import '../services/route_eta_service.dart';
 import '../theme/app_theme.dart';
@@ -396,16 +395,14 @@ class _WashDetailSheetState extends State<WashDetailSheet> {
                         ),
                       ),
                       onPressed: () {
-                        final booking = AppBooking.walkIn(
-                          wash: wash,
-                          packageName: l10n.t('standard_wash'),
-                          price: wash.priceStandard,
-                          interiorCleaningNeeded: true,
-                          etaMinutes: eta?.totalMinutes,
-                        );
                         Navigator.of(context).pop();
                         Navigator.of(context).push(
-                          slideUpRoute(BookingStatusScreen(booking: booking)),
+                          slideUpRoute(
+                            PaymentScreen(
+                              wash: wash,
+                              bookingType: AppBookingType.walkIn,
+                            ),
+                          ),
                         );
                       },
                     ),

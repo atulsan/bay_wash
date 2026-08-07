@@ -88,6 +88,18 @@ def update_zones(payload: dict[str, Any]):
     return zone_config_to_dict(zone_config)
 
 
+@app.put("/zones/preview")
+def preview_zones(payload: dict[str, Any]):
+    if counter is None:
+        raise HTTPException(status_code=503, detail="counter_not_started")
+    try:
+        zone_config = parse_zone_config(payload)
+    except (KeyError, TypeError, ValueError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    counter.update_zone_config(zone_config)
+    return zone_config_to_dict(zone_config)
+
+
 @app.get("/snapshot.jpg")
 def snapshot():
     if counter is None:

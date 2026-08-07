@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/car_wash.dart';
 import '../theme/app_theme.dart';
+import 'smooth_press.dart';
 
 class WashMarker extends StatelessWidget {
   final CarWash wash;
@@ -20,7 +21,6 @@ class WashMarker extends StatelessWidget {
   Color get _color => switch (wash.status) {
         WashStatus.free => AppTheme.statusFree,
         WashStatus.busy => AppTheme.statusBusy,
-        WashStatus.full => AppTheme.statusFull,
       };
 
   String get _label => routeEtaMinutes != null
@@ -30,7 +30,7 @@ class WashMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _color;
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: AnimatedScale(
         duration: const Duration(milliseconds: 180),

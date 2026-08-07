@@ -3,6 +3,7 @@ import '../models/car_wash.dart';
 import '../l10n/app_localizations.dart';
 import '../services/route_eta_service.dart';
 import '../theme/app_theme.dart';
+import 'smooth_press.dart';
 
 class WashListCard extends StatelessWidget {
   final CarWash wash;
@@ -36,11 +37,10 @@ class WashListCard extends StatelessWidget {
     final availableBays = switch (wash.status) {
       WashStatus.free => 8 - wash.carsInQueue,
       WashStatus.busy => 5 - wash.carsInQueue ~/ 2,
-      WashStatus.full => 0,
     }
         .clamp(0, 9);
 
-    return GestureDetector(
+    return SmoothPress(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
@@ -64,9 +64,7 @@ class WashListCard extends StatelessWidget {
               width: 58,
               height: 48,
               decoration: BoxDecoration(
-                color: wash.status == WashStatus.full
-                    ? const Color(0xFF8B929B)
-                    : AppTheme.bayTeal,
+                color: AppTheme.bayTeal,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Stack(

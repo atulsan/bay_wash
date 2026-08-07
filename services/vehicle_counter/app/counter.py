@@ -25,6 +25,7 @@ class CounterState:
     updated_at: str | None = None
     frame_width: int = 0
     frame_height: int = 0
+    loop_count: int = 0
     raw_frame: bytes | None = None
     annotated_frame: bytes | None = None
 
@@ -92,6 +93,8 @@ class VideoVehicleCounter:
                 "frameIndex": self.state.frame_index,
                 "frameWidth": self.state.frame_width,
                 "frameHeight": self.state.frame_height,
+                "loopCount": self.state.loop_count,
+                "loopVideo": self.settings.loop_video,
                 "queueCount": self.state.queue_count,
                 "inWashCount": self.state.in_wash_count,
                 "zones": zones,
@@ -121,8 +124,15 @@ class VideoVehicleCounter:
         while not self._stop.is_set():
             ok, frame = capture.read()
             if not ok:
-                capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                continue
+                if self.settings.loop_video:
+                    if not capture.set(cv2.CAP_PROP_POS_FRAMES, 0):
+                        self._set_error("Could not rewind video source")
+                        break
+                    with self._lock:
+                        self.state.loop_count += 1
+                    continue
+                self._set_error("Video source ended")
+                break
 
             frame_index = int(capture.get(cv2.CAP_PROP_POS_FRAMES))
             if frame_index % frame_stride != 0:
